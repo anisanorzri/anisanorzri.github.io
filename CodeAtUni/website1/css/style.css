@@ -1,0 +1,17 @@
+/*element selector*/
+
+body { color:blue; background-color: #8A2BE2; background-image:url("../img/grumpycat.jpg"); 
+background-repeat: no-repeat;
+}
+
+
+/*class selector*/
+
+.minions {color:red;}
+
+/*id selector*/
+
+#para1 { color :pink; }
+
+/*div*/
+.first-div {background-color: grey:margin left;}
