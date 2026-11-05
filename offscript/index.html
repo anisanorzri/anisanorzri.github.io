@@ -504,7 +504,7 @@ const so=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){const 
 document.querySelectorAll('.step').forEach(s=>so.observe(s));
 
 // sign-up: saves to the Go Offscript Google Sheet (see offscript/README.md)
-const SHEET_URL='';
+const SHEET_URL='https://script.google.com/macros/s/AKfycbz8EqiUfxListmgDqZeRAmMBkYInHXlXS4O2I8gu3qUOgQhGyiCelidYmxbvud3UAXW/exec';
 function newCode(){const a=new Uint8Array(12);crypto.getRandomValues(a);return 'GOS-'+[...a].map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase()}
 function saved(email){try{return JSON.parse(localStorage.getItem('gos-claim')||'null')}catch(e){return null}}
 document.querySelectorAll('[data-form]').forEach(f=>f.addEventListener('submit',async ev=>{ev.preventDefault();
