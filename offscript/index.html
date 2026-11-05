@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Go Offscript: your first week free</title>
+<meta name="description" content="Try Go Offscript in four steps, from your CV to jobs, events, fellowships and people, then reserve your first week free.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Plus+Jakarta+Sans:wght@800&display=swap" rel="stylesheet">
+<style>
+/* layout: a guided tour of the app in four numbered steps, one choice of CV carried through all of them, and the early-bird pass with the only sign-up at the very end */
+:root{
+  color-scheme:light;
+  --orange:#ef602d; --orange-deep:#b83a10;
+  --ink:#292138; --muted:#463d50;
+  --paper:#fcfcfb; --ground:#ededec; --tone:#e2e1df;
+  --lime:#d8f797; --pink:#ffd9eb; --app:#fbf3ec;
+  --display:clamp(48px,5.6vw,88px);
+  --h2:clamp(34px,3.8vw,56px);
+  --h3:clamp(22px,2vw,28px);
+  --lead:clamp(19px,1.5vw,22px);
+  --body:17px; --small:14px;
+  --m:clamp(16px,2.4vw,36px);
+  --head:"Plus Jakarta Sans",system-ui,sans-serif;
+  --text:"DM Sans",system-ui,sans-serif;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--ground);color:var(--ink);font:400 var(--body)/1.55 var(--text);-webkit-font-smoothing:antialiased}
+img,video{display:block;max-width:100%}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.on-dark :focus-visible{outline-color:var(--lime)}
+h1,h2,h3{font-family:var(--head);font-weight:800;letter-spacing:-.035em;line-height:.98;text-wrap:balance}
+.sr{position:absolute;left:-999px}
+.skip{position:absolute;left:-999px;top:8px;background:var(--ink);color:var(--paper);padding:10px 14px;z-index:30}
+.skip:focus{left:var(--m)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;font:700 var(--body)/1 var(--text);border:0;cursor:pointer;text-decoration:none;padding:0 24px;height:58px;transition:transform .18s var(--ease),background-color .18s var(--ease)}
+.btn:active{transform:translateY(2px) scale(.99)}
+.btn-ink{background:var(--ink);color:var(--paper)}.btn-ink:hover{background:#3d3350}
+.btn-accent{background:var(--orange);color:var(--ink)}.btn-accent:hover{background:#f37a4d}
+.btn-paper{background:var(--paper);color:var(--ink)}.btn-paper:hover{background:#fff}
+.arrow{display:inline-block;transition:transform .2s var(--ease)}
+.btn:hover .arrow{transform:translateY(3px)}
+
+/* ---------- hero ---------- */
+.hero{background:var(--orange)}
+.bar{display:flex;justify-content:space-between;align-items:center;padding:22px var(--m)}
+.mark{font:800 22px/1 var(--head);letter-spacing:-.04em;text-decoration:none}
+.bar a.plain{font-weight:700;text-underline-offset:4px}
+.lead{display:grid;grid-template-columns:repeat(12,1fr);gap:24px;padding:clamp(40px,6vw,88px) var(--m) 0;align-items:end}
+.lead .txt{grid-column:1/8;padding-bottom:clamp(56px,7vw,112px)}
+.lead h1{font-size:var(--display);max-width:11ch}
+.lead .what{font-size:var(--lead);line-height:1.45;max-width:36ch;margin-top:32px}
+.lead .pick{margin-top:40px}
+.lead .pick p{font-weight:700;margin-bottom:12px}
+.cvs{display:flex;flex-wrap:wrap;gap:8px}
+.cvs button{height:52px;padding:0 20px;border:0;background:var(--paper);font-weight:700;cursor:pointer;transition:background-color .2s,color .2s,transform .15s}
+.cvs button:hover{background:#fff}
+.cvs button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.cvs button:active{transform:scale(.98)}
+.lead .go{margin-top:20px}
+.lead .shot{grid-column:8/13;background:var(--paper);padding:28px 28px 0;justify-self:end;width:min(100%,400px)}
+.lead .shot img{width:100%;height:auto;aspect-ratio:340/560;object-fit:cover;object-position:top}
+.lead .shot figcaption{font-size:var(--small);padding:14px 0 18px}
+
+/* ---------- progress ---------- */
+.progress{position:sticky;top:0;z-index:10;background:var(--ink);color:var(--paper)}
+.progress ol{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);padding:0 var(--m)}
+.progress a{display:flex;align-items:center;gap:10px;height:56px;text-decoration:none;font-weight:500;color:#cfc8d6;border-bottom:4px solid transparent;transition:color .2s,border-color .2s}
+.progress a b{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#43395a;color:var(--paper);font-size:var(--small);flex:none;transition:background-color .2s,color .2s}
+.progress a.on{color:var(--paper);border-color:var(--orange)}
+.progress a.on b,.progress a.past b{background:var(--orange);color:var(--ink)}
+
+/* ---------- steps ---------- */
+.step{display:grid;grid-template-columns:repeat(12,1fr);gap:24px;padding:clamp(96px,11vw,170px) var(--m);align-items:center;scroll-margin-top:56px}
+.step .txt{grid-column:1/6}
+.step .num{display:inline-grid;place-items:center;width:64px;height:64px;border-radius:50%;background:var(--orange);color:var(--ink);font:800 30px/1 var(--head);margin-bottom:28px}
+.step h2{font-size:var(--h2);max-width:12ch}
+.step .txt>p{font-size:var(--lead);line-height:1.45;max-width:34ch;margin-top:24px}
+.step .txt .doit{margin-top:20px;font-size:var(--body);font-weight:700}
+.step .stage{grid-column:7/13;min-height:560px;display:grid;place-items:center;padding:40px}
+.s-cv{background:var(--paper)}.s-cv .stage{background:var(--lime)}
+.s-chat{background:var(--pink)}.s-chat .stage{background:var(--paper)}
+.s-swipe{background:var(--paper)}.s-swipe .stage{background:var(--orange)}
+.s-reach{background:var(--ink);color:var(--paper)}.s-reach .stage{background:#3a3150}
+.s-reach .num{background:var(--lime)}
+
+/* app fragments (data-ui keeps the app's own look) */
+.app{width:min(100%,400px);background:var(--app);border-radius:22px;padding:22px;color:var(--ink);font-size:15px;line-height:1.45}
+.bubble{background:#fff;border-radius:16px;padding:14px 16px}
+.bubble .who{display:flex;align-items:center;gap:8px;font-weight:700;margin-bottom:6px}
+.bubble .who{gap:10px}
+.nv{width:34px;height:34px;border-radius:50%;background:#f8e1d8;display:grid;place-items:center;flex:none}
+.nn{display:flex;flex-direction:column;line-height:1.15}
+.nn b{font-weight:800}
+.nn small{font-size:12px;font-weight:500;color:#6b6070;display:flex;align-items:center;gap:5px}
+.live{width:7px;height:7px;border-radius:50%;background:#3fbf6a;display:inline-block}
+.drop{margin-top:14px;border-radius:16px;background:#fff;padding:16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.drop b{display:block}
+.drop span{font-size:13px;color:#6b6070}
+.drop button{height:40px;padding:0 16px;border-radius:20px;border:0;background:var(--orange);color:var(--ink);font-weight:700;cursor:pointer;flex:none}
+.drop button:disabled{background:#d9f6c7;color:#1f5a35}
+.found{margin-top:16px}
+.found>span{font-size:13px;color:#6b6070}
+.chipset{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chipset i{font-style:normal;background:var(--orange);color:#fff;border-radius:14px;padding:5px 12px;font-size:13px;font-weight:700;animation:pop .35s var(--ease) both;animation-delay:calc(var(--k)*90ms)}
+@keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.opts button{background:#fff;border:2px solid transparent;border-radius:14px;padding:12px;font-weight:700;cursor:pointer;text-align:left;transition:border-color .2s,background-color .2s,transform .15s}
+.opts button:hover{border-color:#f3b49b}
+.opts button[aria-pressed="true"]{border-color:var(--orange);background:#fff1ea}
+.opts button:active{transform:scale(.98)}
+.opts.ab{grid-template-columns:1fr}
+.opts.ab button{color:var(--orange-deep);border-color:#f3b49b}
+.me{margin:14px 0 0 auto;max-width:80%;background:var(--orange);color:#fff;border-radius:16px;padding:12px 14px;font-weight:500}
+.dots{display:flex;gap:6px;margin-top:16px;justify-content:center}
+.dots i{width:8px;height:8px;border-radius:50%;background:#e4c6b8}
+.dots i.on{background:var(--orange);width:22px;border-radius:4px}
+.next{margin-top:16px;width:100%;height:48px;border:0;border-radius:24px;background:var(--orange);color:var(--ink);font-weight:700;cursor:pointer}
+.next[hidden]{display:none}
+
+/* swipe */
+.deck{position:relative;width:min(100%,380px);aspect-ratio:3/4}
+.card{position:absolute;inset:0;background:var(--app);border-radius:22px;padding:24px;display:flex;flex-direction:column;gap:12px;font-size:15px;transition:transform .45s var(--ease),opacity .45s var(--ease)}
+.card .top{display:flex;justify-content:space-between;font-weight:700;font-size:13px}
+.card .top .sig{background:#ffe1d4;color:var(--orange-deep);border-radius:12px;padding:3px 10px}
+.card .top .pc{color:var(--orange-deep)}
+.card h3{font-size:var(--h3);line-height:1.05}
+.card .have{margin-top:auto}
+.card .have em{font-style:normal;font-weight:700;font-size:13px;display:block;margin-bottom:6px}
+.card .chipset i{background:#d9f6c7;color:#1f5a35;animation:none}
+.card .gap{margin-top:10px}
+.card .gap .chipset i{background:#ffe1d4;color:var(--orange-deep)}
+.card .yn{display:flex;justify-content:center;gap:16px;margin-top:8px}
+.card .yn button{width:52px;height:52px;border-radius:50%;border:0;cursor:pointer;display:grid;place-items:center;font-weight:700;transition:transform .15s}
+.card .yn button:hover{transform:scale(1.08)}
+.card .yn .n{background:#ffe1d4;color:var(--orange-deep)}
+.card .yn .y{background:#d9f6c7;color:#1f5a35}
+.card.out-l{transform:translateX(-120%) rotate(-12deg);opacity:0}
+.card.out-r{transform:translateX(120%) rotate(12deg);opacity:0}
+.card.back{transform:translateY(14px) scale(.96)}
+.done{position:absolute;inset:0;border-radius:22px;background:var(--ink);color:var(--paper);padding:28px;display:flex;flex-direction:column;justify-content:center;gap:14px}
+.done h3{font-size:var(--h3)}
+
+/* reach */
+.reach{display:grid;gap:12px;width:min(100%,420px)}
+.opp{background:var(--app);border-radius:18px;padding:18px;color:var(--ink);font-size:15px}
+.opp .k{font-size:13px;font-weight:700;color:var(--orange-deep)}
+.opp h3{font-size:19px;letter-spacing:-.02em;line-height:1.15;margin:4px 0 6px}
+.opp .why{font-size:14px}
+.person{display:flex;gap:14px;align-items:flex-start}
+.rtabs{display:flex;gap:6px;flex-wrap:wrap}
+.rtabs button{height:38px;padding:0 14px;border-radius:19px;border:0;background:#4a4063;color:var(--paper);font-weight:700;font-size:14px;cursor:pointer;transition:background-color .2s,color .2s}
+.rtabs button:hover{background:#574c72}
+.rtabs button[aria-selected="true"]{background:var(--lime);color:var(--ink)}
+.rpanel[hidden]{display:none}
+.opp .meta{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.opp .meta span{font-size:13px;font-weight:700}
+.av{width:48px;height:48px;border-radius:50%;background:var(--lime);display:grid;place-items:center;font-weight:800;flex:none}
+.person .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.pill{height:38px;padding:0 14px;border-radius:19px;border:0;font-weight:700;font-size:14px;cursor:pointer}
+.pill.o{background:var(--orange);color:var(--ink)}
+.pill.soon{background:var(--ink);color:var(--paper);display:inline-flex;align-items:center;gap:8px}
+.pill.soon small{background:var(--lime);color:var(--ink);border-radius:8px;padding:2px 6px;font-size:12px}
+.draft{margin-top:12px;background:#fff;border-radius:12px;padding:12px;font-size:14px}
+.draft[hidden]{display:none}
+
+/* ---------- questions ---------- */
+.faq{display:grid;grid-template-columns:repeat(12,1fr);gap:24px;padding:clamp(110px,13vw,190px) var(--m)}
+.faq h2{grid-column:1/4;font-size:clamp(26px,2.4vw,34px)}
+.faq .qa{grid-column:5/13;columns:2;column-gap:56px}
+.faq .qa p{break-inside:avoid;margin-bottom:20px;max-width:38ch}
+.faq .qa a{text-underline-offset:3px}
+
+/* ---------- the pass, the only sign-up ---------- */
+.close{overflow:hidden;background:var(--orange);padding:clamp(80px,9vw,140px) var(--m)}
+.pass{position:relative;width:min(900px,100%);margin:0 auto;background:var(--paper);padding:64px 56px 0;text-align:center}
+.pass .c{position:absolute;width:44px;height:44px;border-radius:50%;background:var(--orange)}
+.pass .c.tl{left:-22px;top:-22px}.pass .c.tr{right:-22px;top:-22px}.pass .c.bl{left:-22px;bottom:-22px}.pass .c.br{right:-22px;bottom:-22px}
+.pass h2{font-size:var(--display);line-height:.94}
+.pass .sub{font-size:var(--lead);margin:24px auto 0;max-width:36ch}
+.pass form{max-width:540px;margin:36px auto 0;text-align:left}
+.row{display:flex}
+.row input{flex:1;min-width:0;height:60px;border:2px solid var(--ink);border-right:0;background:var(--paper);font:400 18px var(--text);padding:0 16px;color:var(--ink)}
+.row input::placeholder{color:#7a7083}
+.row .btn{height:60px}
+.consent{display:flex;gap:12px;align-items:flex-start;margin-top:14px;font-size:var(--small);line-height:1.45}
+.consent input{width:22px;height:22px;margin-top:1px;accent-color:var(--ink);flex:none}
+.msg{margin-top:10px;font-size:var(--small);font-weight:700;min-height:1.4em}
+.perf{margin:44px -56px 0;border-top:6px dotted var(--orange)}
+.stub{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:26px 0 48px;text-align:left;font-size:var(--small)}
+.stub b{display:block;font:700 var(--body)/1.3 var(--text)}
+.stub span{color:var(--muted)}
+
+footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px 32px;padding:28px var(--m);background:var(--ink);color:var(--paper)}
+footer .mark{font-size:clamp(28px,3vw,40px)}
+footer ul{display:flex;gap:24px;list-style:none;flex-wrap:wrap}
+footer a{text-underline-offset:3px}
+footer small{font-size:var(--small);width:100%}
+
+/* motion */
+.js .rise{opacity:0;transform:translateY(24px);transition:opacity .7s var(--ease),transform .7s var(--ease);transition-delay:calc(var(--i,0)*75ms)}
+.js .rise.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .js .rise{opacity:1;transform:none}
+}
+
+@media (max-width:1000px){
+  .lead .txt{grid-column:1/13;padding-bottom:40px}.lead .shot{grid-column:1/13;justify-self:start;width:min(100%,340px)}
+  .step .txt,.step .stage{grid-column:1/13}
+  .step .stage{min-height:0;margin-top:24px}
+  .faq h2,.faq .qa{grid-column:1/13}
+  .stub{grid-template-columns:1fr 1fr}
+}
+@media (max-width:640px){
+  :root{--body:16px}
+  .lead h1{font-size:12vw}
+  .lead .shot{width:72%;padding:18px 18px 0}
+  .progress ol{padding:0 8px}
+  .progress a{justify-content:center;font-size:0;gap:0}
+  .progress a b{font-size:14px}
+  .step{padding:88px 16px}
+  .step .num{width:52px;height:52px;font-size:24px;margin-bottom:20px}
+  .step .stage{padding:20px 12px;margin-inline:-4px}
+  .opts{grid-template-columns:1fr 1fr}
+  .faq{padding:100px 20px 80px}.faq .qa{columns:1}
+  .close{padding:56px 12px}
+  .pass{padding:44px 20px 0}
+  .pass .c{width:32px;height:32px}.pass .c.tl{left:-16px;top:-16px}.pass .c.tr{right:-16px;top:-16px}.pass .c.bl{left:-16px;bottom:-16px}.pass .c.br{right:-16px;bottom:-16px}
+  .pass h2{font-size:10.4vw}
+  .row{flex-direction:column}
+  .row input{flex:none;height:56px;border-right:2px solid var(--ink);border-bottom:0}
+  .row .btn{width:100%}
+  .perf{margin:36px -20px 0}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#step-1">Skip to the tour</a>
+<main>
+
+<header class="hero" id="top">
+  <div class="bar">
+    <a class="mark" href="#top" aria-label="go offscript, home">go offscript</a>
+    <a class="plain" href="#reserve">free first week ↓</a>
+  </div>
+  <div class="lead">
+    <div class="txt">
+      <h1 class="rise">your degree isn't your script</h1>
+      <p class="what rise" style="--i:1">Go Offscript is a career app for students and grads. Take the four-step tour below and see what Nova finds for you. No sign-up needed.</p>
+      <div class="pick rise" style="--i:2">
+        <p id="pick-label">Start with an example CV:</p>
+        <div class="cvs" role="group" aria-labelledby="pick-label" data-cvs>
+          <button type="button" aria-pressed="true" data-cv="eng">engineering</button>
+          <button type="button" aria-pressed="false" data-cv="hist">history</button>
+          <button type="button" aria-pressed="false" data-cv="biz">business</button>
+        </div>
+        <a class="btn btn-ink go" href="#step-1">start the tour <span class="arrow" aria-hidden="true">↓</span></a>
+      </div>
+    </div>
+    <figure class="shot rise" style="--i:2">
+      <img src="img/path-match.jpg" width="340" height="814" alt="A real screen from the app: a career path card, medtech technology-transfer associate, 76% match">
+      <figcaption>A real path card from the app. You get there in step 3.</figcaption>
+    </figure>
+  </div>
+</header>
+
+<nav class="progress on-dark" aria-label="Tour steps">
+  <ol>
+    <li><a href="#step-1" data-prog="1"><b>1</b> drop your CV</a></li>
+    <li><a href="#step-2" data-prog="2"><b>2</b> chat with Nova</a></li>
+    <li><a href="#step-3" data-prog="3"><b>3</b> swipe your paths</a></li>
+    <li><a href="#step-4" data-prog="4"><b>4</b> find your way in</a></li>
+  </ol>
+</nav>
+
+<section class="step s-cv" id="step-1" aria-labelledby="t1">
+  <div class="txt">
+    <span class="num" aria-hidden="true">1</span>
+    <h2 id="t1" class="rise">drop your CV</h2>
+    <p class="rise" style="--i:1">Upload a PDF in any format. Nova reads it and pulls out your real skills in seconds, including the ones you would never think to list.</p>
+    <p class="doit rise" style="--i:2">Try it: press upload.</p>
+  </div>
+  <div class="stage">
+    <div class="app" data-ui>
+      <div class="bubble"><div class="who"><span class="nv" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 1.5c.6 5.6 4.9 9.9 10.5 10.5-5.6.6-9.9 4.9-10.5 10.5C11.4 16.9 7.1 12.6 1.5 12 7.1 11.4 11.4 7.1 12 1.5z" fill="#1d1a22"/></svg></span><span class="nn"><b>nova</b><small><i class="live" aria-hidden="true"></i>online</small></span></div>okayy, drop your CV. i can see what you're actually into, not just what looks good on paper.</div>
+      <div class="drop"><div><b data-file>engineering_cv.pdf</b><span data-filestate>ready to upload</span></div><button type="button" data-upload>upload</button></div>
+      <div class="found" data-found hidden><span>skills nova spotted in your CV</span><div class="chipset" data-skills></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="step s-chat" id="step-2" aria-labelledby="t2">
+  <div class="txt">
+    <span class="num" aria-hidden="true">2</span>
+    <h2 id="t2" class="rise">chat with Nova</h2>
+    <p class="rise" style="--i:1">A short chat about your values, style and ambitions. Less quiz, more smart friend who has read your CV properly.</p>
+    <p class="doit rise" style="--i:2">Try it: pick what matters to you.</p>
+  </div>
+  <div class="stage">
+    <div class="app" data-ui>
+      <div class="bubble"><div class="who"><span class="nv" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 1.5c.6 5.6 4.9 9.9 10.5 10.5-5.6.6-9.9 4.9-10.5 10.5C11.4 16.9 7.1 12.6 1.5 12 7.1 11.4 11.4 7.1 12 1.5z" fill="#1d1a22"/></svg></span><span class="nn"><b>nova</b><small><i class="live" aria-hidden="true"></i>online</small></span></div>okay, let's get to the real stuff. what actually matters to you in a career? pick everything that feels true.</div>
+      <div class="opts" data-values>
+        <button type="button" aria-pressed="false">building things</button><button type="button" aria-pressed="false">community</button>
+        <button type="button" aria-pressed="false">creativity</button><button type="button" aria-pressed="false">discovery</button>
+        <button type="button" aria-pressed="false">financial security</button><button type="button" aria-pressed="false">making impact</button>
+      </div>
+      <div data-q2 hidden>
+        <p class="me" data-mine></p>
+        <div class="bubble" style="margin-top:14px"><div class="who"><span class="nv" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 1.5c.6 5.6 4.9 9.9 10.5 10.5-5.6.6-9.9 4.9-10.5 10.5C11.4 16.9 7.1 12.6 1.5 12 7.1 11.4 11.4 7.1 12 1.5z" fill="#1d1a22"/></svg></span><span class="nn"><b>nova</b><small><i class="live" aria-hidden="true"></i>online</small></span></div>love that. which direction feels more exciting right now?</div>
+        <div class="opts ab" data-dir></div>
+      </div>
+      <div data-q3 hidden>
+        <p class="me" data-mine2></p>
+        <div class="bubble" style="margin-top:14px"><div class="who"><span class="nv" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 1.5c.6 5.6 4.9 9.9 10.5 10.5-5.6.6-9.9 4.9-10.5 10.5C11.4 16.9 7.1 12.6 1.5 12 7.1 11.4 11.4 7.1 12 1.5z" fill="#1d1a22"/></svg></span><span class="nn"><b>nova</b><small><i class="live" aria-hidden="true"></i>online</small></span></div>got it. your paths are ready.</div>
+        <a class="next" href="#step-3" style="display:grid;place-items:center;text-decoration:none">see my paths ↓</a>
+      </div>
+      <div class="dots" aria-hidden="true"><i></i><i></i><i></i><i class="on"></i><i></i></div>
+    </div>
+  </div>
+</section>
+
+<section class="step s-swipe" id="step-3" aria-labelledby="t3">
+  <div class="txt">
+    <span class="num" aria-hidden="true">3</span>
+    <h2 id="t3" class="rise">swipe your paths</h2>
+    <p class="rise" style="--i:1">Nova deals you career paths, each with a match rate, the skills you already have and what needs work. Keep the ones that feel like you, skip the rest.</p>
+    <p class="doit rise" style="--i:2">Try it: tick or cross, or swipe the card.</p>
+  </div>
+  <div class="stage">
+    <div class="deck" data-deck data-ui aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="step s-reach on-dark" id="step-4" aria-labelledby="t4">
+  <div class="txt">
+    <span class="num" aria-hidden="true">4</span>
+    <h2 id="t4" class="rise">find your way in</h2>
+    <p class="rise" style="--i:1">For the paths you kept, Nova finds jobs, events from Luma, fellowships and the people already doing the work, with your first message drafted.</p>
+    <p class="doit rise" style="--i:2">Try it: switch between the tabs.</p>
+  </div>
+  <div class="stage">
+    <div class="reach" data-ui>
+      <div class="rtabs" role="tablist" aria-label="Ways in">
+        <button role="tab" aria-selected="true" data-rt="jobs">jobs</button><button role="tab" aria-selected="false" data-rt="events">events</button><button role="tab" aria-selected="false" data-rt="fellow">fellowships</button><button role="tab" aria-selected="false" data-rt="people">people</button>
+      </div>
+      <div class="rpanel" data-rp="jobs"><div class="opp" data-opp></div></div>
+      <div class="rpanel" data-rp="events" hidden><div class="opp" data-event></div></div>
+      <div class="rpanel" data-rp="fellow" hidden><div class="opp" data-fellow></div></div>
+      <div class="rpanel" data-rp="people" hidden>
+      <div class="opp">
+        <div class="person">
+          <span class="av" aria-hidden="true" data-initials>SR</span>
+          <div>
+            <h3 data-pname>Sam R., example mentor</h3>
+            <p class="why" data-prole>Associate at a medtech venture studio</p>
+            <div class="acts">
+              <button class="pill o" type="button" data-drafttoggle aria-expanded="false">draft my message</button>
+              <span class="pill soon">email directly <small>soon</small></span>
+            </div>
+            <p class="draft" data-draft hidden></p>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="faq" id="faq" aria-labelledby="faq-title">
+  <h2 id="faq-title" class="rise">good questions</h2>
+  <div class="qa rise" style="--i:1">
+    <p><b>Is that really the app?</b> The tour uses example CVs and paths. In the app, everything comes from your own CV and your chat with Nova.</p>
+    <p><b>What does it cost?</b> Early birds get their first week free. No payment to reserve, one free week per email.</p>
+    <p><b>When can I use it?</b> When the app launches. We email the activation details to the address you reserved with.</p>
+    <p><b>Lost your code?</b> It is saved with your email. At launch, sign up with the same email and your free week fills in automatically.</p>
+    <p><b>What do you keep?</b> Your email, code, consent and when you reserved, only to hold your week. Stop emails or delete it any time through <a href="https://go-offscript.vercel.app/support">support</a>. See the <a href="https://go-offscript.vercel.app/privacy">privacy policy</a>.</p>
+  </div>
+</section>
+
+<section class="close" id="reserve" aria-labelledby="pass-title">
+  <div class="pass">
+    <span class="c tl" aria-hidden="true"></span><span class="c tr" aria-hidden="true"></span><span class="c bl" aria-hidden="true"></span><span class="c br" aria-hidden="true"></span>
+    <h2 id="pass-title" class="rise">your first week is on us</h2>
+    <p class="sub rise" style="--i:1">Liked the taste? Reserve a free week now and use it when the app opens.</p>
+    <form class="rise" style="--i:2" novalidate data-form>
+      <label class="sr" for="email">Your email</label>
+      <div class="row">
+        <input id="email" name="email" type="email" autocomplete="email" placeholder="you@uni.ac.uk" required>
+        <button class="btn btn-accent" type="submit">reserve my free week</button>
+      </div>
+      <label class="consent"><input type="checkbox" required> <span>Email me my free-week details when the app launches.</span></label>
+      <p class="msg" role="status" aria-live="polite"></p>
+    </form>
+    <div class="perf" aria-hidden="true"></div>
+    <div class="stub">
+      <p><b>admit one</b><span>one free week per email</span></p>
+      <p><b>valid at launch</b><span>details by email</span></p>
+      <p><b>no payment</b><span>to reserve or to try</span></p>
+      <p><b>your code</b><span>shown right after you reserve</span></p>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer>
+  <a class="mark" href="#top">go offscript</a>
+  <ul><li><a href="https://go-offscript.vercel.app/support">say hello</a></li><li><a href="https://go-offscript.vercel.app/privacy">privacy</a></li><li><a href="https://go-offscript.vercel.app/terms">terms</a></li></ul>
+  <small>your life. your script.</small>
+</footer>
+
+<script>
+document.documentElement.classList.add('js');
+const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.15});
+document.querySelectorAll('.rise').forEach(el=>io.observe(el));
+
+// example content per CV
+const D={
+ eng:{file:'engineering_cv.pdf',skills:['research design','biomaterials','hydrogel synthesis','SEM analysis','cell culture','Arduino prototyping'],
+   dirs:['building a deep-tech venture in healthcare','bold ideas across different industries'],
+   paths:[["passion signal","76% match","medtech tech-transfer associate","Help turn biomaterials research into products, at a venture studio or university spinout office.",["biomaterials","research design"],["venture finance basics","IP and licensing"]],
+          ["skills signal","71% match","climate hardware engineer","Take lab and prototyping skills into a start-up building physical products for decarbonisation.",["Arduino prototyping","SEM analysis"],["CAD for manufacturing","product costing"]],
+          ["values signal","64% match","science policy researcher","Use technical depth to shape how governments fund and regulate new materials.",["research design","cell culture"],["policy writing","stakeholder briefings"]]],
+   opp:['internship','healthtech venture internship, autumn cohort','Fits because it pairs early-stage deep-tech ventures with your lab background.'],
+   person:['SR','Sam R., example mentor','Associate at a medtech venture studio'],
+   event:['Thu 4 Feb · 6:30pm · London','deep-tech founders meetup','Scientists and engineers swapping notes on starting companies.'],
+   fellow:['applications close 15 Mar','early-stage deep-tech fellowship','A 12-week programme for researchers thinking about starting a company.']},
+ hist:{file:'history_cv.pdf',skills:['archival research','essay writing','curation','public speaking','Spanish','source analysis'],
+   dirs:['telling stories people actually open','shaping decisions in public life'],
+   paths:[["passion signal","79% match","museum digital producer","Turn collections into stories people actually open, from podcasts to online exhibitions.",["curation","archival research"],["video editing","audience analytics"]],
+          ["skills signal","72% match","public affairs analyst","Research, brief and argue clearly for a charity or public body.",["source analysis","essay writing"],["policy frameworks","data handling"]],
+          ["values signal","66% match","UX researcher","Interview people and find patterns in what they say, for teams building products.",["public speaking","Spanish"],["research methods","prototyping tools"]]],
+   opp:['project','digital storytelling project at a regional museum','Fits because it uses your archive work and asks for someone who can write.'],
+   person:['JM','Jo M., example mentor','Digital producer at a city museum'],
+   event:['Wed 10 Feb · 6pm · online','museums and digital careers evening','Producers and curators on how they moved from research into digital roles.'],
+   fellow:['applications close 1 Apr','public history writing fellowship','Six months of paid writing for a heritage charity, with an editor.']},
+ biz:{file:'business_cv.pdf',skills:['Excel modelling','market research','presenting','budgeting','project management','social media'],
+   dirs:['work that measurably helps the planet','building something of my own'],
+   paths:[["passion signal","77% match","sustainability analyst","Help a company measure and cut its footprint, and report it honestly.",["Excel modelling","presenting"],["carbon accounting","ESG reporting"]],
+          ["skills signal","73% match","start-up operations associate","Be the person who makes an early team run, from hiring to finance.",["project management","budgeting"],["hiring processes","finance tools"]],
+          ["values signal","65% match","social enterprise founder","Test a small idea with real customers before a grad scheme decides for you.",["market research","social media"],["fundraising","customer interviews"]]],
+   opp:['graduate role','graduate sustainability analyst at a consumer brand','Fits because the team wants modelling and clear presenting.'],
+   person:['AK','Alex K., example mentor','Sustainability lead at a consumer brand'],
+   event:['Tue 16 Feb · 6:30pm · London','climate careers evening for graduates','Meet analysts and founders hiring for sustainability roles.'],
+   fellow:['applications close 28 Feb','social enterprise fellowship','Funding and mentoring to test a small idea with real customers.']}};
+let cv='eng';
+
+// step 1
+const upBtn=document.querySelector('[data-upload]');
+function resetCV(){document.querySelector('[data-file]').textContent=D[cv].file;document.querySelector('[data-filestate]').textContent='ready to upload';upBtn.disabled=false;upBtn.textContent='upload';document.querySelector('[data-found]').hidden=true}
+upBtn.onclick=()=>{upBtn.disabled=true;upBtn.textContent='reading…';
+  setTimeout(()=>{upBtn.textContent='done';document.querySelector('[data-filestate]').textContent='skills extracted';
+    const box=document.querySelector('[data-skills]');box.innerHTML=D[cv].skills.map((s,k)=>`<i style="--k:${k}">${s}</i>`).join('');document.querySelector('[data-found]').hidden=false},reduce?0:700)};
+
+// step 2
+const vals=document.querySelectorAll('[data-values] button');
+function resetChat(){vals.forEach(b=>b.setAttribute('aria-pressed','false'));document.querySelector('[data-q2]').hidden=true;document.querySelector('[data-q3]').hidden=true}
+vals.forEach(b=>b.onclick=()=>{b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true');
+  const on=[...vals].filter(x=>x.getAttribute('aria-pressed')==='true').map(x=>x.textContent);
+  const q2=document.querySelector('[data-q2]');
+  if(!on.length){q2.hidden=true;document.querySelector('[data-q3]').hidden=true;return}
+  document.querySelector('[data-mine]').textContent=on.join(', ');
+  const dir=document.querySelector('[data-dir]');
+  if(q2.hidden){dir.innerHTML=D[cv].dirs.map((d,i)=>`<button type="button" aria-pressed="false">${'AB'[i]}: ${d}</button>`).join('');
+    dir.querySelectorAll('button').forEach(x=>x.onclick=()=>{dir.querySelectorAll('button').forEach(y=>y.setAttribute('aria-pressed',y===x));document.querySelector('[data-mine2]').textContent=x.textContent.slice(3);document.querySelector('[data-q3]').hidden=false})}
+  q2.hidden=false});
+
+// step 3
+const deck=document.querySelector('[data-deck]');let idx=0,kept=[];
+function card(p){const d=document.createElement('article');d.className='card';d.innerHTML=`<div class="top"><span class="sig">${p[0]}</span><span class="pc">${p[1]}</span></div><h3>${p[2]}</h3><p>${p[3]}</p><div class="have"><em>already have</em><div class="chipset">${p[4].map(s=>`<i>${s}</i>`).join('')}</div></div><div class="have gap"><em>needs work</em><div class="chipset">${p[5].map(s=>`<i>${s}</i>`).join('')}</div></div><div class="yn"><button class="n" type="button" data-act="0" aria-label="skip this path"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15"/></svg></button><button class="y" type="button" data-act="1" aria-label="keep this path"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M4 11.5l4.5 4.5L18 6"/></svg></button></div>`;
+  d.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>act(b.dataset.act==='1'));return d}
+function render(){deck.innerHTML='';const L=D[cv].paths;
+  if(idx>=L.length){const d=document.createElement('div');d.className='done';d.innerHTML=`<h3>${kept.length?`you kept ${kept.length} path${kept.length>1?'s':''}`:'nothing kept, yet'}</h3><p>${kept.length?'Next, Nova finds jobs, events, fellowships and people for them.':'No problem. Nova asks a few more questions and deals again.'}</p>${kept.length?'<a class="btn btn-accent" href="#step-4">find your way in ↓</a>':'<button class="btn btn-accent" type="button" data-again>swipe again</button>'}`;deck.appendChild(d);const a=d.querySelector('[data-again]');if(a)a.onclick=()=>{idx=0;kept=[];render()};return}
+  if(L[idx+1]){const b=document.createElement('div');b.className='card back';b.setAttribute('aria-hidden','true');deck.appendChild(b)}
+  deck.appendChild(card(L[idx]))}
+function act(k){const L=D[cv].paths;if(idx>=L.length)return;if(k)kept.push(L[idx][2]);deck.lastElementChild.classList.add(k?'out-r':'out-l');idx++;setTimeout(()=>{render();fillReach()},reduce?0:380)}
+let sx=null;deck.addEventListener('pointerdown',e=>{if(!e.target.closest('button,a'))sx=e.clientX});deck.addEventListener('pointerup',e=>{if(sx!==null&&Math.abs(e.clientX-sx)>40)act(e.clientX>sx);sx=null});
+
+// step 4
+const dt=document.querySelector('[data-drafttoggle]'),dr=document.querySelector('[data-draft]');
+function fillReach(){const c=D[cv],path=kept[0]||c.paths[0][2];
+  document.querySelector('[data-opp]').innerHTML=`<span class="k">${c.opp[0]} · for “${path}”</span><h3>${c.opp[1]}</h3><p class="why">${c.opp[2]}</p>`;
+  document.querySelector('[data-event]').innerHTML=`<span class="k">event · from Luma</span><h3>${c.event[1]}</h3><p class="why">${c.event[2]}</p><div class="meta"><span>${c.event[0]}</span><button class="pill o" type="button">RSVP on Luma</button></div>`;
+  document.querySelector('[data-fellow]').innerHTML=`<span class="k">fellowship · for “${path}”</span><h3>${c.fellow[1]}</h3><p class="why">${c.fellow[2]}</p><div class="meta"><span>${c.fellow[0]}</span><button class="pill o" type="button">save to dashboard</button></div>`;
+  document.querySelector('[data-initials]').textContent=c.person[0];document.querySelector('[data-pname]').textContent=c.person[1];document.querySelector('[data-prole]').textContent=c.person[2];
+  dr.textContent=`Hi ${c.person[1].split(' ')[0]}, I'm a recent grad with a background in ${c.skills[0]} and ${c.skills[1]}, and I'm exploring ${path} roles. Could I ask you two quick questions about how you got into it?`}
+document.querySelectorAll('[data-rt]').forEach(t=>t.onclick=()=>{document.querySelectorAll('[data-rt]').forEach(x=>x.setAttribute('aria-selected',x===t));document.querySelectorAll('[data-rp]').forEach(pn=>pn.hidden=pn.dataset.rp!==t.dataset.rt)});
+dt.onclick=()=>{dr.hidden=!dr.hidden;dt.setAttribute('aria-expanded',!dr.hidden);dt.textContent=dr.hidden?'draft my message':'hide draft'};
+
+// choose CV
+document.querySelectorAll('[data-cvs] button').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-cvs] button').forEach(x=>x.setAttribute('aria-pressed',x===b));cv=b.dataset.cv;idx=0;kept=[];resetCV();resetChat();render();fillReach()});
+resetCV();render();fillReach();
+
+// progress
+const links=[...document.querySelectorAll('[data-prog]')];
+const so=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){const n=+e.target.id.split('-')[1];links.forEach(l=>{const k=+l.dataset.prog;l.classList.toggle('on',k===n);l.classList.toggle('past',k<n);if(k===n)l.setAttribute('aria-current','step');else l.removeAttribute('aria-current')})}}),{rootMargin:'-45% 0px -50% 0px'});
+document.querySelectorAll('.step').forEach(s=>so.observe(s));
+
+// sign-up: saves to the Go Offscript Google Sheet (see offscript/README.md)
+const SHEET_URL='';
+function newCode(){const a=new Uint8Array(12);crypto.getRandomValues(a);return 'GOS-'+[...a].map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase()}
+function saved(email){try{return JSON.parse(localStorage.getItem('gos-claim')||'null')}catch(e){return null}}
+document.querySelectorAll('[data-form]').forEach(f=>f.addEventListener('submit',async ev=>{ev.preventDefault();
+  const m=f.querySelector('.msg'),e=f.querySelector('input[type=email]'),c=f.querySelector('input[type=checkbox]'),btn=f.querySelector('button[type=submit]');
+  const email=e.value.trim().toLowerCase();
+  if(!email||!e.checkValidity()){m.textContent='Add a valid email to reserve your week.';e.focus();return}
+  if(!c.checked){m.textContent='Tick the box so we can email your free-week details.';c.focus();return}
+  if(!SHEET_URL){m.textContent='Sign-ups open very soon. Please check back shortly.';return}
+  const prev=saved();const code=(prev&&prev.email===email)?prev.code:newCode();
+  btn.disabled=true;m.textContent='Reserving your week…';
+  try{
+    await fetch(SHEET_URL,{method:'POST',mode:'no-cors',body:new URLSearchParams({email,code,consent:'yes',source:'early-bird-tour'})});
+    try{localStorage.setItem('gos-claim',JSON.stringify({email,code}))}catch(x){}
+    m.textContent='You are in. Your code is '+code+'. Keep it, and sign up with '+email+' when the app opens.';
+    e.value='';c.checked=false;
+  }catch(err){m.textContent='That did not go through. Check your connection and try again.'}
+  btn.disabled=false;
+}));
+</script>
+</body>
+</html>
