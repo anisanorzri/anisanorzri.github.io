@@ -1,0 +1,12 @@
+node_modules
+.next
+next-env.d.ts
+*.tsbuildinfo
+.env*.local
+.env
+# Local fund data never leaves the machine
+data/*.db
+data/*.db-*
+data/private/
+exports/
+.taste-skill/
