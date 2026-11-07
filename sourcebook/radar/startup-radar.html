@@ -2,159 +2,226 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: a thesis builder on the left (sticky), live results on the right as cards, a detail drawer from the right.
-   Phone: the thesis folds into a bottom sheet behind one button; results take the full width.
-   Achromatic ledger: chrome in ink, the one hue marks what matches your thesis. */
+/* Design system: open-design "airtable" (spreadsheet-database hybrid). White canvas, deep-navy ink, one blue accent,
+   12px controls, 16px cards, blue-tinted hairline shadow, positive tracking, coloured single-select tags.
+   Layout: thesis builder (sticky, left) · results with a filter-token bar, Grid / Gallery views and Group by · detail drawer (right).
+   Phone: the thesis becomes a bottom sheet; Grid scrolls inside its own frame. */
 :root {
-  --bg: #f2f4f7; --surface: #ffffff; --sunk: #f6f7f9; --raised: #e9ecf1; --line: #e3e6eb; --rule: #eef0f3; --control: #cfd4db;
-  --fg: #0a0a0a; --muted: #5d636d; --accent: #141414; --on-accent: #ffffff;
-  --hit: #1d5fbf; --hit-tint: #e8effa; --hit-ink: #123d7a; --miss: #8a3d0c; --miss-tint: #fdf3e7; --scrim: rgba(10, 12, 16, .32);
-  --shadow: 0 12px 32px rgba(10, 12, 16, .14);
-  --font: "Geist", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --bg: #f8fafc; --surface: #ffffff; --sunk: #f3f5f8; --raised: #eaeef3; --line: #e0e2e6; --rule: #edf0f3; --control: #cfd4dc;
+  --fg: #181d26; --fg-2: #333a46; --muted: rgba(4, 14, 32, 0.62); --accent: #1b61c9; --accent-hover: #254fad; --on-accent: #ffffff;
+  --accent-tint: #e9f1fc; --warn: #8a4b08; --warn-tint: #fff4e5; --danger: #b42318; --danger-tint: #fdecea;
+  --scrim: rgba(24, 29, 38, .34);
+  --elev: rgba(0,0,0,.32) 0 0 1px, rgba(0,0,0,.08) 0 0 2px, rgba(45,127,249,.28) 0 1px 3px, rgba(0,0,0,.06) 0 0 0 .5px inset;
+  --elev-float: 0 16px 40px rgba(15, 48, 106, .18), 0 0 1px rgba(0,0,0,.3);
+  --r-ctl: 12px; --r-card: 16px; --r-sm: 8px;
+  --font: "Schibsted Grotesk", "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
+  /* single-select tag palette (pale fill, dark ink) */
+  --t1: #d0e3ff; --t1i: #0b3a82; --t2: #c9f1f5; --t2i: #0b5560; --t3: #cdf3dc; --t3i: #0d5b2e; --t4: #fff0b3; --t4i: #6b4a00;
+  --t5: #ffe0c7; --t5i: #7a3a07; --t6: #ffd8dc; --t6i: #8a1c2b; --t7: #ffd6ee; --t7i: #7d1a57; --t8: #e3e7ee; --t8i: #2f3a4b; --t9: #dceccf; --t9i: #355a17;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #0c0d0f; --surface: #141619; --sunk: #1a1d21; --raised: #23272c; --line: #2a2e34; --rule: #202328; --control: #3a3f46;
-  --fg: #eceef1; --muted: #9aa1ab; --accent: #eceef1; --on-accent: #0c0d0f;
-  --hit: #86adef; --hit-tint: #172338; --hit-ink: #c4d7f7; --miss: #e7a46e; --miss-tint: #2d2017; --scrim: rgba(0, 0, 0, .55);
-  --shadow: 0 12px 32px rgba(0, 0, 0, .5); color-scheme: dark } }
+  --bg: #0e1116; --surface: #161a21; --sunk: #1b2029; --raised: #242a35; --line: #2c3340; --rule: #212732; --control: #3a4252;
+  --fg: #eef1f6; --fg-2: #c8cfdb; --muted: rgba(226, 233, 245, .62); --accent: #5c9bf2; --accent-hover: #7aaef5; --on-accent: #0b1220;
+  --accent-tint: #172a46; --warn: #f0b066; --warn-tint: #33240f; --danger: #f3897e; --danger-tint: #3a1a18; --scrim: rgba(0,0,0,.55);
+  --elev: 0 0 0 1px #2c3340; --elev-float: 0 16px 40px rgba(0,0,0,.55), 0 0 0 1px #2c3340;
+  --t1: #1d3357; --t1i: #bcd5ff; --t2: #123d44; --t2i: #a9e9f0; --t3: #15402a; --t3i: #b3ecc9; --t4: #423611; --t4i: #f7e39a;
+  --t5: #45290f; --t5i: #ffcfa8; --t6: #4a1d24; --t6i: #ffc2c9; --t7: #47193a; --t7i: #ffc0e3; --t8: #2b323d; --t8i: #d4dbe6; --t9: #263b18; --t9i: #cde7b6; color-scheme: dark } }
 :root[data-theme="dark"] {
-  --bg: #0c0d0f; --surface: #141619; --sunk: #1a1d21; --raised: #23272c; --line: #2a2e34; --rule: #202328; --control: #3a3f46;
-  --fg: #eceef1; --muted: #9aa1ab; --accent: #eceef1; --on-accent: #0c0d0f;
-  --hit: #86adef; --hit-tint: #172338; --hit-ink: #c4d7f7; --miss: #e7a46e; --miss-tint: #2d2017; --scrim: rgba(0, 0, 0, .55);
-  --shadow: 0 12px 32px rgba(0, 0, 0, .5); color-scheme: dark }
+  --bg: #0e1116; --surface: #161a21; --sunk: #1b2029; --raised: #242a35; --line: #2c3340; --rule: #212732; --control: #3a4252;
+  --fg: #eef1f6; --fg-2: #c8cfdb; --muted: rgba(226, 233, 245, .62); --accent: #5c9bf2; --accent-hover: #7aaef5; --on-accent: #0b1220;
+  --accent-tint: #172a46; --warn: #f0b066; --warn-tint: #33240f; --danger: #f3897e; --danger-tint: #3a1a18; --scrim: rgba(0,0,0,.55);
+  --elev: 0 0 0 1px #2c3340; --elev-float: 0 16px 40px rgba(0,0,0,.55), 0 0 0 1px #2c3340;
+  --t1: #1d3357; --t1i: #bcd5ff; --t2: #123d44; --t2i: #a9e9f0; --t3: #15402a; --t3i: #b3ecc9; --t4: #423611; --t4i: #f7e39a;
+  --t5: #45290f; --t5i: #ffcfa8; --t6: #4a1d24; --t6i: #ffc2c9; --t7: #47193a; --t7i: #ffc0e3; --t8: #2b323d; --t8i: #d4dbe6; --t9: #263b18; --t9i: #cde7b6; color-scheme: dark }
+
 * { box-sizing: border-box }
-body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 14px; line-height: 1.45 }
-a { color: inherit; text-underline-offset: 2px }
-button, input, select { font: inherit; color: inherit }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 14px; line-height: 1.38; letter-spacing: .1px }
+a { color: var(--accent); text-underline-offset: 2px }
+button, input, select { font: inherit; color: inherit; letter-spacing: inherit }
 button { cursor: pointer }
-:focus-visible { outline: 2px solid var(--hit); outline-offset: 2px; border-radius: 4px }
-.wrap { max-width: 1440px; margin: 0 auto; padding-block: 22px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px }
+.wrap { max-width: 1480px; margin: 0 auto; padding-block: 18px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+.num { font-variant-numeric: tabular-nums }
+.muted { color: var(--muted) }
 
-/* Header */
-.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px }
+/* Top bar */
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px }
-.stamp { color: var(--muted); font-size: 12.5px }
-.grid { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 20px; align-items: start }
+.stamp { color: var(--muted); font-size: 12.5px; text-align: right }
+.layout { display: grid; grid-template-columns: 312px minmax(0, 1fr); gap: 20px; align-items: start }
 
-/* Thesis builder */
-.thesis { position: sticky; top: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; max-height: calc(100dvh - 32px); overflow: auto }
-.th-head { padding: 16px 18px 12px; border-bottom: 1px solid var(--line); display: grid; gap: 10px; position: sticky; top: 0; background: var(--surface); z-index: 1 }
-.th-head h2 { margin: 0; font-size: 16px; font-weight: 600 }
-.presets { display: flex; flex-wrap: wrap; gap: 6px }
+/* Thesis panel */
+.thesis { position: sticky; top: 14px; background: var(--surface); border-radius: var(--r-card); box-shadow: var(--elev); max-height: calc(100dvh - 28px); overflow: auto }
+.th-head { padding: 16px 18px 14px; border-bottom: 1px solid var(--line); display: grid; gap: 10px; position: sticky; top: 0; background: var(--surface); z-index: 2; border-radius: var(--r-card) var(--r-card) 0 0 }
+.th-title { display: flex; justify-content: space-between; align-items: center; gap: 8px }
+.th-title h2 { margin: 0; font-size: 17px; font-weight: 600 }
 .sec { padding: 14px 18px; border-bottom: 1px solid var(--rule); display: grid; gap: 8px }
 .sec:last-child { border-bottom: 0 }
 .sec-h { display: flex; justify-content: space-between; align-items: baseline }
 .sec-h h3 { margin: 0; font-size: 13px; font-weight: 600 }
-.sec-h button { background: none; border: 0; padding: 0; color: var(--muted); font-size: 12px; text-decoration: underline; text-underline-offset: 2px }
+.link { background: none; border: 0; padding: 0; color: var(--accent); font-size: 12.5px }
+.link:hover { color: var(--accent-hover); text-decoration: underline }
 .chips { display: flex; flex-wrap: wrap; gap: 6px }
 .chip { height: 28px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--control); background: var(--surface); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; transition: background-color .12s, border-color .12s, color .12s, transform .08s }
-.chip:hover { border-color: var(--muted) }
+.chip:hover { border-color: var(--fg-2) }
 .chip:active { transform: scale(.97) }
-.chip[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent) }
-.chip .n { font-variant-numeric: tabular-nums; opacity: .6; font-size: 12px }
-.chip.x { background: var(--sunk) }
-.chip.x[aria-pressed="true"] { background: var(--miss-tint); color: var(--miss); border-color: var(--miss) }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent) }
+.chip .n { opacity: .65; font-size: 12px; font-variant-numeric: tabular-nums }
+.chip.ex[aria-pressed="true"] { background: var(--danger-tint); border-color: var(--danger); color: var(--danger) }
 .kw { display: flex; gap: 6px }
-.kw input { flex: 1; min-width: 0; height: 32px; border: 1px solid var(--control); border-radius: 6px; padding: 0 10px; background: var(--surface) }
-.tag { height: 26px; padding: 0 4px 0 10px; border-radius: 999px; background: var(--raised); display: inline-flex; align-items: center; gap: 2px; font-size: 13px }
-.tag button { border: 0; background: none; width: 22px; height: 22px; border-radius: 999px; color: var(--muted); font-size: 15px; line-height: 1 }
-.tag button:hover { background: var(--control); color: var(--fg) }
-.tag.ex { background: var(--miss-tint); color: var(--miss) }
+.kw input, .inp { flex: 1; min-width: 0; height: 34px; border: 1px solid var(--control); border-radius: var(--r-sm); padding: 0 10px; background: var(--surface) }
+.hint { color: var(--muted); font-size: 12px; margin: 0 }
 .range { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center }
 .range input { width: 100%; accent-color: var(--accent) }
-.range output { font-variant-numeric: tabular-nums; font-size: 13px; min-width: 64px; text-align: right }
-.hint { color: var(--muted); font-size: 12px }
+.range output { font-size: 13px; min-width: 72px; text-align: right }
 
-/* Results */
-.res-head { display: grid; gap: 12px; margin-bottom: 14px }
-h1 { margin: 0; font-size: 24px; line-height: 1.2; font-weight: 600; letter-spacing: -0.01em }
-.finding { margin: 2px 0 0; max-width: 80ch }
-.finding b { color: var(--hit); font-weight: 600 }
-.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between }
-.search { position: relative; flex: 1 1 280px; max-width: 460px }
-.search input { width: 100%; height: 38px; border: 1px solid var(--control); border-radius: 8px; padding: 0 12px 0 34px; background: var(--surface) }
-.search svg { position: absolute; left: 11px; top: 11px; color: var(--muted) }
-.seg { display: inline-flex; border: 1px solid var(--control); border-radius: 8px; overflow: hidden; background: var(--surface) }
-.seg button { border: 0; background: none; padding: 0 12px; height: 36px; font-size: 13px }
-.seg button[aria-pressed="true"] { background: var(--raised); font-weight: 500 }
-.btn { height: 38px; padding: 0 14px; border-radius: 8px; border: 1px solid transparent; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; transition: background-color .12s, transform .08s }
+/* Buttons */
+.btn { height: 36px; padding: 0 14px; border-radius: var(--r-ctl); border: 1px solid transparent; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; transition: background-color .12s, transform .08s, box-shadow .12s }
 .btn:active { transform: translateY(1px) }
 .btn-primary { background: var(--accent); color: var(--on-accent) }
-.btn-ghost { background: var(--surface); border-color: var(--control) }
-.btn-ghost:hover { background: var(--sunk) }
-.btn .count { font-variant-numeric: tabular-nums; background: var(--raised); color: var(--fg); border-radius: 999px; padding: 0 7px; font-size: 12px; line-height: 20px }
-.btn-primary .count { background: rgba(255,255,255,.18); color: inherit }
+.btn-primary:hover { background: var(--accent-hover) }
+.btn-white { background: var(--surface); box-shadow: var(--elev) }
+.btn-white:hover { background: var(--sunk) }
+.btn-sm { height: 30px; padding: 0 11px; font-size: 13px; border-radius: 10px }
+.btn .count { background: var(--raised); color: var(--fg); border-radius: 999px; padding: 0 7px; font-size: 12px; line-height: 20px; font-variant-numeric: tabular-nums }
+.btn-primary .count { background: rgba(255,255,255,.22); color: inherit }
 .mobile-only { display: none }
 
+/* Results header */
+h1 { margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: 0 }
+.finding { margin: 4px 0 0; color: var(--fg-2); max-width: 82ch }
+.finding b { color: var(--accent); font-weight: 600 }
+.meter { margin-top: 12px; display: grid; gap: 6px }
 .bars { display: flex; height: 8px; border-radius: 999px; overflow: hidden; background: var(--raised) }
-.bars span { height: 100%; transition: width .3s ease }
-.bars .b-hit { background: var(--hit) }
-.bars .b-near { background: var(--control) }
-.bars-legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted) }
-.bars-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px }
+.bars span { transition: width .35s ease }
+.b-hit { background: var(--accent) }
+.b-near { background: color-mix(in srgb, var(--accent) 30%, var(--raised)) }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: var(--muted) }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px }
 
-.group-h { display: flex; justify-content: space-between; align-items: baseline; margin: 18px 0 10px; gap: 10px }
-.group-h h2 { margin: 0; font-size: 15px; font-weight: 600 }
-.group-h span { color: var(--muted); font-size: 12.5px }
-.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 10px; align-content: start; cursor: pointer; transition: border-color .12s, transform .12s; animation: rise .22s ease both }
-.card:hover { border-color: var(--muted) }
-.card.near { background: var(--sunk) }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 16px; padding: 8px; background: var(--surface); border-radius: var(--r-ctl); box-shadow: var(--elev) }
+.search { position: relative; flex: 1 1 240px; min-width: 0 }
+.search input { width: 100%; height: 34px; border: 0; background: var(--sunk); border-radius: 10px; padding: 0 12px 0 34px }
+.search svg { position: absolute; left: 11px; top: 10px; color: var(--muted) }
+.seg { display: inline-flex; background: var(--sunk); border-radius: 10px; padding: 2px }
+.seg button { border: 0; background: none; height: 30px; padding: 0 11px; border-radius: 8px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; color: var(--fg-2) }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--fg); box-shadow: var(--elev); font-weight: 500 }
+.sel { height: 34px; border: 0; background: var(--sunk); border-radius: 10px; padding: 0 10px; font-size: 13px }
+.tb-label { font-size: 12.5px; color: var(--muted); margin-left: 4px }
+
+.tokens { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; align-items: center; min-height: 28px }
+.token { height: 26px; border-radius: 999px; padding: 0 4px 0 10px; background: var(--accent-tint); color: var(--accent); display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 500 }
+.token.ex { background: var(--danger-tint); color: var(--danger) }
+.token button { border: 0; background: none; width: 20px; height: 20px; border-radius: 999px; color: inherit; font-size: 14px; line-height: 1; opacity: .7 }
+.token button:hover { opacity: 1; background: rgba(0,0,0,.06) }
+
+/* Groups */
+.group { margin-top: 18px }
+.group-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 10px }
+.group-h h2 { margin: 0; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px }
+.group-h .sub { color: var(--muted); font-size: 12.5px }
+
+/* Tags */
+.tag { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 6px; font-size: 12px; font-weight: 500; white-space: nowrap; background: var(--t8); color: var(--t8i) }
+.tag.hit { box-shadow: inset 0 0 0 1.5px var(--accent) }
+.tag.miss { background: var(--warn-tint); color: var(--warn) }
+.tag.t1 { background: var(--t1); color: var(--t1i) } .tag.t2 { background: var(--t2); color: var(--t2i) } .tag.t3 { background: var(--t3); color: var(--t3i) }
+.tag.t4 { background: var(--t4); color: var(--t4i) } .tag.t5 { background: var(--t5); color: var(--t5i) } .tag.t6 { background: var(--t6); color: var(--t6i) }
+.tag.t7 { background: var(--t7); color: var(--t7i) } .tag.t8 { background: var(--t8); color: var(--t8i) } .tag.t9 { background: var(--t9); color: var(--t9i) }
+
+/* Status */
+.status { height: 26px; border-radius: 8px; border: 1px solid var(--control); background: var(--surface); font-size: 12.5px; padding: 0 6px; max-width: 120px }
+.status[data-s="reviewing"] { background: var(--t4); color: var(--t4i); border-color: transparent }
+.status[data-s="contacted"] { background: var(--t1); color: var(--t1i); border-color: transparent }
+.status[data-s="passed"] { background: var(--t8); color: var(--muted); border-color: transparent }
+
+/* Gallery */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px }
+.card { background: var(--surface); border-radius: var(--r-card); box-shadow: var(--elev); padding: 14px 16px 12px; display: grid; gap: 10px; align-content: start; cursor: pointer; transition: transform .14s, box-shadow .14s; animation: rise .22s ease both }
+.card:hover { transform: translateY(-2px); box-shadow: var(--elev), 0 6px 18px rgba(15,48,106,.08) }
+.card.passed { opacity: .62 }
 @keyframes rise { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
 .c-top { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start }
-.c-name { font-weight: 600; font-size: 15px; line-height: 1.25 }
+.c-name { font-weight: 600; font-size: 15.5px; line-height: 1.25 }
 .c-where { color: var(--muted); font-size: 12.5px; margin-top: 2px }
-.star { border: 0; background: none; width: 32px; height: 32px; margin: -6px -8px 0 0; border-radius: 8px; color: var(--muted); display: grid; place-items: center; flex: none }
-.star:hover { background: var(--raised); color: var(--fg) }
-.star[aria-pressed="true"] { color: var(--hit) }
-.c-one { font-size: 14px }
-.c-meta { display: flex; flex-wrap: wrap; gap: 6px }
-.pill { height: 22px; padding: 0 8px; border-radius: 999px; font-size: 12px; background: var(--raised); display: inline-flex; align-items: center; white-space: nowrap }
-.pill.hit { background: var(--hit-tint); color: var(--hit-ink); font-weight: 500 }
-.pill.miss { background: var(--miss-tint); color: var(--miss); font-weight: 500 }
-.c-sig { font-size: 13px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 9px; display: grid; gap: 2px }
-.c-sig b { color: var(--fg); font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden }
-.c-sig .d { font-variant-numeric: tabular-nums; font-size: 12px }
+.star { border: 0; background: none; width: 32px; height: 32px; margin: -6px -8px 0 0; border-radius: 10px; color: var(--muted); display: grid; place-items: center; flex: none }
+.star:hover { background: var(--sunk); color: var(--fg) }
+.star[aria-pressed="true"] { color: #d99a00 }
+.c-one { color: var(--fg-2) }
+.c-tags { display: flex; flex-wrap: wrap; gap: 5px }
+.c-foot { border-top: 1px solid var(--rule); padding-top: 9px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: end }
+.c-sig { font-size: 13px; min-width: 0 }
+.c-sig b { font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden }
+.c-sig span { color: var(--muted); font-size: 12px }
+
+/* Grid */
+.gridwrap { background: var(--surface); border-radius: var(--r-card); box-shadow: var(--elev); overflow: auto; max-height: 72vh }
+table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 1100px; font-size: 13px }
+thead th { position: sticky; top: 0; z-index: 1; background: var(--sunk); text-align: left; font-weight: 600; font-size: 12.5px; color: var(--fg-2); padding: 0; border-bottom: 1px solid var(--line); white-space: nowrap }
+thead th button { width: 100%; text-align: left; background: none; border: 0; padding: 9px 10px; display: flex; gap: 6px; align-items: center; font-weight: 600 }
+thead th button:hover { background: var(--raised) }
+thead th .arrow { color: var(--accent) }
+tbody td { padding: 8px 10px; border-bottom: 1px solid var(--rule); border-right: 1px solid var(--rule); vertical-align: top; background: var(--surface) }
+tbody tr { cursor: pointer }
+tbody tr:hover td { background: var(--sunk) }
+tbody tr.passed td { color: var(--muted) }
+td.first, th.first { position: sticky; left: 0; z-index: 1 }
+thead th.first { z-index: 3 }
+td.first { font-weight: 600; min-width: 190px; box-shadow: 1px 0 0 var(--line) }
+td.first .row { display: flex; gap: 6px; align-items: center }
+td.first .star { margin: 0; width: 26px; height: 26px }
+tbody td:nth-child(2) { min-width: 280px } tbody td:nth-child(7) { min-width: 260px } tbody td:nth-child(4) { min-width: 150px }
+table { min-width: 1360px }
+td .clip { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; max-width: 320px }
+.mx { color: var(--accent); font-weight: 600 }
+.mx.no { color: var(--warn) }
+
+/* States */
+.empty { background: var(--surface); border-radius: var(--r-card); box-shadow: var(--elev); padding: 28px; display: grid; gap: 10px; justify-items: start }
+.empty b { font-size: 16px }
+.empty p { margin: 0; color: var(--fg-2); max-width: 64ch }
+.skel { background: var(--surface); border-radius: var(--r-card); box-shadow: var(--elev); padding: 16px; display: grid; gap: 10px }
+.skel i { display: block; height: 12px; border-radius: 6px; background: var(--raised); animation: pulse 1.2s ease-in-out infinite }
+@keyframes pulse { 50% { opacity: .45 } }
 .more { margin-top: 12px; display: flex; justify-content: center }
-.empty { background: var(--surface); border: 1px dashed var(--control); border-radius: 10px; padding: 28px; display: grid; gap: 8px; justify-items: start; color: var(--muted) }
-.empty b { color: var(--fg); font-size: 15px }
 
 /* Drawer */
 .scrim { position: fixed; inset: 0; background: var(--scrim); opacity: 0; pointer-events: none; transition: opacity .18s; z-index: 20 }
 .scrim.on { opacity: 1; pointer-events: auto }
-.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(520px, 100%); background: var(--surface); box-shadow: var(--shadow); transform: translateX(100%); transition: transform .22s ease; z-index: 21; display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); padding-right: env(safe-area-inset-right, 0px) }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(540px, 100%); background: var(--surface); box-shadow: var(--elev-float); transform: translateX(102%); transition: transform .22s ease; z-index: 21; display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); padding-right: env(safe-area-inset-right, 0px) }
 .drawer.on { transform: none }
-.d-head { padding: 18px 20px 14px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; align-items: flex-start }
-.d-head h2 { margin: 0; font-size: 20px; font-weight: 600 }
-.d-close { border: 1px solid var(--control); background: var(--surface); border-radius: 8px; height: 34px; padding: 0 12px }
-.d-body { overflow: auto; padding: 6px 20px 24px; display: grid; gap: 4px; align-content: start }
+.d-head { padding: 18px 20px 14px; border-bottom: 1px solid var(--line); display: grid; gap: 10px }
+.d-row { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start }
+.d-head h2 { margin: 0; font-size: 21px; font-weight: 600 }
+.d-body { overflow: auto; padding: 4px 20px 24px }
 .d-sec { padding: 14px 0; border-bottom: 1px solid var(--rule); display: grid; gap: 8px }
 .d-sec:last-child { border-bottom: 0 }
-.d-sec h3 { margin: 0; font-size: 12.5px; font-weight: 500; color: var(--muted) }
+.d-sec h3 { margin: 0; font-size: 12.5px; font-weight: 600; color: var(--muted) }
 .d-sec ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px }
-.crit { display: grid; grid-template-columns: 96px 1fr; gap: 10px; font-size: 13px }
-.crit .ok { color: var(--hit); font-weight: 600 }
-.crit .no { color: var(--miss); font-weight: 600 }
-.crit .na { color: var(--muted) }
-.q { font-weight: 500 }
-.d-actions { display: flex; gap: 8px; flex-wrap: wrap }
+.crit { display: grid; grid-template-columns: 110px 1fr; gap: 10px; font-size: 13px }
+.ok { color: var(--accent); font-weight: 600 }
+.no { color: var(--warn); font-weight: 600 }
+.d-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center }
 
-/* Bottom sheet for the thesis on a phone */
-@media (max-width: 900px) {
-  .grid { grid-template-columns: minmax(0, 1fr) }
+.toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); opacity: 0; background: var(--fg); color: var(--bg); padding: 9px 14px; border-radius: 10px; font-size: 13px; transition: opacity .18s, transform .18s; z-index: 30; pointer-events: none }
+.toast.on { opacity: 1; transform: translate(-50%, 0) }
+
+@media (max-width: 960px) {
+  .layout { grid-template-columns: minmax(0, 1fr) }
   .mobile-only { display: inline-flex }
-  .thesis { position: fixed; left: 0; right: 0; bottom: 0; top: auto; max-height: 82dvh; border-radius: 14px 14px 0 0; transform: translateY(105%); transition: transform .24s ease; z-index: 21; box-shadow: var(--shadow); padding-bottom: env(safe-area-inset-bottom, 0px) }
+  .thesis { position: fixed; left: 0; right: 0; bottom: 0; top: auto; max-height: 84dvh; border-radius: 18px 18px 0 0; transform: translateY(105%); transition: transform .24s ease; z-index: 21; box-shadow: var(--elev-float); padding-bottom: env(safe-area-inset-bottom, 0px) }
   .thesis.on { transform: none }
   .th-done { display: inline-flex !important }
 }
 .th-done { display: none }
-@media (max-width: 560px) {
-  h1 { font-size: 21px }
+@media (max-width: 600px) {
+  h1 { font-size: 22px }
   .cards { grid-template-columns: minmax(0, 1fr) }
-  .search { max-width: none }
-  .seg button { padding: 0 9px }
+  .tb-label { display: none }
+  .stamp { display: none }
+  .gridwrap { max-height: none }
 }
 @media (prefers-reduced-motion: reduce) { *, .card { transition: none !important; animation: none !important } }
 </style>
@@ -162,80 +229,70 @@ h1 { margin: 0; font-size: 24px; line-height: 1.2; font-weight: 600; letter-spac
 <div class="wrap">
   <div class="top">
     <div class="brand">
-      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect width="22" height="22" rx="5" fill="currentColor"/><path d="M8 5.5H6v11h2M14 5.5h2v11h-2" stroke="var(--bg)" stroke-width="1.6" fill="none"/><rect x="9" y="9" width="4" height="4" rx="0.8" fill="var(--hit)"/></svg>
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="var(--fg)"/><rect x="5" y="6" width="6" height="5" rx="1.2" fill="var(--t1)"/><rect x="13" y="6" width="6" height="5" rx="1.2" fill="var(--t4)"/><rect x="5" y="13" width="14" height="5" rx="1.2" fill="var(--accent)"/></svg>
       Sourcebook
     </div>
     <span class="stamp" id="stamp"></span>
   </div>
 
-  <div class="grid">
+  <div class="layout">
     <aside class="thesis" id="thesis" aria-label="Your thesis">
       <div class="th-head">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-          <h2>Your thesis</h2>
-          <span style="display:flex;gap:6px">
-            <button type="button" class="btn btn-ghost" id="reset" style="height:30px;font-size:13px">Reset</button>
-            <button type="button" class="btn btn-primary th-done" id="th-done" style="height:30px;font-size:13px">Show results</button>
-          </span>
-        </div>
-        <div class="presets" id="presets" role="group" aria-label="Start from a preset"></div>
+        <div class="th-title"><h2>Your thesis</h2>
+          <span style="display:flex;gap:6px"><button type="button" class="btn btn-white btn-sm" id="reset">Reset</button><button type="button" class="btn btn-primary btn-sm th-done" id="th-done">Show results</button></span></div>
+        <div class="chips" id="presets" role="group" aria-label="Start from a preset"></div>
       </div>
-      <div class="sec"><div class="sec-h"><h3>Sectors</h3><button type="button" data-clear="sectors">Any</button></div><div class="chips" id="t-sectors"></div></div>
-      <div class="sec"><div class="sec-h"><h3>Geography</h3><button type="button" data-clear="geos">Anywhere</button></div><div class="chips" id="t-regions"></div><div class="chips" id="t-countries"></div></div>
-      <div class="sec"><div class="sec-h"><h3>Stage</h3><button type="button" data-clear="stages">Any</button></div><div class="chips" id="t-stages"></div>
+      <div class="sec"><div class="sec-h"><h3>Sector</h3><button type="button" class="link" data-clear="sectors">Any</button></div><div class="chips" id="t-sectors"></div></div>
+      <div class="sec"><div class="sec-h"><h3>Geography</h3><button type="button" class="link" data-clear="geos">Anywhere</button></div><div class="chips" id="t-regions"></div><div class="chips" id="t-countries"></div></div>
+      <div class="sec"><div class="sec-h"><h3>Stage</h3><button type="button" class="link" data-clear="stages">Any</button></div><div class="chips" id="t-stages"></div>
         <p class="hint">Only a stage a source states counts. "Not stated" keeps companies whose round nobody has announced.</p></div>
-      <div class="sec"><div class="sec-h"><h3>Must mention</h3><button type="button" data-clear="include">Clear</button></div>
-        <form class="kw" id="f-inc"><input id="inc" placeholder="e.g. battery, warehouse" aria-label="Add a keyword the company must mention"><button class="btn btn-ghost" style="height:32px">Add</button></form><div class="chips" id="t-inc"></div></div>
-      <div class="sec"><div class="sec-h"><h3>Exclude</h3><button type="button" data-clear="exclude">Clear</button></div>
+      <div class="sec"><div class="sec-h"><h3>Must mention</h3><button type="button" class="link" data-clear="include">Clear</button></div>
+        <form class="kw" id="f-inc"><input id="inc" placeholder="battery, warehouse…" aria-label="Keyword the company must mention"><button class="btn btn-white btn-sm">Add</button></form><div class="chips" id="t-inc"></div></div>
+      <div class="sec"><div class="sec-h"><h3>Exclude</h3><button type="button" class="link" data-clear="exclude">Clear</button></div>
         <div class="chips" id="t-exsectors"></div>
-        <form class="kw" id="f-exc"><input id="exc" placeholder="e.g. crypto, ad tech" aria-label="Add a keyword to exclude"><button class="btn btn-ghost" style="height:32px">Add</button></form><div class="chips" id="t-exc"></div></div>
+        <form class="kw" id="f-exc"><input id="exc" placeholder="crypto, ad tech…" aria-label="Keyword to exclude"><button class="btn btn-white btn-sm">Add</button></form><div class="chips" id="t-exc"></div></div>
       <div class="sec"><div class="sec-h"><h3>Team size</h3></div>
-        <div class="range"><input type="range" id="team" min="1" max="60" step="1" aria-label="Largest team size"><output id="team-out" for="team"></output></div></div>
-      <div class="sec"><div class="sec-h"><h3>Signal</h3><button type="button" data-clear="signal">Any</button></div>
+        <div class="range"><input type="range" id="team" min="1" max="60" step="1" aria-label="Largest team size"><output id="team-out" for="team" class="num"></output></div></div>
+      <div class="sec"><div class="sec-h"><h3>Signal</h3><button type="button" class="link" data-clear="signal">Any</button></div>
         <div class="chips" id="t-when"></div><div class="chips" id="t-channels"></div>
         <label style="display:flex;gap:8px;align-items:center;font-size:13px"><input type="checkbox" id="fx"> Founder or company is on X</label></div>
+      <div class="sec"><div class="sec-h"><h3>Your pipeline</h3><button type="button" class="link" data-clear="pipeline">Any</button></div><div class="chips" id="t-pipeline"></div>
+        <p class="hint">Statuses and stars are private to you.</p></div>
     </aside>
 
     <main>
-      <div class="res-head">
-        <div>
-          <h1>European Startup Radar</h1>
-          <p class="finding" id="finding">Loading…</p>
-        </div>
-        <div class="bars" aria-hidden="true"><span class="b-hit" id="bar-hit"></span><span class="b-near" id="bar-near"></span></div>
-        <div class="bars-legend"><span><i style="background:var(--hit)"></i><span id="lg-hit">–</span> match every criterion</span><span><i style="background:var(--control)"></i><span id="lg-near">–</span> miss one</span><span><span id="lg-rest">–</span> others</span></div>
-        <div class="toolbar">
-          <label class="search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
-            <input id="q" type="search" placeholder="Search names, products, founders, cities" aria-label="Search" autocomplete="off"></label>
-          <span style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-            <button type="button" class="btn btn-ghost mobile-only" id="open-thesis">Thesis <span class="count" id="nfilters">0</span></button>
-            <span class="seg" role="group" aria-label="Sort">
-              <button type="button" data-sort="date" aria-pressed="true">Newest</button>
-              <button type="button" data-sort="team" aria-pressed="false">Smallest team</button>
-              <button type="button" data-sort="name" aria-pressed="false">A–Z</button>
-            </span>
-            <button type="button" class="btn btn-ghost" id="show-short" aria-pressed="false">Shortlist <span class="count" id="nshort">0</span></button>
-            <button type="button" class="btn btn-primary" id="export">Export CSV</button>
-          </span>
-        </div>
+      <h1>European Startup Radar</h1>
+      <p class="finding" id="finding" aria-live="polite">Loading the list…</p>
+      <div class="meter" aria-hidden="true">
+        <div class="bars"><span class="b-hit" id="bar-hit" style="width:0"></span><span class="b-near" id="bar-near" style="width:0"></span></div>
+        <div class="legend"><span><i style="background:var(--accent)"></i><span id="lg-hit" class="num">–</span> match</span><span><i style="background:color-mix(in srgb, var(--accent) 30%, var(--raised))"></i><span id="lg-near" class="num">–</span> miss by one</span><span><span id="lg-rest" class="num">–</span> outside</span></div>
       </div>
 
-      <section aria-labelledby="g-hit">
-        <div class="group-h"><h2 id="g-hit">Matches your thesis</h2><span id="g-hit-n"></span></div>
-        <div class="cards" id="hits"></div>
-        <div class="more" id="more-hits"></div>
-      </section>
-      <section aria-labelledby="g-near" id="near-sec">
-        <div class="group-h"><h2 id="g-near">Near misses</h2><span>In your sectors, failing one other test. The amber tag says which.</span></div>
-        <div class="cards" id="near"></div>
-        <div class="more" id="more-near"></div>
-      </section>
+      <div class="toolbar" role="toolbar" aria-label="View">
+        <label class="search"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+          <input id="q" type="search" placeholder="Search names, products, founders, cities" aria-label="Search" autocomplete="off"></label>
+        <button type="button" class="btn btn-white btn-sm mobile-only" id="open-thesis">Thesis <span class="count" id="nfilters">0</span></button>
+        <span class="seg" role="group" aria-label="View">
+          <button type="button" data-view="grid" aria-pressed="false"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="1.5" y="1.5" width="11" height="11" rx="1.5"/><path d="M1.5 5.5h11M1.5 9h11M5.5 1.5v11"/></svg>Grid</button>
+          <button type="button" data-view="gallery" aria-pressed="true"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="1.5" y="1.5" width="4.5" height="4.5" rx="1"/><rect x="8" y="1.5" width="4.5" height="4.5" rx="1"/><rect x="1.5" y="8" width="4.5" height="4.5" rx="1"/><rect x="8" y="8" width="4.5" height="4.5" rx="1"/></svg>Gallery</button>
+        </span>
+        <span class="tb-label">Group</span>
+        <select class="sel" id="group" aria-label="Group by"><option value="">No grouping</option><option value="sector">Sector</option><option value="country">Country</option><option value="stage">Stage</option><option value="status">Status</option></select>
+        <span class="tb-label">Sort</span>
+        <select class="sel" id="sort" aria-label="Sort by"><option value="date">Newest signal</option><option value="team">Smallest team</option><option value="name">Name A–Z</option></select>
+        <button type="button" class="btn btn-white btn-sm" id="show-short" aria-pressed="false">★ Starred <span class="count" id="nshort">0</span></button>
+        <button type="button" class="btn btn-primary btn-sm" id="export">Export CSV</button>
+      </div>
+      <div class="tokens" id="tokens" aria-label="Active filters"></div>
+
+      <div id="results"></div>
     </main>
   </div>
 </div>
 
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" aria-label="Company detail" aria-hidden="true"></aside>
+<div class="toast" id="toast" role="status"></div>
 
 <script>
 (() => {
@@ -243,175 +300,266 @@ h1 { margin: 0; font-size: 24px; line-height: 1.2; font-weight: 600; letter-spac
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const safe = (u) => (/^https:\/\//i.test(u || "") ? u : "");
   const xh = (u) => ((safe(u).match(/x\.com\/([A-Za-z0-9_]{1,15})/i) || [])[1] || "");
-  const M = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  const fmt = (d) => { if (!d) return "Undated"; const [y, m, dd] = d.split("-"); return `${Number(dd)} ${M[Number(m) - 1]} ${y}`; };
+  const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const fmt = (d) => { if (!d) return "Undated"; const [y, m, dd] = d.split("-"); return `${Number(dd)} ${MON[Number(m) - 1]} ${y}`; };
   const days = (d) => (d ? (Date.now() - Date.parse(d + "T12:00:00Z")) / 864e5 : Infinity);
+  const store = { get: (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } }, set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
 
   const REGIONS = {
-    "UK & Ireland": ["United Kingdom", "Ireland"],
-    "DACH": ["Germany", "Austria", "Switzerland"],
-    "France": ["France"],
-    "Benelux": ["Netherlands", "Belgium", "Luxembourg"],
-    "Nordics & Baltics": ["Sweden", "Norway", "Denmark", "Finland", "Iceland", "Estonia", "Latvia", "Lithuania"],
-    "Southern Europe": ["Spain", "Portugal", "Italy", "Greece"],
-    "Central & Eastern": ["Poland", "Czechia", "Hungary", "Romania", "Ukraine", "Bulgaria", "Slovenia", "Croatia"],
+    "UK & Ireland": ["United Kingdom", "Ireland"], "DACH": ["Germany", "Austria", "Switzerland"], "France": ["France"],
+    "Benelux": ["Netherlands", "Belgium", "Luxembourg"], "Nordics & Baltics": ["Sweden", "Norway", "Denmark", "Finland", "Iceland", "Estonia", "Latvia", "Lithuania"],
+    "Southern Europe": ["Spain", "Portugal", "Italy", "Greece"], "Central & Eastern": ["Poland", "Czechia", "Hungary", "Romania", "Ukraine", "Bulgaria", "Slovenia", "Croatia"],
   };
   const STAGES = ["Pre-seed", "Seed", "Series A", "Not stated"];
   const stageOf = (r) => { const s = (r.stage || "").toLowerCase(); return s.includes("pre-seed") ? "Pre-seed" : s.includes("series a") ? "Series A" : s.includes("seed") ? "Seed" : "Not stated"; };
+  const STATUSES = [["new", "New"], ["reviewing", "Reviewing"], ["contacted", "Contacted"], ["passed", "Passed"]];
+  const statusLabel = Object.fromEntries(STATUSES);
   const WHEN = [["30", "Last 30 days"], ["90", "Last 90 days"], ["365", "Last year"]];
+  const SECTOR_TAG = { "Energy & climate": "t3", "Industrial & robotics": "t1", "Logistics & supply chain": "t5", "AI & developer tools": "t2", "B2B software": "t8", "Fintech & insurance": "t4", "Health & bio": "t6", "Legal & compliance": "t9", "Consumer": "t7", "Defence & security": "t6" };
+  const tagCls = (s) => SECTOR_TAG[s] || "t8";
 
+  const BASE = { sectors: [], geos: [], stages: [], include: [], exclude: [], exSectors: [], team: 60, when: "", channels: [], founderX: false, pipeline: [] };
   const PRESETS = {
-    "Energy & industry": { sectors: ["Energy & climate", "Industrial & robotics", "Logistics & supply chain"], geos: [], stages: [], include: [], exclude: [], exSectors: ["Defence & security", "Consumer"], team: 60, when: "", channels: [], founderX: false },
-    "UK pre-seed": { sectors: [], geos: ["United Kingdom"], stages: ["Pre-seed", "Not stated"], include: [], exclude: [], exSectors: ["Consumer"], team: 10, when: "", channels: [], founderX: false },
-    "AI & dev tools": { sectors: ["AI & developer tools"], geos: [], stages: [], include: [], exclude: [], exSectors: [], team: 60, when: "", channels: [], founderX: false },
-    "Fintech": { sectors: ["Fintech & insurance"], geos: [], stages: [], include: [], exclude: ["crypto"], exSectors: [], team: 60, when: "", channels: [], founderX: false },
-    "Everything": { sectors: [], geos: [], stages: [], include: [], exclude: [], exSectors: [], team: 60, when: "", channels: [], founderX: false },
+    "Energy & industry": { ...BASE, sectors: ["Energy & climate", "Industrial & robotics", "Logistics & supply chain"], exSectors: ["Defence & security", "Consumer"] },
+    "UK pre-seed": { ...BASE, geos: ["United Kingdom"], stages: ["Pre-seed", "Not stated"], exSectors: ["Consumer"], team: 10 },
+    "AI & dev tools": { ...BASE, sectors: ["AI & developer tools"] },
+    "Fintech": { ...BASE, sectors: ["Fintech & insurance"], exclude: ["crypto"] },
+    "Everything": { ...BASE },
   };
   const clone = (o) => JSON.parse(JSON.stringify(o));
-  let T = clone(PRESETS["Energy & industry"]);
-  let preset = "Energy & industry";
-  let ui = { q: "", sort: "date", shortOnly: false, showHits: 24, showNear: 12, open: null };
-  let all = [], meta = null, short = new Set();
-  try { const s = JSON.parse(localStorage.getItem("radar-thesis") || "null"); if (s && s.T) { T = { ...T, ...s.T }; preset = s.preset || ""; } } catch {}
-  try { (JSON.parse(localStorage.getItem("radar-short") || "[]")).forEach((id) => short.add(id)); } catch {}
-  const save = () => { try { localStorage.setItem("radar-thesis", JSON.stringify({ T, preset })); } catch {} };
-  const saveShort = () => { try { localStorage.setItem("radar-short", JSON.stringify([...short])); } catch {} };
+  const saved = store.get("radar-thesis", null);
+  let T = saved?.T ? { ...BASE, ...saved.T } : clone(PRESETS["Energy & industry"]);
+  let preset = saved ? saved.preset || "" : "Energy & industry";
+  const ui = { q: "", view: store.get("radar-view", "gallery"), group: store.get("radar-group", ""), sort: store.get("radar-sort", "date"), gsort: null, starredOnly: false, show: {}, open: null };
+  let all = [], meta = null, loaded = false, loadError = "";
+  let mine = { star: [], status: {} };           // private to the viewer
+  let mineRef = null, mineReady = false;
+  const saveT = () => store.set("radar-thesis", { T, preset });
 
-  const countriesIn = () => new Set(T.geos.flatMap((g) => REGIONS[g] || [g]));
+  // ---------- Matching: each active criterion returns {k, ok, d}
+  const countries = () => new Set(T.geos.flatMap((g) => REGIONS[g] || [g]));
   const placeOf = (r) => [r.city && r.city !== r.country ? r.city : "", r.country].filter(Boolean).join(", ");
   const text = (r) => `${r.name} ${r.oneLiner} ${r.signal} ${(r.alsoSeen || []).map((s) => s.signal).join(" ")}`.toLowerCase();
-  const word = (t, k) => new RegExp(`(^|[^\\p{L}\\p{N}])${k.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "iu").test(t);
-
-  // Each active criterion returns {label, ok, detail}. A company matches when every one is ok.
+  const has = (t, k) => new RegExp(`(^|[^\\p{L}\\p{N}])${k.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "iu").test(t);
+  const statusOf = (r) => mine.status[r.id] || "new";
   function judge(r) {
-    const out = [];
-    const t = text(r);
+    const out = [], t = text(r);
     if (T.sectors.length) out.push({ k: "Sector", ok: T.sectors.includes(r.sector), d: r.sector });
-    if (T.geos.length) { const c = countriesIn(); out.push({ k: "Geography", ok: c.has(r.country), d: r.country || "Not stated" }); }
+    if (T.geos.length) out.push({ k: "Geography", ok: countries().has(r.country), d: r.country || "Not stated" });
     if (T.stages.length) { const s = stageOf(r); out.push({ k: "Stage", ok: T.stages.includes(s), d: s === "Not stated" ? "Not stated by any source" : `${s}, per ${r.stageBy}` }); }
-    if (T.include.length) { const hit = T.include.filter((k) => word(t, k)); out.push({ k: "Mentions", ok: hit.length > 0, d: hit.length ? hit.map((k) => `“${k}”`).join(", ") : `None of ${T.include.map((k) => `“${k}”`).join(", ")}` }); }
-    const exS = T.exSectors.includes(r.sector); const exK = T.exclude.filter((k) => word(t, k));
-    if (T.exSectors.length || T.exclude.length) out.push({ k: "Exclusions", ok: !exS && !exK.length, d: exS ? `Sector is ${r.sector}` : exK.length ? `Mentions ${exK.map((k) => `“${k}”`).join(", ")}` : "None apply" });
+    if (T.include.length) { const h = T.include.filter((k) => has(t, k)); out.push({ k: "Mentions", ok: h.length > 0, d: h.length ? h.map((k) => `“${k}”`).join(", ") : `None of ${T.include.map((k) => `“${k}”`).join(", ")}` }); }
+    if (T.exSectors.length || T.exclude.length) { const xs = T.exSectors.includes(r.sector), xk = T.exclude.filter((k) => has(t, k)); out.push({ k: "Exclusions", ok: !xs && !xk.length, d: xs ? `Sector is ${r.sector}` : xk.length ? `Mentions ${xk.map((k) => `“${k}”`).join(", ")}` : "None apply" }); }
     if (T.team < 60) out.push({ k: "Team size", ok: r.teamSize == null || r.teamSize <= T.team, d: r.teamSize == null ? "Not stated" : `${r.teamSize} people` });
     if (T.when) out.push({ k: "Signal date", ok: days(r.signalDate) <= Number(T.when), d: fmt(r.signalDate) });
     if (T.channels.length) out.push({ k: "Found through", ok: T.channels.includes(r.channel), d: r.channel });
-    if (T.founderX) out.push({ k: "On X", ok: !!(xh(r.companyX) || (r.founders || []).some((f) => xh(f.x))), d: xh(r.companyX) ? `@${xh(r.companyX)}` : (r.founders || []).map((f) => xh(f.x)).filter(Boolean).map((h) => "@" + h).join(", ") || "No handle found" });
+    if (T.founderX) { const hs = [xh(r.companyX), ...(r.founders || []).map((f) => xh(f.x))].filter(Boolean); out.push({ k: "On X", ok: hs.length > 0, d: hs.length ? hs.map((h) => "@" + h).join(", ") : "No handle found" }); }
+    if (T.pipeline.length) out.push({ k: "Pipeline", ok: T.pipeline.includes(statusOf(r)), d: statusLabel[statusOf(r)] });
     return out;
   }
-  const activeCount = () => T.sectors.length + T.geos.length + T.stages.length + T.include.length + T.exclude.length + T.exSectors.length + (T.team < 60) + !!T.when + T.channels.length + T.founderX;
+  const chipCount = () => T.sectors.length + T.geos.length + T.stages.length + T.include.length + T.exclude.length + T.exSectors.length + (T.team < 60 ? 1 : 0) + (T.when ? 1 : 0) + T.channels.length + (T.founderX ? 1 : 0) + T.pipeline.length;
 
-  function chipRow(el, items, sel, onToggle, cls = "") {
+  // ---------- Thesis panel
+  const toggle = (a, v) => (a.includes(v) ? a.filter((x) => x !== v) : [...a, v]);
+  const tally = (f) => all.reduce((a, r) => { const k = f(r); if (k) a[k] = (a[k] || 0) + 1; return a; }, {});
+  function chipRow(el, items, sel, on, cls = "") {
     el.innerHTML = items.map(([v, l, n]) => `<button type="button" class="chip ${cls}" data-v="${esc(v)}" aria-pressed="${sel.includes(v)}">${esc(l)}${n != null ? ` <span class="n">${n}</span>` : ""}</button>`).join("");
-    el.onclick = (e) => { const b = e.target.closest("[data-v]"); if (b) onToggle(b.dataset.v); };
+    el.onclick = (e) => { const b = e.target.closest("[data-v]"); if (b) on(b.dataset.v); };
   }
-  const toggle = (arr, v) => (arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
-  const tally = (k) => all.reduce((a, r) => ((a[r[k]] = (a[r[k]] || 0) + 1), a), {});
-  function changed() { preset = ""; save(); ui.showHits = 24; ui.showNear = 12; renderThesis(); render(); }
-
+  function changed() { preset = ""; saveT(); ui.show = {}; renderThesis(); render(); }
   function renderThesis() {
     $("#presets").innerHTML = Object.keys(PRESETS).map((p) => `<button type="button" class="chip" data-p="${esc(p)}" aria-pressed="${preset === p}">${esc(p)}</button>`).join("");
-    const sc = tally("sector");
-    const sectors = Object.keys(sc).sort((a, b) => sc[b] - sc[a]);
+    const sc = tally((r) => r.sector), sectors = Object.keys(sc).sort((a, b) => sc[b] - sc[a]);
     chipRow($("#t-sectors"), sectors.map((s) => [s, s, sc[s]]), T.sectors, (v) => { T.sectors = toggle(T.sectors, v); changed(); });
-    const cc = tally("country");
+    const cc = tally((r) => r.country);
     chipRow($("#t-regions"), Object.keys(REGIONS).map((g) => [g, g, REGIONS[g].reduce((n, c) => n + (cc[c] || 0), 0)]).filter((x) => x[2] > 0), T.geos, (v) => { T.geos = toggle(T.geos, v); changed(); });
-    const inRegions = new Set(Object.values(REGIONS).flat());
-    const loose = Object.keys(cc).filter((c) => c && !inRegions.has(c));
-    const top = Object.keys(cc).filter((c) => c && !REGIONS[c]).sort((a, b) => cc[b] - cc[a]).slice(0, 6).concat(loose);
-    chipRow($("#t-countries"), [...new Set(top)].map((c) => [c, c, cc[c]]), T.geos, (v) => { T.geos = toggle(T.geos, v); changed(); });
-    const st = all.reduce((a, r) => ((a[stageOf(r)] = (a[stageOf(r)] || 0) + 1), a), {});
+    const inR = new Set(Object.values(REGIONS).flat());
+    const top = [...new Set(Object.keys(cc).filter((c) => !REGIONS[c]).sort((a, b) => cc[b] - cc[a]).slice(0, 6).concat(Object.keys(cc).filter((c) => !inR.has(c))))];
+    chipRow($("#t-countries"), top.map((c) => [c, c, cc[c]]), T.geos, (v) => { T.geos = toggle(T.geos, v); changed(); });
+    const st = tally(stageOf);
     chipRow($("#t-stages"), STAGES.map((s) => [s, s, st[s] || 0]), T.stages, (v) => { T.stages = toggle(T.stages, v); changed(); });
-    $("#t-inc").innerHTML = T.include.map((k) => `<span class="tag">${esc(k)}<button type="button" aria-label="Remove ${esc(k)}" data-rm="${esc(k)}">×</button></span>`).join("");
-    $("#t-exc").innerHTML = T.exclude.map((k) => `<span class="tag ex">${esc(k)}<button type="button" aria-label="Remove ${esc(k)}" data-rm="${esc(k)}">×</button></span>`).join("");
-    chipRow($("#t-exsectors"), sectors.map((s) => [s, s, null]), T.exSectors, (v) => { T.exSectors = toggle(T.exSectors, v); changed(); }, "x");
+    $("#t-inc").innerHTML = T.include.map((k) => `<span class="token">${esc(k)}<button type="button" aria-label="Remove ${esc(k)}" data-rm-inc="${esc(k)}">×</button></span>`).join("");
+    $("#t-exc").innerHTML = T.exclude.map((k) => `<span class="token ex">${esc(k)}<button type="button" aria-label="Remove ${esc(k)}" data-rm-exc="${esc(k)}">×</button></span>`).join("");
+    chipRow($("#t-exsectors"), sectors.map((s) => [s, s, null]), T.exSectors, (v) => { T.exSectors = toggle(T.exSectors, v); changed(); }, "ex");
     $("#team").value = T.team; $("#team-out").textContent = T.team >= 60 ? "Any size" : `≤ ${T.team} people`;
     chipRow($("#t-when"), WHEN.map(([v, l]) => [v, l, null]), [T.when], (v) => { T.when = T.when === v ? "" : v; changed(); });
-    const ch = tally("channel");
+    const ch = tally((r) => r.channel);
     chipRow($("#t-channels"), Object.keys(ch).sort((a, b) => ch[b] - ch[a]).map((c) => [c, c, ch[c]]), T.channels, (v) => { T.channels = toggle(T.channels, v); changed(); });
     $("#fx").checked = T.founderX;
-    $("#nfilters").textContent = activeCount();
+    const ps = tally(statusOf);
+    chipRow($("#t-pipeline"), STATUSES.map(([v, l]) => [v, l, ps[v] || 0]), T.pipeline, (v) => { T.pipeline = toggle(T.pipeline, v); changed(); });
+    $("#nfilters").textContent = chipCount();
   }
 
-  function card(r, verdict, near) {
-    const miss = verdict.find((v) => !v.ok);
-    const hits = verdict.filter((v) => v.ok && v.k !== "Exclusions").slice(0, 3);
-    const where = placeOf(r) || "Location not stated";
-    return `<article class="card${near ? " near" : ""}" tabindex="0" data-id="${esc(r.id)}" aria-label="${esc(r.name)}">
-      <div class="c-top"><div><div class="c-name">${esc(r.name)}</div><div class="c-where">${esc(where)}${r.teamSize ? ` · ${r.teamSize} people` : ""}</div></div>
-        <button type="button" class="star" data-star="${esc(r.id)}" aria-pressed="${short.has(r.id)}" aria-label="${short.has(r.id) ? "Remove from" : "Add to"} shortlist"><svg width="18" height="18" viewBox="0 0 18 18" fill="${short.has(r.id) ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M9 2.5l2 4.2 4.5.6-3.3 3.1.8 4.5L9 12.7 5 14.9l.8-4.5-3.3-3.1 4.5-.6z"/></svg></button></div>
+  // ---------- Filter tokens above the results
+  function renderTokens() {
+    const tk = [];
+    const add = (label, rm, ex) => tk.push(`<span class="token${ex ? " ex" : ""}">${esc(label)}<button type="button" aria-label="Remove ${esc(label)}" data-tok="${esc(rm)}">×</button></span>`);
+    T.sectors.forEach((v) => add(v, "sectors|" + v)); T.geos.forEach((v) => add(v, "geos|" + v)); T.stages.forEach((v) => add(v, "stages|" + v));
+    T.include.forEach((v) => add(`mentions “${v}”`, "include|" + v)); T.exSectors.forEach((v) => add(`not ${v}`, "exSectors|" + v, true)); T.exclude.forEach((v) => add(`not “${v}”`, "exclude|" + v, true));
+    if (T.team < 60) add(`team ≤ ${T.team}`, "team|"); if (T.when) add(WHEN.find((w) => w[0] === T.when)[1], "when|");
+    T.channels.forEach((v) => add(v, "channels|" + v)); if (T.founderX) add("on X", "founderX|"); T.pipeline.forEach((v) => add(statusLabel[v], "pipeline|" + v));
+    if (ui.q) add(`search “${ui.q}”`, "q|");
+    $("#tokens").innerHTML = tk.length ? tk.join("") + `<button type="button" class="link" data-tok="all|">Clear all</button>` : `<span class="hint">No filters. Every company is shown.</span>`;
+  }
+  function removeToken(v) {
+    const [k, val] = [v.slice(0, v.indexOf("|")), v.slice(v.indexOf("|") + 1)];
+    if (k === "all") { T = clone(BASE); ui.q = ""; $("#q").value = ""; }
+    else if (k === "team") T.team = 60; else if (k === "when") T.when = ""; else if (k === "founderX") T.founderX = false;
+    else if (k === "q") { ui.q = ""; $("#q").value = ""; } else T[k] = T[k].filter((x) => x !== val);
+    changed();
+  }
+
+  // ---------- Results
+  const star = (id) => mine.star.includes(id);
+  const starBtn = (r, small) => `<button type="button" class="star" data-star="${esc(r.id)}" aria-pressed="${star(r.id)}" aria-label="${star(r.id) ? "Unstar" : "Star"} ${esc(r.name)}"><svg width="${small ? 16 : 18}" height="${small ? 16 : 18}" viewBox="0 0 18 18" fill="${star(r.id) ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M9 2.5l2 4.2 4.5.6-3.3 3.1.8 4.5L9 12.7 5 14.9l.8-4.5-3.3-3.1 4.5-.6z"/></svg></button>`;
+  const statusSel = (r) => `<select class="status" data-status="${esc(r.id)}" data-s="${statusOf(r)}" aria-label="Status of ${esc(r.name)}">${STATUSES.map(([v, l]) => `<option value="${v}"${statusOf(r) === v ? " selected" : ""}>${l}</option>`).join("")}</select>`;
+
+  function card(r, v, near) {
+    const miss = v.find((x) => !x.ok);
+    return `<article class="card${statusOf(r) === "passed" ? " passed" : ""}" tabindex="0" data-id="${esc(r.id)}" aria-label="${esc(r.name)}">
+      <div class="c-top"><div><div class="c-name">${esc(r.name)}</div><div class="c-where">${esc(placeOf(r) || "Location not stated")}${r.teamSize ? ` · ${r.teamSize} people` : ""}</div></div>${starBtn(r)}</div>
       <div class="c-one">${esc(r.oneLiner)}</div>
-      <div class="c-meta">${near && miss ? `<span class="pill miss">${esc(miss.k)}: ${esc(miss.d)}</span>` : ""}${hits.map((v) => `<span class="pill hit">${esc(v.d)}</span>`).join("")}${!T.sectors.length ? `<span class="pill">${esc(r.sector)}</span>` : ""}<span class="pill">${esc(stageOf(r))}</span></div>
-      <div class="c-sig"><b>${esc(r.signal)}</b><span class="d">${fmt(r.signalDate)} · ${esc(r.channel)}</span></div>
+      <div class="c-tags">${near && miss ? `<span class="tag miss">${esc(miss.k)}: ${esc(miss.d)}</span>` : ""}<span class="tag ${tagCls(r.sector)}${T.sectors.includes(r.sector) ? " hit" : ""}">${esc(r.sector)}</span><span class="tag">${esc(stageOf(r))}</span>${r.batch ? `<span class="tag">YC ${esc(r.batch)}</span>` : ""}</div>
+      <div class="c-foot"><div class="c-sig"><b>${esc(r.signal)}</b><span class="num">${fmt(r.signalDate)} · ${esc(r.channel)}</span></div>${statusSel(r)}</div>
     </article>`;
   }
+  const COLS = [
+    ["name", "Company"], ["oneLiner", "What it does"], ["sector", "Sector"], ["place", "Where"], ["stage", "Stage"], ["teamSize", "Team"], ["signalDate", "Latest signal"], ["channel", "Found through"], ["match", "Thesis"], ["status", "Status"],
+  ];
+  function gridTable(list) {
+    const arrow = (k) => (ui.gsort && ui.gsort.k === k ? `<span class="arrow">${ui.gsort.dir > 0 ? "↑" : "↓"}</span>` : "");
+    return `<div class="gridwrap"><table><thead><tr>${COLS.map(([k, l], i) => `<th scope="col" class="${i ? "" : "first"}" aria-sort="${ui.gsort && ui.gsort.k === k ? (ui.gsort.dir > 0 ? "ascending" : "descending") : "none"}"><button type="button" data-gsort="${k}">${l} ${arrow(k)}</button></th>`).join("")}</tr></thead><tbody>
+      ${list.map(([r, v, near]) => { const miss = v.find((x) => !x.ok); return `<tr tabindex="0" data-id="${esc(r.id)}" class="${statusOf(r) === "passed" ? "passed" : ""}">
+        <td class="first"><div class="row">${starBtn(r, true)}<span>${esc(r.name)}</span></div></td>
+        <td><span class="clip">${esc(r.oneLiner)}</span></td>
+        <td><span class="tag ${tagCls(r.sector)}">${esc(r.sector)}</span></td>
+        <td style="white-space:nowrap">${esc(placeOf(r) || "—")}</td>
+        <td style="white-space:nowrap">${esc(stageOf(r))}</td>
+        <td class="num" style="text-align:right">${r.teamSize ?? "—"}</td>
+        <td><span class="clip">${esc(r.signal)}</span><span class="muted num" style="font-size:12px">${fmt(r.signalDate)}</span></td>
+        <td style="white-space:nowrap">${esc(r.channel)}</td>
+        <td style="white-space:nowrap">${!v.length ? "—" : near ? `<span class="mx no">Misses ${esc(miss.k.toLowerCase())}</span>` : `<span class="mx">Match</span>`}</td>
+        <td>${statusSel(r)}</td></tr>`; }).join("")}
+    </tbody></table></div>`;
+  }
 
-  let lastHits = [];
+  let lastList = [];
   function render() {
+    renderTokens();
+    if (!loaded) {
+      $("#results").innerHTML = loadError
+        ? `<div class="empty" style="margin-top:16px"><b>The list couldn't load</b><p>${esc(loadError)}</p><button type="button" class="btn btn-primary btn-sm" id="retry">Try again</button></div>`
+        : `<div class="cards" style="margin-top:18px">${Array.from({ length: 6 }, () => `<div class="skel"><i style="width:45%"></i><i></i><i style="width:80%"></i><i style="width:30%"></i></div>`).join("")}</div>`;
+      return;
+    }
     const q = ui.q.trim().toLowerCase();
     let pool = all.filter((r) => !q || [r.name, r.oneLiner, r.city, r.country, r.sector, r.signal, ...(r.founders || []).map((f) => f.name)].join(" ").toLowerCase().includes(q));
-    if (ui.shortOnly) pool = pool.filter((r) => short.has(r.id));
-    const sorted = pool.slice().sort((a, b) => ui.sort === "name" ? a.name.localeCompare(b.name) : ui.sort === "team" ? (a.teamSize ?? 999) - (b.teamSize ?? 999) || a.name.localeCompare(b.name) : (b.signalDate || "").localeCompare(a.signalDate || "") || a.name.localeCompare(b.name));
+    if (ui.starredOnly) pool = pool.filter((r) => star(r.id));
     const hits = [], near = [];
     let nCrit = 0;
-    for (const r of sorted) { const v = judge(r); nCrit = v.length; const failed = v.filter((x) => !x.ok); if (!failed.length) hits.push([r, v]); else if (failed.length === 1 && failed[0].k !== "Sector" && failed[0].k !== "Exclusions") near.push([r, v]); }
-    lastHits = hits.map(([r]) => r);
+    for (const r of pool) { const v = judge(r); nCrit = v.length; const f = v.filter((x) => !x.ok); if (!f.length) hits.push([r, v, false]); else if (f.length === 1 && !["Sector", "Exclusions"].includes(f[0].k)) near.push([r, v, true]); }
     const rest = pool.length - hits.length - near.length;
     $("#bar-hit").style.width = `${pool.length ? (hits.length / pool.length) * 100 : 0}%`;
     $("#bar-near").style.width = `${pool.length ? (near.length / pool.length) * 100 : 0}%`;
     $("#lg-hit").textContent = hits.length; $("#lg-near").textContent = near.length; $("#lg-rest").textContent = rest;
-    const n = nCrit;
-    const fresh = hits.filter(([r]) => days(r.signalDate) <= 30);
-    $("#finding").innerHTML = !all.length ? "Loading the list…" : n === 0
-      ? `All ${all.length} companies. Set a thesis on the left to narrow them down.`
-      : `<b>${hits.length}</b> of ${pool.length} companies match your ${n} ${n === 1 ? "criterion" : "criteria"}${fresh.length ? `, ${fresh.length} with a signal in the last 30 days` : ""}.${near.length ? ` ${near.length} more miss by one test.` : ""}`;
-    $("#g-hit-n").textContent = `${hits.length} ${hits.length === 1 ? "company" : "companies"}`;
-    $("#hits").innerHTML = hits.length ? hits.slice(0, ui.showHits).map(([r, v]) => card(r, v, false)).join("")
-      : `<div class="empty"><b>${ui.shortOnly ? "Nothing on your shortlist matches" : "Nothing matches every criterion"}</b><span>${ui.shortOnly ? "Star companies to add them, or turn the shortlist view off." : "Look at the near misses below, or loosen the criterion they fail most."}</span></div>`;
-    $("#more-hits").innerHTML = hits.length > ui.showHits ? `<button type="button" class="btn btn-ghost" data-more="hits">Show ${Math.min(24, hits.length - ui.showHits)} more of ${hits.length - ui.showHits}</button>` : "";
-    $("#near-sec").hidden = n === 0 || !near.length;
-    $("#near").innerHTML = near.slice(0, ui.showNear).map(([r, v]) => card(r, v, true)).join("");
-    $("#more-near").innerHTML = near.length > ui.showNear ? `<button type="button" class="btn btn-ghost" data-more="near">Show ${Math.min(24, near.length - ui.showNear)} more of ${near.length - ui.showNear}</button>` : "";
-    $("#nshort").textContent = short.size;
-    $("#show-short").setAttribute("aria-pressed", String(ui.shortOnly));
-    document.querySelectorAll("[data-sort]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.sort === ui.sort)));
+    const fresh = hits.filter(([r]) => days(r.signalDate) <= 30).length;
+    $("#finding").innerHTML = nCrit === 0
+      ? `All <b>${pool.length}</b> companies. Set a thesis to narrow them down.`
+      : `<b>${hits.length}</b> of ${pool.length} match your ${nCrit} ${nCrit === 1 ? "criterion" : "criteria"}${fresh ? `, ${fresh} with a signal in the last 30 days` : ""}.${near.length ? ` ${near.length} more miss by one.` : ""}`;
+    $("#nshort").textContent = mine.star.length;
+    $("#show-short").setAttribute("aria-pressed", String(ui.starredOnly));
+    document.querySelectorAll("[data-view]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.view === ui.view)));
+    $("#group").value = ui.group; $("#sort").value = ui.sort;
+
+    const sortFn = ui.view === "grid" && ui.gsort ? gridSort(ui.gsort) : ui.sort === "name" ? (a, b) => a[0].name.localeCompare(b[0].name)
+      : ui.sort === "team" ? (a, b) => (a[0].teamSize ?? 999) - (b[0].teamSize ?? 999) || a[0].name.localeCompare(b[0].name)
+      : (a, b) => (b[0].signalDate || "").localeCompare(a[0].signalDate || "") || a[0].name.localeCompare(b[0].name);
+    hits.sort(sortFn); near.sort(sortFn);
+    lastList = hits.map(([r]) => r);
+
+    let html = "";
+    if (!hits.length) html += noResults(pool.length, near);
+    else html += section("hits", "Matches your thesis", `${hits.length} ${hits.length === 1 ? "company" : "companies"}`, hits);
+    if (nCrit && near.length) html += section("near", "Near misses", "In your sectors, failing one other test", near);
+    $("#results").innerHTML = html;
+  }
+  function gridSort({ k, dir }) {
+    const val = (r, v) => k === "place" ? placeOf(r) : k === "stage" ? STAGES.indexOf(stageOf(r)) : k === "teamSize" ? r.teamSize ?? 999 : k === "match" ? v.filter((x) => !x.ok).length : k === "status" ? STATUSES.findIndex((s) => s[0] === statusOf(r)) : (r[k] ?? "");
+    return (a, b) => { const x = val(a[0], a[1]), y = val(b[0], b[1]); return (typeof x === "number" ? x - y : String(x).localeCompare(String(y))) * dir || a[0].name.localeCompare(b[0].name); };
+  }
+  function section(key, title, sub, list) {
+    const groups = groupList(list);
+    return groups.map(([g, items], gi) => {
+      const limitKey = key + "|" + g; const limit = ui.show[limitKey] || (ui.view === "grid" ? 60 : 24);
+      const head = `<div class="group-h"><h2>${gi === 0 || !ui.group ? esc(title) : ""}${ui.group ? `${gi === 0 ? " · " : ""}<span class="tag ${ui.group === "sector" ? tagCls(g) : ""}">${esc(g)}</span> <span class="sub num">${items.length}</span>` : ""}</h2>${gi === 0 ? `<span class="sub">${esc(sub)}</span>` : ""}</div>`;
+      const body = ui.view === "grid" ? gridTable(items.slice(0, limit)) : `<div class="cards">${items.slice(0, limit).map(([r, v, n]) => card(r, v, n)).join("")}</div>`;
+      const more = items.length > limit ? `<div class="more"><button type="button" class="btn btn-white btn-sm" data-more="${esc(limitKey)}">Show ${Math.min(limit, items.length - limit)} more of ${items.length - limit}</button></div>` : "";
+      return `<section class="group" aria-label="${esc(title)}${ui.group ? ": " + esc(g) : ""}">${head}${body}${more}</section>`;
+    }).join("");
+  }
+  function groupList(list) {
+    if (!ui.group) return [["", list]];
+    const key = (r) => ui.group === "sector" ? r.sector : ui.group === "country" ? r.country || "Not stated" : ui.group === "stage" ? stageOf(r) : statusLabel[statusOf(r)];
+    const m = new Map(); for (const it of list) { const k = key(it[0]); if (!m.has(k)) m.set(k, []); m.get(k).push(it); }
+    const order = ui.group === "stage" ? STAGES : ui.group === "status" ? STATUSES.map((s) => s[1]) : null;
+    return [...m.entries()].sort((a, b) => order ? order.indexOf(a[0]) - order.indexOf(b[0]) : b[1].length - a[1].length);
+  }
+  function noResults(n, near) {
+    const sugg = [];
+    if (ui.q) sugg.push([`Clear the search “${ui.q}”`, "q|"]);
+    T.include.forEach((k) => sugg.push([`Drop “${k}”`, "include|" + k]));
+    if (T.stages.length) sugg.push(["Any stage", "stages*"]);
+    if (T.geos.length) sugg.push(["Anywhere in Europe", "geos*"]);
+    if (T.team < 60) sugg.push(["Any team size", "team|"]);
+    if (ui.starredOnly) sugg.push(["Show all, not only starred", "starred*"]);
+    const title = ui.starredOnly && !mine.star.length ? "You haven't starred anything yet" : ui.q ? `Nothing matches “${esc(ui.q)}” with this thesis` : "Nothing matches every criterion";
+    return `<div class="empty" style="margin-top:16px"><b>${title}</b><p>${near.length ? `${near.length} ${near.length === 1 ? "company misses" : "companies miss"} by one test; they're listed below.` : "Loosen one of these to see more."}</p>
+      <div class="chips">${sugg.slice(0, 5).map(([l, v]) => `<button type="button" class="chip" data-sugg="${esc(v)}">${esc(l)}</button>`).join("")}</div></div>`;
   }
 
+  // ---------- Drawer
   function openDrawer(id) {
-    const r = all.find((x) => x.id === id); if (!r) return;
-    ui.open = id;
+    const r = all.find((x) => x.id === id); if (!r) return; ui.open = id;
     const v = judge(r);
     const sigs = [{ signal: r.signal, signalDate: r.signalDate, signalUrl: r.signalUrl, source: r.source }, ...(r.alsoSeen || [])];
     const founders = (r.founders || []).map((f) => `<li>${esc(f.name)}${xh(f.x) ? ` · <a href="https://x.com/${esc(xh(f.x))}" target="_blank" rel="noopener noreferrer">@${esc(xh(f.x))}</a>` : ""}</li>`).join("");
     $("#drawer").innerHTML = `
-      <div class="d-head"><div><h2>${esc(r.name)}</h2><div class="c-where">${esc(placeOf(r) || "Location not stated")} · ${esc(r.sector)}</div></div>
-        <button type="button" class="d-close" id="d-close">Close</button></div>
+      <div class="d-head"><div class="d-row"><div><h2>${esc(r.name)}</h2><div class="c-where">${esc(placeOf(r) || "Location not stated")}</div></div>
+        <button type="button" class="btn btn-white btn-sm" id="d-close">Close</button></div>
+        <div class="d-actions"><span class="tag ${tagCls(r.sector)}">${esc(r.sector)}</span>${statusSel(r)}${starBtn(r)}
+          ${safe(r.website) ? `<a class="btn btn-white btn-sm" href="${esc(r.website)}" target="_blank" rel="noopener noreferrer">Website</a>` : ""}${xh(r.companyX) ? `<a class="btn btn-white btn-sm" href="https://x.com/${esc(xh(r.companyX))}" target="_blank" rel="noopener noreferrer">@${esc(xh(r.companyX))}</a>` : ""}</div></div>
       <div class="d-body">
-        <div class="d-sec"><p style="margin:0;font-size:15px">${esc(r.oneLiner)}</p>
-          <div class="d-actions">${safe(r.website) ? `<a class="btn btn-ghost" href="${esc(r.website)}" target="_blank" rel="noopener noreferrer">Website</a>` : ""}${xh(r.companyX) ? `<a class="btn btn-ghost" href="https://x.com/${esc(xh(r.companyX))}" target="_blank" rel="noopener noreferrer">@${esc(xh(r.companyX))}</a>` : ""}
-            <button type="button" class="btn ${short.has(r.id) ? "btn-ghost" : "btn-primary"}" data-star="${esc(r.id)}">${short.has(r.id) ? "On your shortlist" : "Add to shortlist"}</button></div></div>
-        <div class="d-sec"><h3>Against your thesis</h3>${v.length ? `<ul>${v.map((c) => `<li class="crit"><span class="${c.ok ? "ok" : "no"}">${c.ok ? "✓" : "✗"} ${esc(c.k)}</span><span>${esc(c.d)}</span></li>`).join("")}</ul>` : `<p class="hint" style="margin:0">No thesis criteria set.</p>`}</div>
-        <div class="d-sec"><h3>Signals</h3><ul>${sigs.map((s) => `<li>${esc(s.signal)}<div class="hint">${fmt(s.signalDate)} · ${safe(s.signalUrl) ? `<a href="${esc(s.signalUrl)}" target="_blank" rel="noopener noreferrer">${esc(s.source)}</a>` : esc(s.source)}</div></li>`).join("")}</ul></div>
+        <div class="d-sec"><p style="margin:0;font-size:15px">${esc(r.oneLiner)}</p></div>
+        <div class="d-sec"><h3>Against your thesis</h3>${v.length ? `<ul>${v.map((c) => `<li class="crit"><span class="${c.ok ? "ok" : "no"}">${c.ok ? "✓" : "✗"} ${esc(c.k)}</span><span>${esc(c.d)}</span></li>`).join("")}</ul>` : `<p class="hint">No thesis set.</p>`}</div>
+        <div class="d-sec"><h3>Signals</h3><ul>${sigs.map((s) => `<li>${esc(s.signal)}<div class="hint num">${fmt(s.signalDate)} · ${safe(s.signalUrl) ? `<a href="${esc(s.signalUrl)}" target="_blank" rel="noopener noreferrer">${esc(s.source)}</a>` : esc(s.source)}</div></li>`).join("")}</ul></div>
         ${founders ? `<div class="d-sec"><h3>Founders</h3><ul>${founders}</ul></div>` : ""}
-        <div class="d-sec"><h3>On record</h3><ul>
-          <li>${r.stage ? `${esc(r.stage)}, as stated by ${esc(r.stageBy)}` : "Stage: no source states a round"}</li>
-          ${r.batch ? `<li>Y Combinator ${esc(r.batch)}</li>` : ""}${r.teamSize ? `<li>Team of ${r.teamSize}</li>` : ""}${r.founded ? `<li>Founded ${r.founded}</li>` : ""}</ul></div>
+        <div class="d-sec"><h3>On record</h3><ul><li>${r.stage ? `${esc(r.stage)}, as stated by ${esc(r.stageBy)}` : "Stage: no source states a round"}</li>${r.batch ? `<li>Y Combinator ${esc(r.batch)}</li>` : ""}${r.teamSize ? `<li>Team of ${r.teamSize}</li>` : ""}${r.founded ? `<li>Founded ${r.founded}</li>` : ""}</ul></div>
         <div class="d-sec"><h3>What was checked</h3><ul>${(r.checks || []).map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>
-        ${r.nextQuestion ? `<div class="d-sec"><h3>Next diligence question</h3><p class="q" style="margin:0">${esc(r.nextQuestion)}</p></div>` : ""}
+        ${r.nextQuestion ? `<div class="d-sec"><h3>Next diligence question</h3><p style="margin:0;font-weight:500">${esc(r.nextQuestion)}</p></div>` : ""}
       </div>`;
-    $("#drawer").classList.add("on"); $("#drawer").setAttribute("aria-hidden", "false"); $("#scrim").classList.add("on");
-    $("#d-close").focus();
+    $("#drawer").classList.add("on"); $("#drawer").setAttribute("aria-hidden", "false"); $("#scrim").classList.add("on"); $("#d-close").focus();
   }
   function closeDrawer() {
-    const id = ui.open; ui.open = null;
-    $("#drawer").classList.remove("on"); $("#drawer").setAttribute("aria-hidden", "true");
+    const id = ui.open; ui.open = null; $("#drawer").classList.remove("on"); $("#drawer").setAttribute("aria-hidden", "true");
     if (!$("#thesis").classList.contains("on")) $("#scrim").classList.remove("on");
-    const c = id && document.querySelector(`.card[data-id="${CSS.escape(id)}"]`); c && c.focus();
+    const el = id && document.querySelector(`[data-id="${CSS.escape(id)}"]`); el && el.focus();
   }
-  function star(id) { short.has(id) ? short.delete(id) : short.add(id); saveShort(); render(); if (ui.open === id) openDrawer(id); }
 
-  // Events
-  $("#presets").onclick = (e) => { const b = e.target.closest("[data-p]"); if (!b) return; T = clone(PRESETS[b.dataset.p]); preset = b.dataset.p; save(); renderThesis(); render(); };
-  $("#reset").onclick = () => { T = clone(PRESETS["Everything"]); preset = "Everything"; save(); renderThesis(); render(); };
+  // ---------- Private pipeline: stars and statuses
+  let writing = Promise.resolve(); let pending = false;
+  function persistMine() {
+    store.set("radar-mine", mine);
+    if (!mineRef || !mineReady) return;
+    if (pending) return; pending = true;
+    writing = writing.then(async () => { pending = false; try { await mineRef.set({ star: mine.star, status: mine.status }); } catch (e) { toast("Couldn't save to your account; kept on this device."); } });
+  }
+  function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove("on"), 2200); }
+  function setStar(id) { mine.star = star(id) ? mine.star.filter((x) => x !== id) : [...mine.star, id]; persistMine(); render(); if (ui.open === id) openDrawer(id); toast(star(id) ? "Starred" : "Removed from starred"); }
+  function setStatus(id, s) { if (s === "new") delete mine.status[id]; else mine.status[id] = s; persistMine(); renderThesis(); render(); if (ui.open === id) openDrawer(id); toast(`Marked ${statusLabel[s]}`); }
+
+  // ---------- Events
+  $("#presets").onclick = (e) => { const b = e.target.closest("[data-p]"); if (!b) return; T = clone(PRESETS[b.dataset.p]); preset = b.dataset.p; saveT(); ui.show = {}; renderThesis(); render(); };
+  $("#reset").onclick = () => { T = clone(BASE); preset = "Everything"; saveT(); renderThesis(); render(); };
   document.querySelectorAll("[data-clear]").forEach((b) => b.addEventListener("click", () => {
     const k = b.dataset.clear;
     if (k === "exclude") { T.exclude = []; T.exSectors = []; } else if (k === "signal") { T.when = ""; T.channels = []; T.founderX = false; } else T[k] = [];
@@ -419,21 +567,31 @@ h1 { margin: 0; font-size: 24px; line-height: 1.2; font-weight: 600; letter-spac
   }));
   const addKw = (form, input, key) => form.addEventListener("submit", (e) => { e.preventDefault(); const vals = input.value.split(",").map((s) => s.trim()).filter(Boolean); if (!vals.length) return; T[key] = [...new Set([...T[key], ...vals])]; input.value = ""; changed(); input.focus(); });
   addKw($("#f-inc"), $("#inc"), "include"); addKw($("#f-exc"), $("#exc"), "exclude");
-  $("#t-inc").onclick = (e) => { const b = e.target.closest("[data-rm]"); if (b) { T.include = T.include.filter((k) => k !== b.dataset.rm); changed(); } };
-  $("#t-exc").onclick = (e) => { const b = e.target.closest("[data-rm]"); if (b) { T.exclude = T.exclude.filter((k) => k !== b.dataset.rm); changed(); } };
-  $("#team").addEventListener("input", (e) => { T.team = Number(e.target.value); $("#team-out").textContent = T.team >= 60 ? "Any size" : `≤ ${T.team} people`; preset = ""; save(); render(); $("#nfilters").textContent = activeCount(); });
+  $("#team").addEventListener("input", (e) => { T.team = Number(e.target.value); $("#team-out").textContent = T.team >= 60 ? "Any size" : `≤ ${T.team} people`; preset = ""; saveT(); render(); $("#nfilters").textContent = chipCount(); });
   $("#fx").addEventListener("change", (e) => { T.founderX = e.target.checked; changed(); });
-  $("#q").addEventListener("input", (e) => { ui.q = e.target.value; ui.showHits = 24; render(); });
-  document.querySelectorAll("[data-sort]").forEach((b) => b.addEventListener("click", () => { ui.sort = b.dataset.sort; render(); }));
-  $("#show-short").onclick = () => { ui.shortOnly = !ui.shortOnly; render(); };
+  let qTimer; $("#q").addEventListener("input", (e) => { clearTimeout(qTimer); qTimer = setTimeout(() => { ui.q = e.target.value; ui.show = {}; render(); }, 120); });
+  document.querySelectorAll("[data-view]").forEach((b) => b.addEventListener("click", () => { ui.view = b.dataset.view; store.set("radar-view", ui.view); render(); }));
+  $("#group").addEventListener("change", (e) => { ui.group = e.target.value; store.set("radar-group", ui.group); render(); });
+  $("#sort").addEventListener("change", (e) => { ui.sort = e.target.value; ui.gsort = null; store.set("radar-sort", ui.sort); render(); });
+  $("#show-short").onclick = () => { ui.starredOnly = !ui.starredOnly; render(); };
+  document.addEventListener("change", (e) => { const s = e.target.closest("[data-status]"); if (s) setStatus(s.dataset.status, s.value); });
   document.addEventListener("click", (e) => {
-    const s = e.target.closest("[data-star]"); if (s) { e.stopPropagation(); star(s.dataset.star); return; }
-    const m = e.target.closest("[data-more]"); if (m) { if (m.dataset.more === "hits") ui.showHits += 24; else ui.showNear += 24; render(); return; }
-    const c = e.target.closest(".card"); if (c && !e.target.closest("a")) openDrawer(c.dataset.id);
+    const t = e.target;
+    const s = t.closest("[data-star]"); if (s) { e.stopPropagation(); setStar(s.dataset.star); return; }
+    if (t.closest("[data-status]")) return;
+    const tok = t.closest("[data-tok]"); if (tok) { removeToken(tok.dataset.tok); return; }
+    const rmI = t.closest("[data-rm-inc]"); if (rmI) { T.include = T.include.filter((k) => k !== rmI.dataset.rmInc); changed(); return; }
+    const rmE = t.closest("[data-rm-exc]"); if (rmE) { T.exclude = T.exclude.filter((k) => k !== rmE.dataset.rmExc); changed(); return; }
+    const sg = t.closest("[data-sugg]"); if (sg) { const v = sg.dataset.sugg; if (v === "stages*") { T.stages = []; changed(); } else if (v === "geos*") { T.geos = []; changed(); } else if (v === "starred*") { ui.starredOnly = false; render(); } else removeToken(v); return; }
+    const gs = t.closest("[data-gsort]"); if (gs) { const k = gs.dataset.gsort; ui.gsort = ui.gsort && ui.gsort.k === k ? { k, dir: -ui.gsort.dir } : { k, dir: k === "signalDate" ? -1 : 1 }; render(); return; }
+    const m = t.closest("[data-more]"); if (m) { ui.show[m.dataset.more] = (ui.show[m.dataset.more] || (ui.view === "grid" ? 60 : 24)) * 2; render(); return; }
+    if (t.closest("#retry")) { location.reload(); return; }
+    const row = t.closest("[data-id]"); if (row && !t.closest("a") && !t.closest(".drawer")) openDrawer(row.dataset.id);
   });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") { if (ui.open) closeDrawer(); else if ($("#thesis").classList.contains("on")) closeSheet(); }
-    if ((e.key === "Enter" || e.key === " ") && e.target.matches(".card")) { e.preventDefault(); openDrawer(e.target.dataset.id); }
+    if ((e.key === "Enter" || e.key === " ") && e.target.matches(".card, tr[data-id]")) { e.preventDefault(); openDrawer(e.target.dataset.id); }
+    if (e.key === "/" && document.activeElement.tagName !== "INPUT") { e.preventDefault(); $("#q").focus(); }
   });
   $("#drawer").addEventListener("click", (e) => { if (e.target.id === "d-close") closeDrawer(); });
   const openSheet = () => { $("#thesis").classList.add("on"); $("#scrim").classList.add("on"); };
@@ -441,31 +599,43 @@ h1 { margin: 0; font-size: 24px; line-height: 1.2; font-weight: 600; letter-spac
   $("#open-thesis").onclick = openSheet; $("#th-done").onclick = closeSheet;
   $("#scrim").onclick = () => { closeSheet(); if (ui.open) closeDrawer(); };
 
-  // CSV of the current matches (or the shortlist when that view is on)
+  // ---------- Export the current matches (or starred) as CSV
   const cell = (v) => { let s = v == null ? "" : String(v); if (/^[=+\-@]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
   $("#export").onclick = async () => {
-    const rows = ui.shortOnly ? all.filter((r) => short.has(r.id)) : lastHits;
-    const head = ["Company", "Website", "What it does", "Sector", "City", "Country", "Stage (as stated)", "Stated by", "Team size", "Latest signal", "Signal date", "Signal link", "Found through", "Founders on X", "Next question", "Checks"];
-    const lines = [head, ...rows.map((r) => [r.name, r.website, r.oneLiner, r.sector, r.city, r.country, r.stage || "Not stated", r.stageBy, r.teamSize ?? "", r.signal, r.signalDate ?? "", r.signalUrl, r.channel, (r.founders || []).map((f) => f.name + (xh(f.x) ? ` (@${xh(f.x)})` : "")).join("; "), r.nextQuestion || "", (r.checks || []).join("; ")])].map((l) => l.map(cell).join(",")).join("\r\n");
+    const rows = ui.starredOnly ? all.filter((r) => star(r.id)) : lastList;
+    const head = ["Company", "Website", "What it does", "Sector", "City", "Country", "Stage (as stated)", "Stated by", "Team size", "Latest signal", "Signal date", "Signal link", "Found through", "Founders on X", "Your status", "Starred", "Next question", "Checks"];
+    const csv = [head, ...rows.map((r) => [r.name, r.website, r.oneLiner, r.sector, r.city !== r.country ? r.city : "", r.country, r.stage || "Not stated", r.stageBy, r.teamSize ?? "", r.signal, r.signalDate ?? "", r.signalUrl, r.channel, (r.founders || []).map((f) => f.name + (xh(f.x) ? ` (@${xh(f.x)})` : "")).join("; "), statusLabel[statusOf(r)], star(r.id) ? "yes" : "", r.nextQuestion || "", (r.checks || []).join("; ")])].map((l) => l.map(cell).join(",")).join("\r\n");
     const dl = window.claude?.use ? await window.claude.use("downloads") : null;
-    const btn = $("#export"); const label = btn.textContent;
-    if (!dl) { btn.textContent = "Downloads aren't available here"; setTimeout(() => (btn.textContent = label), 2500); return; }
-    try { await dl.save({ filename: `startup-radar-${new Date().toISOString().slice(0, 10)}.csv`, data: "﻿" + lines }); btn.textContent = `Saved ${rows.length}`; } catch { btn.textContent = "Not saved"; }
-    setTimeout(() => (btn.textContent = label), 2500);
+    if (!dl) { toast("Downloads aren't available in this view."); return; }
+    try { await dl.save({ filename: `startup-radar-${new Date().toISOString().slice(0, 10)}.csv`, data: "﻿" + csv }); toast(`Saved ${rows.length} companies`); } catch { toast("Not saved"); }
   };
 
+  // ---------- Boot
+  mine = { star: [], status: {}, ...store.get("radar-mine", {}) };
+  $("#q").value = ui.q;
   renderThesis(); render();
-
   (async () => {
     const db = window.claude?.use ? await window.claude.use("db") : null;
-    if (!db) { $("#finding").textContent = "The list can't be loaded in this view. Open it on claude.ai while signed in."; return; }
-    const timer = setTimeout(() => { if (!all.length) $("#finding").textContent = "The list is taking a while to load."; }, 10000);
+    if (!db) { loadError = "Open this page on claude.ai while signed in to load the list."; render(); return; }
+    const timer = setTimeout(() => { if (!loaded) { loadError = "The list is taking longer than usual to load. Check your connection."; render(); } }, 10000);
     db.doc("meta/radar").onSnapshot((s) => { meta = s.exists ? s.data() : null; $("#stamp").textContent = meta ? `Updated ${fmt(meta.updatedOn)} · ${meta.note || ""}` : ""; }, () => {});
     db.collection("startups").onSnapshot((snap) => {
       all = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       if (!snap.metadata.fromCache) clearTimeout(timer);
-      renderThesis(); render();
-    }, (err) => { clearTimeout(timer); $("#finding").textContent = `The list couldn't be loaded (${err.code}).`; });
+      loaded = true; loadError = ""; renderThesis(); render();
+    }, (err) => { clearTimeout(timer); loadError = `The database answered with “${err.code}”.`; render(); });
+    // Private stars and statuses, kept under the viewer's own space.
+    const user = await window.claude.use("user");
+    const uid = user ? await user.id().catch(() => null) : null;
+    if (uid) {
+      mineRef = db.collection("data/users/" + uid).doc("radar");
+      mineRef.onSnapshot((s) => {
+        if (s.exists) { const d = s.data(); const local = mine; mine = { star: [...new Set([...(d.star || []), ...(mineReady ? [] : local.star)])], status: { ...(mineReady ? {} : local.status), ...(d.status || {}) } }; store.set("radar-mine", mine); }
+        const first = !mineReady; mineReady = true;
+        if (first && (!s.exists || mine.star.length !== (s.data()?.star || []).length)) persistMine();
+        renderThesis(); render();
+      }, () => {});
+    }
   })();
 })();
 </script>
