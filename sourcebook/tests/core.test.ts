@@ -5,6 +5,7 @@ import { quoteAppearsIn, parseHtml } from "@/lib/extract";
 import { evaluateThesis, findTerm, whyItMightFit } from "@/lib/match";
 import { DEFAULT_THESIS } from "@/lib/repo";
 import { SEED_COMPANIES } from "@/lib/seed-data";
+import { X_SEED_COMPANIES } from "@/lib/seed-x";
 import type { Fact } from "@/lib/types";
 import { guessKind, normalizeUrl, registrableDomain, xHandle } from "@/lib/url";
 
@@ -133,5 +134,27 @@ describe("seed data", () => {
       expect(c.nextQuestion.length).toBeGreaterThan(20);
     }
     expect(SEED_COMPANIES).toHaveLength(5);
+  });
+});
+
+describe("X-sourced leads", () => {
+  it("every fact has a source and quote; every company has an X post; posts are never 'verified'", () => {
+    for (const c of X_SEED_COMPANIES) {
+      const keys = new Set(c.sources.map((s) => s.key));
+      expect(c.sources.some((s) => s.kind === "x_post"), c.name).toBe(true);
+      for (const f of c.facts) {
+        expect(keys.has(f.source), `${c.name}: ${f.value}`).toBe(true);
+        expect(f.quote.length).toBeGreaterThan(3);
+        const src = c.sources.find((s) => s.key === f.source)!;
+        if (src.kind === "x_post") expect(f.provenance, `${c.name}: ${f.value}`).not.toBe("verified");
+      }
+    }
+  });
+  it("each X post excerpt contains the quotes drawn from it", () => {
+    for (const c of X_SEED_COMPANIES)
+      for (const f of c.facts) {
+        const src = c.sources.find((s) => s.key === f.source)!;
+        if (src.kind === "x_post" && "excerpt" in src && src.excerpt) expect(src.excerpt, `${c.name}: ${f.quote}`).toContain(f.quote);
+      }
   });
 });

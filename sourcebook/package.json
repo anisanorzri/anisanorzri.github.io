@@ -10,7 +10,8 @@
     "start": "next start",
     "lint": "tsc --noEmit",
     "test": "vitest run",
-    "db:seed": "tsx scripts/seed.ts"
+    "db:seed": "tsx scripts/seed.ts",
+    "db:seed:x": "tsx scripts/seed.ts --x"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.6.0",

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { addThesisSearchesAction, addXSearchAction, deleteXSearchAction, dismissXPostAction } from "../actions";
+import { addThesisSearchesAction, addXSearchAction, deleteXSearchAction, dismissXPostAction, loadXLeadsAction } from "../actions";
+import { X_SEED_COMPANIES } from "@/lib/seed-x";
 import { findCompanyMatches } from "@/lib/dedupe";
 import { findTerm } from "@/lib/match";
 import { dismissedXPosts, getThesis, listCompanies, listSources, listXSearches, markXSearchRun } from "@/lib/repo";
@@ -169,6 +170,25 @@ export default async function XPage({ searchParams }: { searchParams: Promise<{ 
                   })}
                 </div>
               )}
+            </section>
+          )}
+
+          {X_SEED_COMPANIES.some((x) => !companies.some((c) => c.name === x.name)) && (
+            <section className="card" aria-labelledby="leads-h">
+              <div className="card-head">
+                <h2 id="leads-h">Leads sourced from X, 7 Nov 2026</h2>
+                <span className="small muted num">{X_SEED_COMPANIES.length}</span>
+              </div>
+              <div className="card-body">
+                <p style={{ marginBottom: 12 }}>
+                  {X_SEED_COMPANIES.map((c) => c.name).join(", ")}. Each was found through a post on X, checked against X itself, the company&rsquo;s own site and, where public, its company register. They load as drafts for you to check.
+                </p>
+                <form action={loadXLeadsAction}>
+                  <button className="btn btn-primary" type="submit">
+                    Load {X_SEED_COMPANIES.length} leads into the queue
+                  </button>
+                </form>
+              </div>
             </section>
           )}
 

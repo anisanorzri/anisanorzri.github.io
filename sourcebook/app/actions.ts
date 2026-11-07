@@ -377,7 +377,13 @@ export async function feedbackAction(fd: FormData) {
 }
 
 export async function loadSeedAction() {
-  await loadSeed();
+  await loadSeed("examples");
   refresh();
   redirect("/");
+}
+
+export async function loadXLeadsAction() {
+  await loadSeed("x");
+  refresh();
+  redirect("/?status=new");
 }

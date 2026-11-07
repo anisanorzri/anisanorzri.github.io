@@ -1,16 +1,21 @@
 import { addFact, addSource, createCompany, getThesis, hasSavedThesis, listCompanies, saveThesis, setNextQuestion } from "./repo";
 import { findCompanyMatches } from "./dedupe";
-import { RESEARCHED_ON, SEED_COMPANIES } from "./seed-data";
+import { RESEARCHED_ON, SEED_COMPANIES, type SeedCompany } from "./seed-data";
+import { X_SEED_COMPANIES, X_SOURCED_ON } from "./seed-x";
 
 /** Loads the researched examples as drafts. Skips any company already in the workspace. */
-export async function loadSeed(): Promise<{ added: string[]; skipped: string[] }> {
+export type SeedSet = "examples" | "x";
+
+export async function loadSeed(set: SeedSet = "examples"): Promise<{ added: string[]; skipped: string[] }> {
+  const list: SeedCompany[] = set === "x" ? X_SEED_COMPANIES : SEED_COMPANIES;
+  const capturedOn = set === "x" ? X_SOURCED_ON : RESEARCHED_ON;
   if (!(await hasSavedThesis())) {
     const { updatedAt: _ignored, ...t } = await getThesis();
     await saveThesis(t);
   }
   const added: string[] = [];
   const skipped: string[] = [];
-  for (const sc of SEED_COMPANIES) {
+  for (const sc of list) {
     const existing = await listCompanies();
     if (findCompanyMatches({ name: sc.name, website: sc.website }, existing).length) {
       skipped.push(sc.name);
@@ -28,7 +33,7 @@ export async function loadSeed(): Promise<{ added: string[]; skipped: string[] }
           title: s.title,
           author: s.author,
           publishedOn: s.publishedOn,
-          capturedOn: RESEARCHED_ON,
+          capturedOn,
           excerpt: s.excerpt ?? "",
           notes: s.notes ?? "",
         }),
