@@ -8,7 +8,7 @@ import * as repo from "@/lib/repo";
 import { loadSeed } from "@/lib/seed";
 import { FACT_FIELDS, PROVENANCE, REVIEW_STATUSES, SOURCE_KINDS, type FactField, type KeywordGroup, type Provenance, type ReviewStatus, type SourceKind } from "@/lib/types";
 import { normalizeUrl, parseUrl } from "@/lib/url";
-import { readPost, statusId, thesisQueries, type XPost } from "@/lib/x";
+import { PLAYBOOK, readPost, statusId, thesisQueries, type XPost } from "@/lib/x";
 
 const s = (fd: FormData, k: string) => String(fd.get(k) ?? "").trim();
 const id = (fd: FormData, k: string) => {
@@ -265,6 +265,16 @@ export async function addThesisSearchesAction() {
   const thesis = await repo.getThesis();
   let first: number | null = null;
   for (const q of thesisQueries(thesis)) {
+    const n = await repo.addXSearch(q.label, q.query);
+    first ??= n;
+  }
+  revalidatePath("/x");
+  redirect(first ? `/x?search=${first}` : "/x");
+}
+
+export async function addPlaybookSearchesAction() {
+  let first: number | null = null;
+  for (const q of PLAYBOOK) {
     const n = await repo.addXSearch(q.label, q.query);
     first ??= n;
   }

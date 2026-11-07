@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { addThesisSearchesAction, addXSearchAction, deleteXSearchAction, dismissXPostAction, loadXLeadsAction } from "../actions";
+import { addPlaybookSearchesAction, addThesisSearchesAction, addXSearchAction, deleteXSearchAction, dismissXPostAction, loadXLeadsAction } from "../actions";
 import { X_SEED_COMPANIES } from "@/lib/seed-x";
 import { findCompanyMatches } from "@/lib/dedupe";
 import { findTerm } from "@/lib/match";
 import { dismissedXPosts, getThesis, listCompanies, listSources, listXSearches, markXSearchRun } from "@/lib/repo";
 import { normalizeUrl } from "@/lib/url";
-import { hasXApi, searchRecent, thesisQueries, type XCandidate } from "@/lib/x";
+import { PLAYBOOK, hasXApi, searchRecent, thesisQueries, type XCandidate } from "@/lib/x";
 import { fmtDate } from "@/components/ui";
 
 export const metadata = { title: "X signals" };
@@ -253,6 +253,28 @@ export default async function XPage({ searchParams }: { searchParams: Promise<{ 
               </div>
             )}
           </section>
+
+          {PLAYBOOK.some((p) => !searches.some((s) => s.query === p.query)) && (
+            <section className="card" aria-labelledby="pb-h">
+              <div className="card-head">
+                <h2 id="pb-h">Early-signal playbook</h2>
+              </div>
+              <div className="card-body">
+                <ul className="history" style={{ fontSize: 13, marginBottom: 12 }}>
+                  {PLAYBOOK.map((p) => (
+                    <li key={p.label}>
+                      <b style={{ color: "var(--text)", fontWeight: 500 }}>{p.label}.</b> {p.why}
+                    </li>
+                  ))}
+                </ul>
+                <form action={addPlaybookSearchesAction}>
+                  <button className="btn btn-secondary" type="submit">
+                    Add {PLAYBOOK.length} playbook searches
+                  </button>
+                </form>
+              </div>
+            </section>
+          )}
 
           <section className="card" aria-labelledby="new-h">
             <div className="card-head">

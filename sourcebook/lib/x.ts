@@ -154,3 +154,14 @@ export function thesisQueries(thesis: Thesis): { label: string; query: string }[
     return { label: s.label, query: `(${words.join(" OR ")}) ${signals} ${tail}` };
   });
 }
+
+// ---------- The sourcing playbook: early, pre-funding signals on X
+
+export const PLAYBOOK: { label: string; query: string; why: string }[] = [
+  { label: "Building in public", query: '("building in public" OR #buildinpublic OR "indie hacker" OR #indiehacker) (London OR UK OR Berlin OR Paris OR Amsterdam OR Stockholm) -is:retweet', why: "Solo founders and tiny teams sharing code, landing pages and waitlists." },
+  { label: "Day 1 of building", query: '("day 1 of building" OR "day 1 of shipping" OR "shipping in public") -is:retweet -is:reply', why: "Founders logging a new project from its first day." },
+  { label: "Looking for beta testers", query: '("looking for beta testers" OR "beta users" OR "early access" OR "join the waitlist") (startup OR B2B) -is:retweet', why: "Products asking for their first users, before any round." },
+  { label: "Stealth and side projects", query: '("stealth startup" OR "building in stealth" OR "working on a side project") -is:retweet', why: "People leaving jobs to start something, often months before an announcement." },
+  { label: "Accelerator applicants", query: '("YC W27" OR "YC S27" OR "YC F26" OR "applied to YC" OR "Entrepreneur First" OR "Antler residency") -is:retweet', why: "Founders announce applications and interviews before funding news." },
+  { label: "What are you building?", query: '("what are you building" OR "drop your startup" OR "pitch your startup") -is:retweet', why: "The replies to these threads are lists of pre-revenue products." },
+];

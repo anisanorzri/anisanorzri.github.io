@@ -10,3 +10,4 @@ data/*.db-*
 data/private/
 exports/
 .taste-skill/
+radar/work/

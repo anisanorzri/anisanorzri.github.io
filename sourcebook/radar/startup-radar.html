@@ -1,0 +1,340 @@
+<title>European Startup Radar</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap">
+<style>
+/* Layout: one working list. Title row and finding, a filter bar, then a ruled table that folds into stacked rows on a phone.
+   Achromatic ledger: chrome in ink; the one hue marks a thesis fit and a check made against a primary record. */
+:root {
+  --bg: #f2f4f7; --surface: #ffffff; --sunk: #f6f7f9; --raised: #e9ecf1; --line: #e3e6eb; --rule: #eef0f3; --control: #cfd4db;
+  --fg: #0a0a0a; --muted: #5d636d; --accent: #141414; --on-accent: #ffffff;
+  --fit: #1d5fbf; --fit-tint: #e8effa; --fit-ink: #123d7a; --neg: #b4232a; --neg-tint: #fdecea; --neg-ink: #831c1e;
+  --font: "Geist", "Helvetica Neue", Arial, system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0c0d0f; --surface: #141619; --sunk: #1a1d21; --raised: #23272c; --line: #2a2e34; --rule: #202328; --control: #3a3f46;
+  --fg: #eceef1; --muted: #9aa1ab; --accent: #eceef1; --on-accent: #0c0d0f;
+  --fit: #86adef; --fit-tint: #172338; --fit-ink: #b9cff5; --neg: #f08a8f; --neg-tint: #3a1a1c; --neg-ink: #f6c2c4; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0c0d0f; --surface: #141619; --sunk: #1a1d21; --raised: #23272c; --line: #2a2e34; --rule: #202328; --control: #3a3f46;
+  --fg: #eceef1; --muted: #9aa1ab; --accent: #eceef1; --on-accent: #0c0d0f;
+  --fit: #86adef; --fit-tint: #172338; --fit-ink: #b9cff5; --neg: #f08a8f; --neg-tint: #3a1a1c; --neg-ink: #f6c2c4; color-scheme: dark }
+* { box-sizing: border-box }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 14px; line-height: 1.45 }
+a { color: inherit; text-underline-offset: 2px }
+button, input, select { font: inherit; color: inherit }
+:focus-visible { outline: 2px solid var(--fit); outline-offset: 2px; border-radius: 3px }
+.wrap { max-width: 1320px; margin: 0 auto; padding-block: 28px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 18px }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px }
+.brand svg { flex: none }
+.scope { color: var(--muted); font-weight: 400 }
+.title-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px 24px; flex-wrap: wrap }
+h1 { margin: 0; font-size: 24px; line-height: 1.2; font-weight: 600; letter-spacing: -0.01em }
+.finding { margin: 6px 0 0; max-width: 78ch }
+.stamp { color: var(--muted); font-size: 12.5px; margin-top: 4px }
+.figs { display: flex; gap: 28px; flex-wrap: wrap }
+.figs div { display: grid; text-align: right }
+.figs b { font-size: 26px; font-weight: 500; font-variant-numeric: tabular-nums; line-height: 1.1 }
+.figs b.fitnum { color: var(--fit) }
+.figs span { font-size: 12.5px; color: var(--muted) }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px }
+.filters { display: grid; grid-template-columns: minmax(200px, 1.4fr) repeat(4, minmax(140px, 1fr)); gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--line) }
+.f { display: grid; gap: 4px; min-width: 0 }
+.f label { font-size: 12.5px; color: var(--muted) }
+.f input, .f select { width: 100%; height: 34px; padding: 0 10px; border: 1px solid var(--control); border-radius: 6px; background: var(--surface) }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 16px; border-bottom: 1px solid var(--line); align-items: center }
+.chips .lbl { font-size: 12.5px; color: var(--muted); margin-right: 4px }
+.chip { height: 28px; padding: 0 11px; border-radius: 999px; border: 1px solid var(--control); background: var(--surface); cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; transition: background-color .12s }
+.chip:hover { background: var(--sunk) }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent) }
+.chip .n { font-variant-numeric: tabular-nums; opacity: .7 }
+.bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 16px; flex-wrap: wrap; font-size: 13px; color: var(--muted) }
+.bar button { background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; color: var(--muted) }
+.bar button:hover { color: var(--fg) }
+.seg { display: inline-flex; border: 1px solid var(--control); border-radius: 6px; overflow: hidden }
+.seg button { border: 0; background: var(--surface); padding: 4px 10px; text-decoration: none; color: var(--fg); cursor: pointer }
+.seg button[aria-pressed="true"] { background: var(--raised); font-weight: 500 }
+
+.tbl { overflow-x: auto }
+table { width: 100%; border-collapse: collapse }
+th { text-align: left; font-size: 12.5px; font-weight: 500; color: var(--muted); padding: 9px 12px; border-bottom: 1px solid var(--line); white-space: nowrap }
+td { padding: 11px 12px; border-bottom: 1px solid var(--rule); vertical-align: top }
+th:first-child, td:first-child { padding-left: 16px }
+th:last-child, td:last-child { padding-right: 16px }
+tbody tr.row { cursor: pointer }
+tbody tr.row:hover { background: var(--sunk) }
+tbody tr.row[aria-expanded="true"] { background: var(--sunk) }
+.co { display: grid; gap: 2px; min-width: 200px }
+.co b { font-weight: 600 }
+.co span { color: var(--muted); font-size: 13px }
+.one { max-width: 360px }
+.sig { max-width: 320px }
+.sig a { text-decoration: none }
+.sig a:hover { text-decoration: underline }
+.when { color: var(--muted); font-size: 12.5px; font-variant-numeric: tabular-nums; white-space: nowrap }
+.loc { white-space: nowrap }
+.pill { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 999px; font-size: 12px; font-weight: 500; white-space: nowrap; background: var(--raised); color: var(--fg) }
+.pill.fits { background: var(--fit-tint); color: var(--fit-ink) }
+.pill.excluded { background: var(--neg-tint); color: var(--neg-ink) }
+.why { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; max-width: 200px }
+.marks { display: inline-flex; gap: 3px; vertical-align: middle }
+.mk { width: 10px; height: 10px; border-radius: 2px; display: inline-block; flex: none }
+.mk.v { background: var(--fit) }
+.mk.c { border: 1.5px solid var(--fg) }
+.mk.u { border: 1.5px dashed var(--muted) }
+.detail td { padding: 0 16px 16px; background: var(--sunk) }
+.dgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 24px; padding-top: 4px }
+.dgrid h3 { margin: 0 0 4px; font-size: 12.5px; font-weight: 500; color: var(--muted) }
+.dgrid ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px }
+.dgrid li { display: flex; gap: 8px; align-items: baseline }
+.q { font-weight: 500 }
+.empty { padding: 40px 16px; text-align: left; color: var(--muted); display: grid; gap: 6px; max-width: 60ch }
+.empty b { color: var(--fg); font-size: 15px }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--muted) }
+.legend span { display: inline-flex; align-items: center; gap: 6px }
+.method { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; padding: 16px }
+.method h2 { margin: 0 0 6px; font-size: 14px; font-weight: 600 }
+.method p, .method li { color: var(--muted); font-size: 13px }
+.method ul { margin: 0; padding-left: 16px; display: grid; gap: 4px }
+.notice { padding: 10px 16px; color: var(--muted); font-size: 13px }
+@media (max-width: 1000px) { .filters { grid-template-columns: 1fr 1fr } .filters .f:first-child { grid-column: 1 / -1 } .method { grid-template-columns: 1fr } .dgrid { grid-template-columns: 1fr 1fr } }
+@media (max-width: 720px) {
+  .scope { display: none }
+  .figs { display: grid; grid-template-columns: repeat(4, auto); gap: 14px; width: 100% }
+  .figs div { text-align: left }
+  .figs b { font-size: 21px }
+  thead { display: none }
+  table, tbody, tr, td { display: block; width: 100% }
+  tr.row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; padding: 12px 16px; border-bottom: 1px solid var(--rule) }
+  tr.row td { padding: 0; border: 0 }
+  tr.row td.c-co { grid-column: 1 }
+  tr.row td.c-fit { grid-column: 2; grid-row: 1; text-align: right }
+  tr.row td.c-one, tr.row td.c-sig, tr.row td.c-loc, tr.row td.c-src { grid-column: 1 / -1 }
+  tr.row td.c-sector { display: none }
+  .why { display: none }
+  .dgrid { grid-template-columns: 1fr }
+  .detail td { padding: 4px 16px 16px }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important } }
+</style>
+
+<div class="wrap">
+  <div class="brand" aria-label="Sourcebook">
+    <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect width="22" height="22" rx="5" fill="currentColor"/><path d="M8 5.5H6v11h2M14 5.5h2v11h-2" stroke="var(--bg)" stroke-width="1.6" fill="none"/><rect x="9" y="9" width="4" height="4" rx="0.8" fill="var(--fit)"/></svg>
+    Sourcebook <span class="scope">· European B2B software for energy, industry and physical operations</span>
+  </div>
+
+  <div class="title-row">
+    <div>
+      <h1>European Startup Radar</h1>
+      <p class="finding" id="finding">Loading the list…</p>
+      <p class="stamp" id="stamp"></p>
+    </div>
+    <div class="figs" aria-label="Totals">
+      <div><b id="n-all">–</b><span>companies</span></div>
+      <div><b id="n-fit" class="fitnum">–</b><span>fit the thesis</span></div>
+      <div><b id="n-x">–</b><span>found on X</span></div>
+      <div><b id="n-new">–</b><span>signals in 30 days</span></div>
+    </div>
+  </div>
+
+  <section class="panel" aria-label="Startups">
+    <div class="filters">
+      <div class="f"><label for="q">Search</label><input id="q" type="search" placeholder="Name, product, founder, city" autocomplete="off"></div>
+      <div class="f"><label for="f-thesis">Thesis</label>
+        <select id="f-thesis"><option value="fits">Fits the thesis</option><option value="all">All companies</option><option value="outside">Outside the thesis</option><option value="excluded">Excluded</option></select></div>
+      <div class="f"><label for="f-country">Country</label><select id="f-country"><option value="">All countries</option></select></div>
+      <div class="f"><label for="f-channel">Found through</label><select id="f-channel"><option value="">Every channel</option></select></div>
+      <div class="f"><label for="f-when">Signal date</label>
+        <select id="f-when"><option value="">Any time</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last 12 months</option></select></div>
+    </div>
+    <div class="chips" id="sectors" role="group" aria-label="Sector"><span class="lbl">Sector</span></div>
+    <div class="bar">
+      <span id="count" aria-live="polite">–</span>
+      <span style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+        <span class="seg" role="group" aria-label="Sort">
+          <button type="button" data-sort="date" aria-pressed="true">Newest signal</button>
+          <button type="button" data-sort="name" aria-pressed="false">Name</button>
+          <button type="button" data-sort="team" aria-pressed="false">Smallest team</button>
+        </span>
+        <label style="display:inline-flex;gap:6px;align-items:center;color:var(--fg)"><input type="checkbox" id="f-founderx"> Founder on X</label>
+        <button type="button" id="reset">Clear filters</button>
+      </span>
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th scope="col">Company</th><th scope="col">What it does</th><th scope="col">Sector</th><th scope="col">Where</th><th scope="col">Latest signal</th><th scope="col">Checked</th><th scope="col">Thesis</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="empty" hidden></div>
+    <div class="notice" id="notice" hidden></div>
+  </section>
+
+  <div class="legend" aria-label="Legend">
+    <span><i class="mk v"></i>Checked against a record the company doesn't write (X post, accelerator list, register)</span>
+    <span><i class="mk c"></i>The company's own description</span>
+    <span><i class="mk u"></i>Not checked yet</span>
+  </div>
+
+  <section class="panel method" aria-label="How the list is built">
+    <div><h2>Where these come from</h2><ul>
+      <li>Accelerator tracking: every European company in Y Combinator's 2025–2027 batches, with founders' X handles from YC's own pages.</li>
+      <li>X: funding, stealth-exit and investor-batch posts, each read from X itself to confirm the exact text and date.</li>
+      <li>Next: build-in-public posts, founder bios and GitHub, once X search access is connected.</li></ul></div>
+    <div><h2>What "fits the thesis" means</h2><ul>
+      <li>The company's own one-line description puts it in grid and energy, industrial and engineering, or logistics.</li>
+      <li>Defence, crypto and consumer are excluded.</li>
+      <li>A round shows only when a post states it, with who stated it. Nothing is inferred.</li></ul></div>
+    <div><h2>Not a recommendation</h2><p>This is a sourcing list: companies worth a first look, each with the signal that surfaced it. Open a row for founders, checks and the next question to ask.</p></div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const M = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const fmt = (d) => { if (!d) return "Undated"; const [y, m, dd] = d.split("-"); return `${Number(dd)} ${M[Number(m) - 1]} ${y}`; };
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const safeUrl = (u) => (/^https:\/\//i.test(u || "") ? u : "");
+  const cleanX = (u) => (safeUrl(u) ? u.split("?")[0] : "");
+  const handle = (u) => (cleanX(u).match(/x\.com\/([^/?#]+)/i) || [])[1] || "";
+  const daysAgo = (d) => (d ? (Date.now() - Date.parse(d + "T12:00:00Z")) / 864e5 : Infinity);
+
+  let all = [];
+  let meta = null;
+  const state = { q: "", thesis: "fits", country: "", channel: "", when: "", sector: "", founderX: false, sort: "date", open: null };
+  try { const saved = JSON.parse(localStorage.getItem("radar-filters") || "null"); if (saved) Object.assign(state, saved, { open: null }); } catch {}
+  const save = () => { try { const { open, ...rest } = state; localStorage.setItem("radar-filters", JSON.stringify(rest)); } catch {} };
+
+  function syncControls() {
+    $("#q").value = state.q; $("#f-thesis").value = state.thesis; $("#f-when").value = state.when; $("#f-founderx").checked = state.founderX;
+    document.querySelectorAll("[data-sort]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.sort === state.sort)));
+  }
+  function options(sel, values, label) {
+    const el = $(sel); const cur = state[sel === "#f-country" ? "country" : "channel"];
+    el.innerHTML = `<option value="">${label}</option>` + values.map(([v, n]) => `<option value="${esc(v)}">${esc(v)} (${n})</option>`).join("");
+    el.value = values.some(([v]) => v === cur) ? cur : "";
+  }
+  const tally = (rows, k) => Object.entries(rows.reduce((a, r) => { const v = r[k]; if (v) a[v] = (a[v] || 0) + 1; return a; }, {})).sort((a, b) => b[1] - a[1]);
+
+  function filtered(ignoreSector) {
+    const q = state.q.trim().toLowerCase();
+    return all.filter((r) =>
+      (state.thesis === "all" || r.thesis === state.thesis) &&
+      (!state.country || r.country === state.country) &&
+      (!state.channel || r.channel === state.channel) &&
+      (!state.when || daysAgo(r.signalDate) <= Number(state.when)) &&
+      (ignoreSector || !state.sector || r.sector === state.sector) &&
+      (!state.founderX || (r.founders || []).some((f) => cleanX(f.x)) || cleanX(r.companyX)) &&
+      (!q || [r.name, r.oneLiner, r.city, r.country, r.sector, r.signal, ...(r.founders || []).map((f) => f.name)].join(" ").toLowerCase().includes(q)));
+  }
+
+  function renderSectors() {
+    const base = filtered(true);
+    const counts = Object.fromEntries(tally(base, "sector"));
+    const names = [...new Set(all.map((r) => r.sector))].sort((a, b) => (counts[b] || 0) - (counts[a] || 0));
+    const box = $("#sectors");
+    box.innerHTML = `<span class="lbl">Sector</span>` + [["", "All", base.length], ...names.map((n) => [n, n, counts[n] || 0])]
+      .filter(([v, , n]) => n > 0 || v === "" || v === state.sector).map(([v, l, n]) => `<button type="button" class="chip" data-sector="${esc(v)}" aria-pressed="${state.sector === v}">${esc(l)} <span class="n">${n}</span></button>`).join("");
+  }
+
+  function marks(r) {
+    const c = r.checks || [];
+    const v = c.filter((x) => /Post read from X|YC's own listing|register checked/i.test(x)).length;
+    const own = c.filter((x) => /website checked|written by the company/i.test(x)).length;
+    const un = c.filter((x) => /not yet/i.test(x)).length;
+    return `<span class="marks" title="${esc(c.join(" · "))}" role="img" aria-label="${esc(c.join("; "))}">${"<i class='mk v'></i>".repeat(v)}${"<i class='mk c'></i>".repeat(own)}${"<i class='mk u'></i>".repeat(un)}</span>`;
+  }
+
+  function detail(r) {
+    const founders = (r.founders || []).map((f) => `<li>${esc(f.name)}${handle(f.x) ? ` <a href="${esc(cleanX(f.x))}" target="_blank" rel="noopener noreferrer">@${esc(handle(f.x))}</a>` : ""}</li>`).join("") || "<li>Not listed</li>";
+    const signals = [{ signal: r.signal, signalDate: r.signalDate, signalUrl: r.signalUrl, source: r.source }, ...(r.alsoSeen || [])]
+      .map((s) => `<li><span>${esc(s.signal)} <span class="when">· ${fmt(s.signalDate)} · ${safeUrl(s.signalUrl) ? `<a href="${esc(s.signalUrl)}" target="_blank" rel="noopener noreferrer">${esc(s.source)}</a>` : esc(s.source)}</span></span></li>`).join("");
+    const facts = [
+      r.batch && `YC ${r.batch}`, r.teamSize && `Team of ${r.teamSize}`, r.founded && `Founded ${r.founded}`,
+      r.stage ? `${r.stage}, stated by ${r.stageBy}` : "Stage: no source states one",
+    ].filter(Boolean).map((x) => `<li>${esc(x)}</li>`).join("");
+    const links = [safeUrl(r.website) && `<li><a href="${esc(r.website)}" target="_blank" rel="noopener noreferrer">${esc(r.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, ""))}</a></li>`,
+      handle(r.companyX) && `<li><a href="${esc(cleanX(r.companyX))}" target="_blank" rel="noopener noreferrer">@${esc(handle(r.companyX))} on X</a></li>`].filter(Boolean).join("") || "<li>No website recorded</li>";
+    return `<tr class="detail"><td colspan="7"><div class="dgrid">
+      <div><h3>Signals</h3><ul>${signals}</ul></div>
+      <div><h3>Founders</h3><ul>${founders}</ul><h3 style="margin-top:12px">Links</h3><ul>${links}</ul></div>
+      <div><h3>On record</h3><ul>${facts}</ul><h3 style="margin-top:12px">Checks</h3><ul>${(r.checks || []).map((c) => `<li>${esc(c)}</li>`).join("")}</ul>
+      ${r.nextQuestion ? `<h3 style="margin-top:12px">Next diligence question</h3><p class="q">${esc(r.nextQuestion)}</p>` : ""}</div>
+    </div></td></tr>`;
+  }
+
+  function render() {
+    renderSectors();
+    let rows = filtered(false);
+    rows = rows.sort((a, b) => state.sort === "name" ? a.name.localeCompare(b.name)
+      : state.sort === "team" ? (a.teamSize ?? 999) - (b.teamSize ?? 999) || a.name.localeCompare(b.name)
+      : (b.signalDate || "").localeCompare(a.signalDate || "") || a.name.localeCompare(b.name));
+    $("#count").textContent = `${rows.length} of ${all.length} companies`;
+    const label = { fits: "Fits", outside: "Outside", excluded: "Excluded" };
+    $("#rows").innerHTML = rows.map((r) => {
+      const open = state.open === r.id;
+      return `<tr class="row" tabindex="0" data-id="${esc(r.id)}" aria-expanded="${open}">
+        <td class="c-co"><div class="co"><b>${esc(r.name)}</b><span>${esc(r.channel)}</span></div></td>
+        <td class="c-one"><div class="one">${esc(r.oneLiner)}</div></td>
+        <td class="c-sector">${esc(r.sector)}</td>
+        <td class="c-loc"><span class="loc">${esc([r.city, r.country].filter(Boolean).join(", ") || "—")}</span></td>
+        <td class="c-sig"><div class="sig">${safeUrl(r.signalUrl) ? `<a href="${esc(r.signalUrl)}" target="_blank" rel="noopener noreferrer">${esc(r.signal)}</a>` : esc(r.signal)}</div><span class="when">${fmt(r.signalDate)}</span></td>
+        <td class="c-src">${marks(r)}</td>
+        <td class="c-fit"><span class="pill ${esc(r.thesis)}">${label[r.thesis] || "—"}</span>${r.thesis !== "outside" ? `<span class="why">${esc(r.thesisReason)}</span>` : ""}</td>
+      </tr>${open ? detail(r) : ""}`;
+    }).join("");
+    const empty = $("#empty");
+    if (!all.length) { empty.hidden = false; empty.innerHTML = "<b>No companies loaded yet</b><span>The list fills from the radar's database. If this stays empty, the database can't be reached from this view.</span>"; }
+    else if (!rows.length) { empty.hidden = false; empty.innerHTML = "<b>Nothing matches these filters</b><span>Widen the thesis filter or clear the filters.</span>"; }
+    else empty.hidden = true;
+  }
+
+  function renderTotals() {
+    const fits = all.filter((r) => r.thesis === "fits");
+    const xs = all.filter((r) => /^X:/.test(r.channel) || (r.alsoSeen || []).some((s) => /x\.com/.test(s.signalUrl)));
+    const recent = all.filter((r) => daysAgo(r.signalDate) <= 30);
+    $("#n-all").textContent = all.length; $("#n-fit").textContent = fits.length; $("#n-x").textContent = xs.length; $("#n-new").textContent = recent.length;
+    const freshFit = fits.filter((r) => daysAgo(r.signalDate) <= 30);
+    $("#finding").textContent = all.length
+      ? `${fits.length} of ${all.length} fit the thesis. ${freshFit.length ? `${freshFit.length} of those had a signal in the last 30 days: ${freshFit.slice(0, 4).map((r) => r.name).join(", ")}${freshFit.length > 4 ? " and more" : ""}.` : "None of them had a new signal in the last 30 days."}`
+      : "No companies loaded yet.";
+    $("#stamp").textContent = meta ? `Updated ${fmt(meta.updatedOn)} · ${meta.note || ""}` : "";
+    options("#f-country", tally(all, "country"), "All countries");
+    options("#f-channel", tally(all, "channel"), "Every channel");
+  }
+
+  // Controls
+  $("#q").addEventListener("input", (e) => { state.q = e.target.value; save(); render(); });
+  $("#f-thesis").addEventListener("change", (e) => { state.thesis = e.target.value; save(); render(); });
+  $("#f-country").addEventListener("change", (e) => { state.country = e.target.value; save(); render(); });
+  $("#f-channel").addEventListener("change", (e) => { state.channel = e.target.value; save(); render(); });
+  $("#f-when").addEventListener("change", (e) => { state.when = e.target.value; save(); render(); });
+  $("#f-founderx").addEventListener("change", (e) => { state.founderX = e.target.checked; save(); render(); });
+  $("#sectors").addEventListener("click", (e) => { const b = e.target.closest("[data-sector]"); if (!b) return; state.sector = b.dataset.sector; save(); render(); });
+  document.querySelectorAll("[data-sort]").forEach((b) => b.addEventListener("click", () => { state.sort = b.dataset.sort; save(); syncControls(); render(); }));
+  $("#reset").addEventListener("click", () => { Object.assign(state, { q: "", thesis: "all", country: "", channel: "", when: "", sector: "", founderX: false }); save(); syncControls(); render(); });
+  const toggle = (tr) => { if (!tr || !tr.dataset.id) return; state.open = state.open === tr.dataset.id ? null : tr.dataset.id; render(); const again = document.querySelector(`tr.row[data-id="${CSS.escape(tr.dataset.id)}"]`); again && again.focus(); };
+  $("#rows").addEventListener("click", (e) => { if (e.target.closest("a")) return; toggle(e.target.closest("tr.row")); });
+  $("#rows").addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target.matches("tr.row")) { e.preventDefault(); toggle(e.target); } });
+
+  syncControls(); render();
+
+  // Data: the radar's shared database, kept up to date by each sourcing run.
+  (async () => {
+    const notice = $("#notice");
+    const db = window.claude?.use ? await window.claude.use("db") : null;
+    if (!db) { $("#finding").textContent = "The list can't be loaded in this view. Open it on claude.ai while signed in."; return; }
+    const timer = setTimeout(() => { notice.hidden = false; notice.textContent = all.length ? "Showing a saved copy; it may be out of date." : "The list is taking a while to load."; }, 10000);
+    db.doc("meta/radar").onSnapshot((s) => { meta = s.exists ? s.data() : null; renderTotals(); }, () => {});
+    db.collection("startups").onSnapshot((snap) => {
+      all = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      if (!snap.metadata.fromCache) { clearTimeout(timer); notice.hidden = true; }
+      renderTotals(); render();
+    }, (err) => { clearTimeout(timer); notice.hidden = false; notice.textContent = `The list couldn't be loaded (${err.code}).`; });
+  })();
+})();
+</script>

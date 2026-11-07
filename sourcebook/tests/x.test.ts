@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DEFAULT_THESIS } from "@/lib/repo";
-import { parseOEmbed, searchRecent, statusId, thesisQueries } from "@/lib/x";
+import { PLAYBOOK, parseOEmbed, searchRecent, statusId, thesisQueries } from "@/lib/x";
 
 describe("statusId", () => {
   it("reads post IDs from x.com and twitter.com links", () => {
@@ -68,5 +68,11 @@ describe("searchRecent", () => {
     process.env.X_BEARER_TOKEN = "bad";
     vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 401 })));
     await expect(searchRecent("grid")).rejects.toThrow(/refused the token/);
+  });
+});
+
+describe("playbook", () => {
+  it("every query fits X's 512-character limit", () => {
+    for (const p of PLAYBOOK) expect(p.query.length).toBeLessThanOrEqual(512);
   });
 });
