@@ -8,13 +8,15 @@ It does not make warm introductions or investment recommendations. It has no sco
 
 1. **Thesis** (`/thesis`): sectors with their keywords, geography, stage and exclusions.
 2. **Add a link** (`/intake`): paste a link. Before saving, Sourcebook checks the URL against everything already captured (it ignores tracking parameters and treats `twitter.com` and `x.com` as the same site), and checks the company against existing ones by domain and by name ("Squid Labs Ltd" matches "Squid").
-3. **Brief** (`/companies/:id`): product, customer, location and signal, then team, entity, traction claims, backers, stage and contact route. Each fact shows who says so:
+   - **X posts:** paste a post link and its exact text, author and date are filled in from X's public embed endpoint (oEmbed: no login, no scraping). The saved post immediately becomes a draft signal that quotes it.
+3. **X signals** (`/x`): saved searches over X's last 7 days through the official **X API v2 recent search**, using your fund's own `X_BEARER_TOKEN`. "Create from the thesis" writes one query per sector: its keywords plus phrases founders use when something has happened ("launching", "first customer", "pilot", "we're hiring"). Each result shows the author, bio, location (and whether it names a thesis place), and whether the post is already captured. Then **Capture** it into intake, or mark it **Not relevant**. Without a token, every saved search opens on x.com, so you can browse yourself and paste what's worth keeping. Only captured posts are stored, plus the IDs of dismissed posts.
+4. **Brief** (`/companies/:id`): product, customer, location and signal, then team, entity, traction claims, backers, stage and contact route. Each fact shows who says so:
    - **Verified**: checked against a primary record the company doesn't write, such as a company registry, an accelerator's own batch list or a customer's own announcement.
    - **Company claim**: the company's website, its posts, or the profile text it wrote for an accelerator.
    - **Third-party report**: press or someone else's post, not checked against a primary record.
    - **Unknown**: no approved fact answers the question. Unknowns are shown, never filled in.
-4. **Decide**: investigate, shortlist, monitor, already known or reject. Each decision takes a reason and a next diligence question, and every change is logged.
-5. **Export** (`/export`): a CSV of the shortlist with sources and dates, why each company might fit, which thesis criteria are still unknown, contact routes the company publishes itself, and the next diligence question.
+5. **Decide**: investigate, shortlist, monitor, already known or reject. Each decision takes a reason and a next diligence question, and every change is logged.
+6. **Export** (`/export`): a CSV of the shortlist with sources and dates, why each company might fit, which thesis criteria are still unknown, contact routes the company publishes itself, and the next diligence question.
 
 ### Thesis matching
 
@@ -88,7 +90,10 @@ Vercel's filesystem doesn't persist between requests, so use a durable libSQL da
 DATABASE_URL=libsql://<your-db>.turso.io
 DATABASE_AUTH_TOKEN=<token>
 ANTHROPIC_API_KEY=<optional>
+X_BEARER_TOKEN=<optional, for X search>
 ```
+
+X API reads are paid under X's developer terms. Each "Run" is one recent-search request of up to 25 posts, and runs only when you press it.
 
 The schema is created on first request. A hosted instance has no login, so put it behind Vercel's deployment protection or another access gate before you store fund notes in it. Page fetches refuse private and loopback addresses and check every redirect.
 
@@ -98,7 +103,7 @@ The code is MIT-licensed. Your thesis, decisions, notes and operator answers sta
 
 ## Later, not now
 
-Automated discovery will come only through permitted feeds or authorised APIs, for example the Companies House API with a key, accelerator feeds that allow reuse, or the X API under its terms. Each would add links to the same intake, so they get the same duplicate check and the same human approval.
+X search already runs through the official API. Other discovery will come only through permitted feeds or authorised APIs, for example the Companies House API with a key, or accelerator feeds that allow reuse. Next steps for X: scheduled runs of saved searches, and `from:` lists of founders you already follow. Each would add links to the same intake, so they get the same duplicate check and the same human approval.
 
 ## Stack
 

@@ -358,3 +358,54 @@ export async function setNextQuestion(id: number, nextQuestion: string) {
   const c = await db();
   await c.execute({ sql: "UPDATE companies SET next_question = ? WHERE id = ?", args: [nextQuestion, id] });
 }
+
+// ---------- X searches (queries only; results are not stored until a person captures one)
+
+export interface XSearch {
+  id: number;
+  label: string;
+  query: string;
+  createdAt: string;
+  lastRunAt: string | null;
+  lastCount: number | null;
+}
+
+export async function listXSearches(): Promise<XSearch[]> {
+  const c = await db();
+  return (await c.execute("SELECT * FROM x_searches ORDER BY id")).rows.map((r) => ({
+    id: Number(r.id),
+    label: str(r.label),
+    query: str(r.query),
+    createdAt: str(r.created_at),
+    lastRunAt: strOrNull(r.last_run_at),
+    lastCount: r.last_count === null ? null : Number(r.last_count),
+  }));
+}
+
+export async function addXSearch(label: string, query: string) {
+  const c = await db();
+  const exists = (await c.execute({ sql: "SELECT id FROM x_searches WHERE query = ?", args: [query] })).rows[0];
+  if (exists) return Number(exists.id);
+  const r = await c.execute({ sql: "INSERT INTO x_searches (label, query, created_at) VALUES (?, ?, ?)", args: [label, query, nowIso()] });
+  return Number(r.lastInsertRowid);
+}
+
+export async function deleteXSearch(id: number) {
+  const c = await db();
+  await c.execute({ sql: "DELETE FROM x_searches WHERE id = ?", args: [id] });
+}
+
+export async function markXSearchRun(id: number, count: number) {
+  const c = await db();
+  await c.execute({ sql: "UPDATE x_searches SET last_run_at = ?, last_count = ? WHERE id = ?", args: [nowIso(), count, id] });
+}
+
+export async function dismissXPost(postId: string) {
+  const c = await db();
+  await c.execute({ sql: "INSERT OR IGNORE INTO x_dismissed (post_id, at) VALUES (?, ?)", args: [postId, nowIso()] });
+}
+
+export async function dismissedXPosts(): Promise<Set<string>> {
+  const c = await db();
+  return new Set((await c.execute("SELECT post_id FROM x_dismissed")).rows.map((r) => str(r.post_id)));
+}

@@ -77,6 +77,18 @@ CREATE TABLE IF NOT EXISTS feedback (
   comment TEXT NOT NULL DEFAULT '',
   at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS x_searches (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  label TEXT NOT NULL,
+  query TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  last_run_at TEXT,
+  last_count INTEGER
+);
+CREATE TABLE IF NOT EXISTS x_dismissed (
+  post_id TEXT PRIMARY KEY,
+  at TEXT NOT NULL
+);
 `;
 
 let client: Client | null = null;

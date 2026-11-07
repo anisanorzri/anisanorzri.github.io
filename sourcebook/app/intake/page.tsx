@@ -3,8 +3,8 @@ import { IntakeForm } from "./IntakeForm";
 
 export const metadata = { title: "Add a link" };
 
-export default async function IntakePage({ searchParams }: { searchParams: Promise<{ company?: string }> }) {
-  const { company } = await searchParams;
+export default async function IntakePage({ searchParams }: { searchParams: Promise<{ company?: string; url?: string }> }) {
+  const { company, url } = await searchParams;
   const companies = (await listCompanies()).map((c) => ({ id: c.id, name: c.name, domain: c.domain }));
   return (
     <>
@@ -16,7 +16,7 @@ export default async function IntakePage({ searchParams }: { searchParams: Promi
           </p>
         </div>
       </div>
-      <IntakeForm companies={companies} defaultCompanyId={company ?? ""} />
+      <IntakeForm companies={companies} defaultCompanyId={company ?? ""} defaultUrl={url ?? ""} />
     </>
   );
 }

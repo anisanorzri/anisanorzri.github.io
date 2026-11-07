@@ -1023,3 +1023,8 @@ details.fold[open] > summary::after {
 details.fold[open] > summary {
   margin-bottom: 0;
 }
+
+code {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+}

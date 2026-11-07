@@ -2,16 +2,22 @@
 
 import Link from "next/link";
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
-import { checkLinkAction, intakeAction, type IntakeState } from "../actions";
+import { checkLinkAction, intakeAction, readXPostAction, type IntakeState } from "../actions";
 import { SOURCE_KINDS, type SourceKind } from "@/lib/types";
 import { guessKind, xHandle } from "@/lib/url";
+import { statusId } from "@/lib/x";
 
 type C = { id: number; name: string; domain: string | null };
 
-export function IntakeForm({ companies, defaultCompanyId }: { companies: C[]; defaultCompanyId: string }) {
+export function IntakeForm({ companies, defaultCompanyId, defaultUrl }: { companies: C[]; defaultCompanyId: string; defaultUrl: string }) {
   const [state, action, pending] = useActionState<IntakeState, FormData>(intakeAction, {});
   const v = state.values ?? {};
-  const [url, setUrl] = useState(v.url ?? "");
+  const [url, setUrl] = useState(v.url ?? defaultUrl);
+  const [excerpt, setExcerpt] = useState(v.excerpt ?? "");
+  const [publishedOn, setPublishedOn] = useState(v.publishedOn ?? "");
+  const [title, setTitle] = useState(v.title ?? "");
+  const [xRead, setXRead] = useState<{ state: "idle" | "reading" | "done" | "error"; text?: string }>({ state: "idle" });
+  const lastRead = useRef<string | null>(null);
   const [kind, setKind] = useState<SourceKind>((v.kind as SourceKind) ?? "other");
   const [kindTouched, setKindTouched] = useState(!!v.kind);
   const [author, setAuthor] = useState(v.author ?? "");
@@ -31,6 +37,23 @@ export function IntakeForm({ companies, defaultCompanyId }: { companies: C[]; de
     if (!url.trim()) return setLive(null);
     timer.current = setTimeout(async () => setLive(await checkLinkAction(url)), 350);
   }, [url]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // An X post link: read the post through X's public embed and fill in what it says.
+  useEffect(() => {
+    const id = statusId(url);
+    if (!id || lastRead.current === id) return;
+    lastRead.current = id;
+    setXRead({ state: "reading" });
+    readXPostAction(url).then((r) => {
+      if (!r.post) return setXRead({ state: "error", text: r.error });
+      const p = r.post;
+      setExcerpt((e) => e || p.text);
+      setPublishedOn((d) => d || p.date || "");
+      setAuthor((a) => (a && a !== xHandle(url) ? a : `@${p.handle}`));
+      setTitle((t) => t || `Post by @${p.handle}${p.authorName && p.authorName !== p.handle ? ` (${p.authorName})` : ""}`);
+      setXRead({ state: "done", text: `Read from X: @${p.handle}${p.date ? `, ${p.date}` : ", no date"}. Text copied exactly.` });
+    });
+  }, [url]);
 
   const dupNotice = state.sourceDuplicates ?? (live?.duplicates.length ? live.duplicates : null);
 
@@ -77,7 +100,7 @@ export function IntakeForm({ companies, defaultCompanyId }: { companies: C[]; de
             </div>
             <div className="field" style={{ marginTop: 0 }}>
               <label htmlFor="publishedOn">Published on</label>
-              <input id="publishedOn" name="publishedOn" type="date" defaultValue={v.publishedOn ?? ""} aria-describedby="date-hint" />
+              <input id="publishedOn" name="publishedOn" type="date" value={publishedOn} onChange={(e) => setPublishedOn(e.target.value)} aria-describedby="date-hint" />
               <span id="date-hint" className="hint">Leave empty if the page shows no date. It will read as undated, not as today.</span>
             </div>
           </div>
@@ -88,13 +111,21 @@ export function IntakeForm({ companies, defaultCompanyId }: { companies: C[]; de
             </div>
             <div className="field" style={{ marginTop: 0 }}>
               <label htmlFor="title">Title</label>
-              <input id="title" name="title" type="text" defaultValue={v.title ?? ""} placeholder="Optional. Fetched later if empty." />
+              <input id="title" name="title" type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Optional. Fetched later if empty." />
             </div>
           </div>
           <div className="field" style={{ marginTop: 16 }}>
             <label htmlFor="excerpt">What the source says</label>
-            <textarea id="excerpt" name="excerpt" defaultValue={v.excerpt ?? ""} placeholder="Paste the post or the passage word for word." aria-describedby="excerpt-hint" />
-            <span id="excerpt-hint" className="hint">Copied text, not a summary. X posts cannot be read automatically, so for them this is the record. Quotes in the brief are checked against it.</span>
+            <textarea id="excerpt" name="excerpt" value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="Paste the post or the passage word for word." aria-describedby="excerpt-hint" style={{ minHeight: 120 }} />
+            <span id="excerpt-hint" className="hint" aria-live="polite" style={xRead.state === "error" ? { color: "var(--warning)" } : undefined}>
+              {xRead.state === "reading"
+                ? "Reading the post from X…"
+                : xRead.state === "done"
+                  ? xRead.text
+                  : xRead.state === "error"
+                    ? `${xRead.text} Paste the text by hand.`
+                    : "Copied text, not a summary. A post on X fills in by itself. Quotes in the brief are checked against this."}
+            </span>
           </div>
         </div>
       </section>

@@ -7,6 +7,9 @@ export const IconQueue = () => (
 export const IconLink = () => (
   <svg {...base}><path d="M6.5 9.5l3-3M7 4.5l1-1a2.5 2.5 0 013.5 3.5l-1 1M9 11.5l-1 1A2.5 2.5 0 014.5 9l1-1" /></svg>
 );
+export const IconX = () => (
+  <svg {...base}><path d="M3 3l10 10M13 3L3 13" /></svg>
+);
 export const IconThesis = () => (
   <svg {...base}><circle cx="8" cy="8" r="5.5" /><circle cx="8" cy="8" r="2" /></svg>
 );

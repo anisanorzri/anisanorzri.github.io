@@ -8,6 +8,7 @@ import * as repo from "@/lib/repo";
 import { loadSeed } from "@/lib/seed";
 import { FACT_FIELDS, PROVENANCE, REVIEW_STATUSES, SOURCE_KINDS, type FactField, type KeywordGroup, type Provenance, type ReviewStatus, type SourceKind } from "@/lib/types";
 import { normalizeUrl, parseUrl } from "@/lib/url";
+import { readPost, statusId, thesisQueries, type XPost } from "@/lib/x";
 
 const s = (fd: FormData, k: string) => String(fd.get(k) ?? "").trim();
 const id = (fd: FormData, k: string) => {
@@ -99,7 +100,7 @@ export async function intakeAction(_prev: IntakeState, fd: FormData): Promise<In
     companyId = await repo.createCompany({ name, website: website || null });
   }
 
-  await repo.addSource({
+  const sourceId = await repo.addSource({
     companyId,
     url,
     kind,
@@ -109,8 +110,13 @@ export async function intakeAction(_prev: IntakeState, fd: FormData): Promise<In
     excerpt: s(fd, "excerpt"),
     notes: s(fd, "notes"),
   });
+  // A post becomes a draft signal straight away, quoting its own text.
+  const handle = s(fd, "author").replace(/^@/, "");
+  if (statusId(url) && s(fd, "excerpt") && /^[A-Za-z0-9_]{1,15}$/.test(handle)) {
+    await addDraftsUnique(companyId, sourceId, [xSignalDraft({ id: statusId(url)!, url, handle, authorName: "", text: s(fd, "excerpt"), date: publishedOn || null })], "page_metadata");
+  }
   refresh(companyId);
-  redirect(`/companies/${companyId}?added=source`);
+  redirect(`/companies/${companyId}?added=${statusId(url) ? "post" : "source"}`);
 }
 
 /** Live check while typing. Read-only. */
@@ -168,6 +174,22 @@ export async function fetchSourceAction(fd: FormData) {
   const source = await repo.getSource(id(fd, "sourceId"));
   if (!source) return;
   let msg: string;
+  if (source.kind === "x_post" || statusId(source.url)) {
+    try {
+      const post = await readPost(source.url);
+      await repo.updateSourceMeta(source.id, {
+        title: source.title || `Post by @${post.handle}`,
+        publishedOn: source.publishedOn ?? post.date,
+        excerpt: source.excerpt || post.text,
+      });
+      const added = await addDraftsUnique(companyId, source.id, [xSignalDraft(post)], "page_metadata");
+      msg = `fetched:${added}:${post.date ? "dated" : "undated"}`;
+    } catch (e) {
+      msg = `fetchfail:${encodeURIComponent((e as Error).message).slice(0, 200)}`;
+    }
+    refresh(companyId);
+    redirect(`/companies/${companyId}?msg=${msg}#sources`);
+  }
   try {
     const page = await fetchPage(source.url);
     await repo.updateSourceMeta(source.id, {
@@ -206,6 +228,60 @@ export async function aiDraftAction(fd: FormData) {
   }
   refresh(companyId);
   redirect(`/companies/${companyId}?msg=${msg}#drafts`);
+}
+
+function xSignalDraft(post: XPost) {
+  const first = post.text.split(/(?<=[.!?])\s|\n/)[0].trim();
+  return {
+    field: "signal" as FactField,
+    value: `@${post.handle} posted: ${first.length > 160 ? first.slice(0, 157) + "…" : first}`,
+    quote: post.text,
+    provenance: "company_claim" as Provenance,
+    note: `Check that @${post.handle} is the company or one of its founders. If not, this is a third-party report.`,
+  };
+}
+
+/** Read one post through X's public oEmbed endpoint, for prefilling intake. */
+export async function readXPostAction(url: string): Promise<{ post?: XPost; error?: string }> {
+  try {
+    return { post: await readPost(url) };
+  } catch (e) {
+    return { error: (e as Error).message };
+  }
+}
+
+// ---------- X searches
+
+export async function addXSearchAction(fd: FormData) {
+  const label = s(fd, "label");
+  const query = s(fd, "query");
+  if (!query) redirect("/x?error=query");
+  const newId = await repo.addXSearch(label || query.slice(0, 40), query);
+  revalidatePath("/x");
+  redirect(`/x?search=${newId}`);
+}
+
+export async function addThesisSearchesAction() {
+  const thesis = await repo.getThesis();
+  let first: number | null = null;
+  for (const q of thesisQueries(thesis)) {
+    const n = await repo.addXSearch(q.label, q.query);
+    first ??= n;
+  }
+  revalidatePath("/x");
+  redirect(first ? `/x?search=${first}` : "/x");
+}
+
+export async function deleteXSearchAction(fd: FormData) {
+  await repo.deleteXSearch(id(fd, "searchId"));
+  revalidatePath("/x");
+  redirect("/x");
+}
+
+export async function dismissXPostAction(fd: FormData) {
+  const postId = s(fd, "postId");
+  if (/^\d+$/.test(postId)) await repo.dismissXPost(postId);
+  revalidatePath("/x");
 }
 
 // ---------- Facts

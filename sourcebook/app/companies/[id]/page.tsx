@@ -174,15 +174,13 @@ export default async function BriefPage({ params, searchParams }: { params: Prom
                         </td>
                         <td className="no-print">
                           <div className="draft-actions" style={{ justifyContent: "flex-end" }}>
-                            {s.kind !== "x_post" && (
-                              <form action={fetchSourceAction}>
-                                <input type="hidden" name="companyId" value={company.id} />
-                                <input type="hidden" name="sourceId" value={s.id} />
-                                <button className="btn btn-ghost btn-sm" type="submit" title="Read the page's title, date and own description">
-                                  Fetch details
-                                </button>
-                              </form>
-                            )}
+                            <form action={fetchSourceAction}>
+                              <input type="hidden" name="companyId" value={company.id} />
+                              <input type="hidden" name="sourceId" value={s.id} />
+                              <button className="btn btn-ghost btn-sm" type="submit" title={s.kind === "x_post" ? "Read the post's text, author and date from X" : "Read the page's title, date and own description"}>
+                                {s.kind === "x_post" ? "Read post" : "Fetch details"}
+                              </button>
+                            </form>
                             {hasAI && (
                               <form action={aiDraftAction}>
                                 <input type="hidden" name="companyId" value={company.id} />
@@ -646,6 +644,7 @@ function Flash({ msg, error, added }: { msg?: string; error?: string; added?: st
   let text: string | null = null;
   let warn = false;
   if (added === "source") text = "Link saved. Add facts from it, or fetch the page's details.";
+  if (added === "post") text = "Post saved with its exact text. It waits below as a draft signal: check the author is the company or a founder, then add the company's site and one primary record.";
   if (msg === "saved") text = "Decision saved.";
   if (msg === "feedback") text = "Answer recorded.";
   if (msg?.startsWith("fetched:")) {

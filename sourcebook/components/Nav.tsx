@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IconExport, IconLink, IconQueue, IconRules, IconThesis } from "./Icons";
+import { IconExport, IconLink, IconQueue, IconRules, IconThesis, IconX } from "./Icons";
 
 export function Nav({ toReview, shortlisted }: { toReview: number; shortlisted: number }) {
   const path = usePathname();
@@ -14,6 +14,9 @@ export function Nav({ toReview, shortlisted }: { toReview: number; shortlisted: 
       </Link>
       <Link href="/intake" aria-current={current("/intake")}>
         <IconLink /> Add a link
+      </Link>
+      <Link href="/x" aria-current={current("/x")}>
+        <IconX /> X signals
       </Link>
       <Link href="/thesis" aria-current={current("/thesis")}>
         <IconThesis /> Thesis

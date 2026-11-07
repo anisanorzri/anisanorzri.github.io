@@ -5,15 +5,15 @@ The goal is to show research judgement. It is not to claim that venture investin
 ## Before recording
 
 - Pick a real founder post on X: a launch, a first customer or a hiring post from a European company that fits your thesis.
-- Open the post and copy its text exactly. X can't be read automatically, so the pasted text is the record.
+- Find it in **X signals**: run a thesis search if `X_BEARER_TOKEN` is set, or open the search on x.com.
 - Start with a clean database: delete `data/sourcebook.db`, then save your thesis.
 
 ## The demo (about 90 seconds)
 
 1. **Thesis** (10s). Show the sectors, geography, stage and exclusions. Say: "No scores. Each line gets checked against these words."
 2. **Add a link** (15s). Paste the post's URL.
-   - Sourcebook guesses the source is an X post and fills in the author's handle.
-   - Paste the post text and add the post's date.
+   - Sourcebook reads the post from X and fills in its exact text, author and date.
+   - It saves the post as a draft signal that quotes it.
    - Name the company. If it is already in the workspace, the duplicate warning appears. That is worth showing.
 3. **Brief, before** (10s). Everything reads **Unknown**. Say: "A post isn't a brief yet."
 4. **Add the company's website and one primary record** (20s). For a UK company that is Companies House. For an accelerator company it is the cohort page. Use Fetch details, or Draft with Claude if you have a key.
