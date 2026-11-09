@@ -1,299 +1,243 @@
+<meta charset="utf-8">
 <title>European Startup Radar</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&display=swap">
 <style>
-/* Design system: open-design "airtable" (spreadsheet-database hybrid). White canvas, deep-navy ink, one blue accent,
-   12px controls, 16px cards, blue-tinted hairline shadow, positive tracking, coloured single-select tags.
-   Layout: thesis builder (sticky, left) · results with a filter-token bar, Grid / Gallery views and Group by · detail drawer (right).
-   Phone: the thesis becomes a bottom sheet; Grid scrolls inside its own frame. */
+/* Map-first layout: full-screen map of Europe, floating top bar + filter chips, card rail along the bottom.
+   List view swaps the map for a sortable table. Detail opens in a right-hand drawer.
+   Tokens: open-design "airtable" system (white surfaces, navy ink, one blue accent, coloured tags). */
 :root {
-  --bg: #f8fafc; --surface: #ffffff; --sunk: #f3f5f8; --raised: #eaeef3; --line: #e0e2e6; --rule: #edf0f3; --control: #cfd4dc;
-  --fg: #181d26; --fg-2: #333a46; --muted: rgba(4, 14, 32, 0.62); --accent: #1b61c9; --accent-hover: #254fad; --on-accent: #ffffff;
-  --accent-tint: #e9f1fc; --warn: #8a4b08; --warn-tint: #fff4e5; --danger: #b42318; --danger-tint: #fdecea;
+  --bg: #f3f5f9; --surface: #ffffff; --sunk: #f3f5f8; --raised: #e9edf3; --line: #e0e2e6; --rule: #edf0f3; --control: #cfd4dc;
+  --fg: #181d26; --fg-2: #333a46; --muted: rgba(4, 14, 32, 0.6); --accent: #1b61c9; --accent-hover: #254fad; --on-accent: #ffffff;
+  --sea: #dfe8f4; --land: #ffffff; --land-stroke: #cdd6e3;
   --scrim: rgba(24, 29, 38, .34);
-  --elev: rgba(0,0,0,.32) 0 0 1px, rgba(0,0,0,.08) 0 0 2px, rgba(45,127,249,.28) 0 1px 3px, rgba(0,0,0,.06) 0 0 0 .5px inset;
-  --elev-float: 0 16px 40px rgba(15, 48, 106, .18), 0 0 1px rgba(0,0,0,.3);
-  --r-ctl: 12px; --r-card: 16px; --r-sm: 8px;
+  --elev: rgba(0,0,0,.28) 0 0 1px, rgba(0,0,0,.06) 0 0 2px, rgba(45,127,249,.22) 0 1px 3px;
+  --elev-float: 0 14px 36px rgba(15, 48, 106, .16), 0 0 1px rgba(0,0,0,.3);
   --font: "Schibsted Grotesk", "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
-  /* single-select tag palette (pale fill, dark ink) */
+  --s1: #2f6fdc; --s2: #0e9aa7; --s3: #2e9d55; --s4: #d9a400; --s5: #e0782c; --s6: #d64561; --s7: #c04ea3; --s8: #6b7688; --s9: #6f9a2b;
   --t1: #d0e3ff; --t1i: #0b3a82; --t2: #c9f1f5; --t2i: #0b5560; --t3: #cdf3dc; --t3i: #0d5b2e; --t4: #fff0b3; --t4i: #6b4a00;
   --t5: #ffe0c7; --t5i: #7a3a07; --t6: #ffd8dc; --t6i: #8a1c2b; --t7: #ffd6ee; --t7i: #7d1a57; --t8: #e3e7ee; --t8i: #2f3a4b; --t9: #dceccf; --t9i: #355a17;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0e1116; --surface: #161a21; --sunk: #1b2029; --raised: #242a35; --line: #2c3340; --rule: #212732; --control: #3a4252;
   --fg: #eef1f6; --fg-2: #c8cfdb; --muted: rgba(226, 233, 245, .62); --accent: #5c9bf2; --accent-hover: #7aaef5; --on-accent: #0b1220;
-  --accent-tint: #172a46; --warn: #f0b066; --warn-tint: #33240f; --danger: #f3897e; --danger-tint: #3a1a18; --scrim: rgba(0,0,0,.55);
-  --elev: 0 0 0 1px #2c3340; --elev-float: 0 16px 40px rgba(0,0,0,.55), 0 0 0 1px #2c3340;
+  --sea: #0f1622; --land: #1c2230; --land-stroke: #2b3343; --scrim: rgba(0,0,0,.55);
+  --elev: 0 0 0 1px #2c3340; --elev-float: 0 14px 36px rgba(0,0,0,.55), 0 0 0 1px #2c3340;
   --t1: #1d3357; --t1i: #bcd5ff; --t2: #123d44; --t2i: #a9e9f0; --t3: #15402a; --t3i: #b3ecc9; --t4: #423611; --t4i: #f7e39a;
   --t5: #45290f; --t5i: #ffcfa8; --t6: #4a1d24; --t6i: #ffc2c9; --t7: #47193a; --t7i: #ffc0e3; --t8: #2b323d; --t8i: #d4dbe6; --t9: #263b18; --t9i: #cde7b6; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #0e1116; --surface: #161a21; --sunk: #1b2029; --raised: #242a35; --line: #2c3340; --rule: #212732; --control: #3a4252;
   --fg: #eef1f6; --fg-2: #c8cfdb; --muted: rgba(226, 233, 245, .62); --accent: #5c9bf2; --accent-hover: #7aaef5; --on-accent: #0b1220;
-  --accent-tint: #172a46; --warn: #f0b066; --warn-tint: #33240f; --danger: #f3897e; --danger-tint: #3a1a18; --scrim: rgba(0,0,0,.55);
-  --elev: 0 0 0 1px #2c3340; --elev-float: 0 16px 40px rgba(0,0,0,.55), 0 0 0 1px #2c3340;
+  --sea: #0f1622; --land: #1c2230; --land-stroke: #2b3343; --scrim: rgba(0,0,0,.55);
+  --elev: 0 0 0 1px #2c3340; --elev-float: 0 14px 36px rgba(0,0,0,.55), 0 0 0 1px #2c3340;
   --t1: #1d3357; --t1i: #bcd5ff; --t2: #123d44; --t2i: #a9e9f0; --t3: #15402a; --t3i: #b3ecc9; --t4: #423611; --t4i: #f7e39a;
   --t5: #45290f; --t5i: #ffcfa8; --t6: #4a1d24; --t6i: #ffc2c9; --t7: #47193a; --t7i: #ffc0e3; --t8: #2b323d; --t8i: #d4dbe6; --t9: #263b18; --t9i: #cde7b6; color-scheme: dark }
 
 * { box-sizing: border-box }
-body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 14px; line-height: 1.38; letter-spacing: .1px }
+html, body { height: 100% }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 14px; line-height: 1.38; letter-spacing: .1px; overflow: hidden }
 a { color: var(--accent); text-underline-offset: 2px }
 button, input, select { font: inherit; color: inherit; letter-spacing: inherit }
 button { cursor: pointer }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px }
-.wrap { max-width: 1480px; margin: 0 auto; padding-block: 18px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
 .num { font-variant-numeric: tabular-nums }
 .muted { color: var(--muted) }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap }
+.app { position: relative; height: 100% }
 
-/* Top bar */
-.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px }
-.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px }
-.stamp { color: var(--muted); font-size: 12.5px; text-align: right }
-.layout { display: grid; grid-template-columns: 312px minmax(0, 1fr); gap: 20px; align-items: start }
+#map { position: absolute; inset: 0; background: var(--sea); touch-action: none }
+#map svg { width: 100%; height: 100%; display: block; cursor: grab }
+#map svg:active { cursor: grabbing }
+.land { fill: var(--land); stroke: var(--land-stroke); stroke-width: .6; vector-effect: non-scaling-stroke }
+.bubble { cursor: pointer }
+.bubble circle.halo { fill: var(--accent); opacity: .16; pointer-events: none }
+.bubble circle.core { fill: var(--accent); stroke: var(--surface); stroke-width: 2; vector-effect: non-scaling-stroke }
+.bubble text { fill: var(--on-accent); font-weight: 700; text-anchor: middle; dominant-baseline: central; pointer-events: none }
+text.label { fill: var(--fg); font-weight: 600; paint-order: stroke; stroke: var(--land); stroke-width: 3px; stroke-linejoin: round; text-anchor: middle; pointer-events: none; dominant-baseline: auto }
+.dot { cursor: pointer }
+.dot circle { stroke: var(--surface); stroke-width: 1.6; vector-effect: non-scaling-stroke }
+.dot.sel circle { stroke: var(--fg); stroke-width: 2.6 }
+.tip { position: absolute; z-index: 6; pointer-events: none; background: var(--surface); box-shadow: var(--elev-float); border-radius: 10px; padding: 8px 10px; font-size: 12.5px; max-width: 260px; opacity: 0; transform: translate(-50%, calc(-100% - 12px)); transition: opacity .1s }
+.tip.on { opacity: 1 }
+.tip b { display: block; font-size: 13.5px }
+.tip .hint { margin-top: 3px }
 
-/* Thesis panel */
-.thesis { position: sticky; top: 14px; background: var(--surface); border-radius: var(--r-card); box-shadow: var(--elev); max-height: calc(100dvh - 28px); overflow: auto }
-.th-head { padding: 16px 18px 14px; border-bottom: 1px solid var(--line); display: grid; gap: 10px; position: sticky; top: 0; background: var(--surface); z-index: 2; border-radius: var(--r-card) var(--r-card) 0 0 }
-.th-title { display: flex; justify-content: space-between; align-items: center; gap: 8px }
-.th-title h2 { margin: 0; font-size: 17px; font-weight: 600 }
-.sec { padding: 14px 18px; border-bottom: 1px solid var(--rule); display: grid; gap: 8px }
-.sec:last-child { border-bottom: 0 }
-.sec-h { display: flex; justify-content: space-between; align-items: baseline }
-.sec-h h3 { margin: 0; font-size: 13px; font-weight: 600 }
-.link { background: none; border: 0; padding: 0; color: var(--accent); font-size: 12.5px }
-.link:hover { color: var(--accent-hover); text-decoration: underline }
-.chips { display: flex; flex-wrap: wrap; gap: 6px }
-.chip { height: 28px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--control); background: var(--surface); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; transition: background-color .12s, border-color .12s, color .12s, transform .08s }
-.chip:hover { border-color: var(--fg-2) }
-.chip:active { transform: scale(.97) }
-.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent) }
-.chip .n { opacity: .65; font-size: 12px; font-variant-numeric: tabular-nums }
-.chip.ex[aria-pressed="true"] { background: var(--danger-tint); border-color: var(--danger); color: var(--danger) }
-.kw { display: flex; gap: 6px }
-.kw input, .inp { flex: 1; min-width: 0; height: 34px; border: 1px solid var(--control); border-radius: var(--r-sm); padding: 0 10px; background: var(--surface) }
-.hint { color: var(--muted); font-size: 12px; margin: 0 }
-.range { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center }
-.range input { width: 100%; accent-color: var(--accent) }
-.range output { font-size: 13px; min-width: 72px; text-align: right }
-
-/* Buttons */
-.btn { height: 36px; padding: 0 14px; border-radius: var(--r-ctl); border: 1px solid transparent; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; transition: background-color .12s, transform .08s, box-shadow .12s }
+.top { position: absolute; z-index: 5; top: max(12px, env(safe-area-inset-top, 0px)); left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); display: grid; gap: 10px; pointer-events: none }
+.top > * { pointer-events: auto }
+.bar { display: flex; align-items: center; gap: 10px; background: var(--surface); border-radius: 16px; box-shadow: var(--elev-float); padding: 8px 8px 8px 12px; min-width: 0 }
+.brand { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 15px; white-space: nowrap }
+.brand small { display: block; font-weight: 500; font-size: 11.5px; color: var(--muted); margin-top: -2px }
+.search { position: relative; flex: 1 1 300px; min-width: 0; max-width: 460px }
+.search input { width: 100%; height: 38px; border: 0; background: var(--sunk); border-radius: 12px; padding: 0 12px 0 36px }
+.search svg { position: absolute; left: 12px; top: 12px; color: var(--muted) }
+.seg { display: inline-flex; background: var(--sunk); border-radius: 12px; padding: 3px; flex: none }
+.seg button { border: 0; background: none; height: 32px; padding: 0 12px; border-radius: 9px; font-size: 13px; font-weight: 500; color: var(--fg-2) }
+.seg button[aria-pressed="true"] { background: var(--fg); color: var(--surface) }
+.grow { flex: 1 }
+.btn { height: 38px; padding: 0 14px; border-radius: 12px; border: 1px solid transparent; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; text-decoration: none; transition: background-color .12s, transform .08s }
 .btn:active { transform: translateY(1px) }
-.btn-primary { background: var(--accent); color: var(--on-accent) }
-.btn-primary:hover { background: var(--accent-hover) }
-.btn-white { background: var(--surface); box-shadow: var(--elev) }
+.btn-white { background: var(--surface); border-color: var(--control); color: var(--fg) }
 .btn-white:hover { background: var(--sunk) }
-.btn-sm { height: 30px; padding: 0 11px; font-size: 13px; border-radius: 10px }
-.btn .count { background: var(--raised); color: var(--fg); border-radius: 999px; padding: 0 7px; font-size: 12px; line-height: 20px; font-variant-numeric: tabular-nums }
-.btn-primary .count { background: rgba(255,255,255,.22); color: inherit }
-.mobile-only { display: none }
+.btn-sm { height: 32px; padding: 0 11px; font-size: 13px; border-radius: 10px }
 
-/* Results header */
-h1 { margin: 0; font-size: 26px; line-height: 1.15; font-weight: 600; letter-spacing: 0 }
-.finding { margin: 4px 0 0; color: var(--fg-2); max-width: 82ch }
-.finding b { color: var(--accent); font-weight: 600 }
-.meter { margin-top: 12px; display: grid; gap: 6px }
-.bars { display: flex; height: 8px; border-radius: 999px; overflow: hidden; background: var(--raised) }
-.bars span { transition: width .35s ease }
-.b-hit { background: var(--accent) }
-.b-near { background: color-mix(in srgb, var(--accent) 30%, var(--raised)) }
-.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: var(--muted) }
-.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px }
+.chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 2px 2px 14px; margin: -2px -2px -14px }
+.chips::-webkit-scrollbar { display: none }
+.chip { flex: none; height: 36px; padding: 0 13px; border-radius: 999px; border: 0; background: var(--surface); box-shadow: var(--elev-float); font-size: 13.5px; font-weight: 500; display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; transition: background-color .12s, transform .08s }
+.chip:active { transform: scale(.97) }
+.chip.on { background: var(--fg); color: var(--surface) }
+.chip .n { opacity: .6; font-variant-numeric: tabular-nums }
+.chip .dotc { width: 8px; height: 8px; border-radius: 99px }
+.chip select { appearance: none; border: 0; background: none; font-weight: 600; padding-right: 4px; cursor: pointer }
+.chip select option { color: var(--fg); background: var(--surface) }
 
-.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 16px; padding: 8px; background: var(--surface); border-radius: var(--r-ctl); box-shadow: var(--elev) }
-.search { position: relative; flex: 1 1 240px; min-width: 0 }
-.search input { width: 100%; height: 34px; border: 0; background: var(--sunk); border-radius: 10px; padding: 0 12px 0 34px }
-.search svg { position: absolute; left: 11px; top: 10px; color: var(--muted) }
-.seg { display: inline-flex; background: var(--sunk); border-radius: 10px; padding: 2px }
-.seg button { border: 0; background: none; height: 30px; padding: 0 11px; border-radius: 8px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; color: var(--fg-2) }
-.seg button[aria-pressed="true"] { background: var(--surface); color: var(--fg); box-shadow: var(--elev); font-weight: 500 }
-.sel { height: 34px; border: 0; background: var(--sunk); border-radius: 10px; padding: 0 10px; font-size: 13px }
-.tb-label { font-size: 12.5px; color: var(--muted); margin-left: 4px }
+.pop { position: fixed; z-index: 30; background: var(--surface); border-radius: 14px; box-shadow: var(--elev-float); padding: 8px; min-width: 250px; max-width: min(340px, calc(100vw - 24px)); max-height: min(440px, 70vh); overflow: auto; display: none }
+.pop.on { display: block }
+.pop h4 { margin: 4px 8px 6px; font-size: 12px; font-weight: 600; color: var(--muted) }
+.opt { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: none; text-align: left; padding: 8px 10px; border-radius: 9px; font-size: 13.5px }
+.opt:hover { background: var(--sunk) }
+.opt .box { width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid var(--control); flex: none; display: grid; place-items: center }
+.opt[aria-checked="true"] .box { background: var(--accent); border-color: var(--accent) }
+.opt[aria-checked="true"] .box::after { content: ""; width: 8px; height: 5px; border: 2px solid var(--on-accent); border-top: 0; border-right: 0; transform: rotate(-45deg) translate(1px, -1px) }
+.opt .sw { width: 10px; height: 10px; border-radius: 99px; flex: none }
+.opt .n { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12.5px }
+.pop .foot { display: flex; justify-content: space-between; padding: 6px 4px 2px; border-top: 1px solid var(--rule); margin-top: 6px }
+.link { background: none; border: 0; padding: 4px 6px; color: var(--accent); font-size: 13px; font-weight: 500 }
+.hint { color: var(--muted); font-size: 12px }
 
-.tokens { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; align-items: center; min-height: 28px }
-.token { height: 26px; border-radius: 999px; padding: 0 4px 0 10px; background: var(--accent-tint); color: var(--accent); display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; font-weight: 500 }
-.token.ex { background: var(--danger-tint); color: var(--danger) }
-.token button { border: 0; background: none; width: 20px; height: 20px; border-radius: 999px; color: inherit; font-size: 14px; line-height: 1; opacity: .7 }
-.token button:hover { opacity: 1; background: rgba(0,0,0,.06) }
+.zoom { position: absolute; z-index: 4; right: max(12px, env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-50%); display: grid; background: var(--surface); border-radius: 12px; box-shadow: var(--elev-float); overflow: hidden }
+.zoom button { width: 40px; height: 40px; border: 0; background: none; font-size: 20px; line-height: 1 }
+.zoom button:hover { background: var(--sunk) }
+.zoom button + button { border-top: 1px solid var(--rule) }
+.legend { position: absolute; z-index: 4; left: max(12px, env(safe-area-inset-left, 0px)); top: calc(126px + env(safe-area-inset-top, 0px)); background: var(--surface); box-shadow: var(--elev-float); border-radius: 12px; padding: 8px 12px; font-size: 12px; display: grid; gap: 4px; max-width: 220px }
+.legend span { display: inline-flex; gap: 6px; align-items: center; white-space: nowrap }
+.legend i { width: 9px; height: 9px; border-radius: 99px; display: inline-block }
 
-/* Groups */
-.group { margin-top: 18px }
-.group-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 10px }
-.group-h h2 { margin: 0; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px }
-.group-h .sub { color: var(--muted); font-size: 12.5px }
-
-/* Tags */
+.rail { position: absolute; z-index: 4; left: 0; right: 0; bottom: 0; padding: 0 max(12px, env(safe-area-inset-right, 0px)) max(12px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); pointer-events: none }
+.rail-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px }
+.pill { background: var(--surface); box-shadow: var(--elev-float); border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 500; pointer-events: auto }
+.cards { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 2px 2px 6px; pointer-events: auto; scrollbar-width: thin }
+.card { scroll-snap-align: start; flex: 0 0 316px; background: var(--surface); border-radius: 16px; box-shadow: var(--elev-float); padding: 14px 16px 12px; display: grid; gap: 8px; align-content: start; cursor: pointer; border: 2px solid transparent; transition: border-color .14s }
+.card:hover { border-color: var(--line) }
+.card.sel { border-color: var(--accent) }
+.card.passed { opacity: .6 }
+.c-top { display: flex; gap: 10px; align-items: flex-start }
+.mono { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; font-weight: 700; font-size: 15px; flex: none; color: #fff }
+.c-name { font-weight: 600; font-size: 15.5px; line-height: 1.2 }
+.c-sub { color: var(--muted); font-size: 12.5px; margin-top: 2px }
+.c-one { color: var(--fg-2); font-size: 13.5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.7em }
+.c-tags { display: flex; gap: 5px; flex-wrap: wrap }
+.c-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; border-top: 1px solid var(--rule); padding-top: 8px; font-size: 12.5px; color: var(--muted) }
+.c-foot span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.star { border: 0; background: none; width: 30px; height: 30px; margin: -4px -6px 0 auto; border-radius: 8px; color: var(--muted); display: grid; place-items: center; flex: none }
+.star:hover { background: var(--sunk); color: var(--fg) }
+.star[aria-pressed="true"] { color: #d99a00 }
 .tag { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 6px; font-size: 12px; font-weight: 500; white-space: nowrap; background: var(--t8); color: var(--t8i) }
-.tag.hit { box-shadow: inset 0 0 0 1.5px var(--accent) }
-.tag.miss { background: var(--warn-tint); color: var(--warn) }
 .tag.t1 { background: var(--t1); color: var(--t1i) } .tag.t2 { background: var(--t2); color: var(--t2i) } .tag.t3 { background: var(--t3); color: var(--t3i) }
 .tag.t4 { background: var(--t4); color: var(--t4i) } .tag.t5 { background: var(--t5); color: var(--t5i) } .tag.t6 { background: var(--t6); color: var(--t6i) }
-.tag.t7 { background: var(--t7); color: var(--t7i) } .tag.t8 { background: var(--t8); color: var(--t8i) } .tag.t9 { background: var(--t9); color: var(--t9i) }
+.tag.t7 { background: var(--t7); color: var(--t7i) } .tag.t9 { background: var(--t9); color: var(--t9i) }
+.tag.grok { background: var(--fg); color: var(--surface) }
+.empty-card { flex: 0 0 auto; background: var(--surface); border-radius: 16px; box-shadow: var(--elev-float); padding: 16px 18px; max-width: 420px }
+.empty-card b { display: block; margin-bottom: 4px }
 
-/* Status */
-.status { height: 26px; border-radius: 8px; border: 1px solid var(--control); background: var(--surface); font-size: 12.5px; padding: 0 6px; max-width: 120px }
+.list { position: absolute; inset: 0; overflow: auto; padding: calc(124px + env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) 24px max(12px, env(safe-area-inset-left, 0px)); display: none; background: var(--bg) }
+.app.listmode .list { display: block }
+.app.listmode #map, .app.listmode .zoom, .app.listmode .legend, .app.listmode .rail, .app.listmode .tip { display: none }
+.tablewrap { background: var(--surface); border-radius: 16px; box-shadow: var(--elev); overflow: auto }
+table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 1100px; font-size: 13px }
+thead th { position: sticky; top: 0; z-index: 1; background: var(--sunk); text-align: left; font-size: 12.5px; color: var(--fg-2); padding: 0; border-bottom: 1px solid var(--line); white-space: nowrap }
+thead th button { width: 100%; text-align: left; background: none; border: 0; padding: 10px 12px; font-weight: 600; display: flex; gap: 6px }
+thead th button:hover { background: var(--raised) }
+.arrow { color: var(--accent) }
+tbody td { padding: 9px 12px; border-bottom: 1px solid var(--rule); vertical-align: top }
+tbody tr { cursor: pointer }
+tbody tr:hover td { background: var(--sunk) }
+td.first { font-weight: 600; min-width: 190px }
+td .clip { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; max-width: 340px }
+.status { height: 28px; border-radius: 8px; border: 1px solid var(--control); background: var(--surface); font-size: 12.5px; padding: 0 6px }
 .status[data-s="reviewing"] { background: var(--t4); color: var(--t4i); border-color: transparent }
 .status[data-s="contacted"] { background: var(--t1); color: var(--t1i); border-color: transparent }
 .status[data-s="passed"] { background: var(--t8); color: var(--muted); border-color: transparent }
 
-/* Gallery */
-.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px }
-.card { background: var(--surface); border-radius: var(--r-card); box-shadow: var(--elev); padding: 14px 16px 12px; display: grid; gap: 10px; align-content: start; cursor: pointer; transition: transform .14s, box-shadow .14s; animation: rise .22s ease both }
-.card:hover { transform: translateY(-2px); box-shadow: var(--elev), 0 6px 18px rgba(15,48,106,.08) }
-.card.passed { opacity: .62 }
-@keyframes rise { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
-.c-top { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start }
-.c-name { font-weight: 600; font-size: 15.5px; line-height: 1.25 }
-.c-where { color: var(--muted); font-size: 12.5px; margin-top: 2px }
-.star { border: 0; background: none; width: 32px; height: 32px; margin: -6px -8px 0 0; border-radius: 10px; color: var(--muted); display: grid; place-items: center; flex: none }
-.star:hover { background: var(--sunk); color: var(--fg) }
-.star[aria-pressed="true"] { color: #d99a00 }
-.c-one { color: var(--fg-2) }
-.c-tags { display: flex; flex-wrap: wrap; gap: 5px }
-.c-foot { border-top: 1px solid var(--rule); padding-top: 9px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: end }
-.c-sig { font-size: 13px; min-width: 0 }
-.c-sig b { font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden }
-.c-sig span { color: var(--muted); font-size: 12px }
-
-/* Grid */
-.gridwrap { background: var(--surface); border-radius: var(--r-card); box-shadow: var(--elev); overflow: auto; max-height: 72vh }
-table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 1100px; font-size: 13px }
-thead th { position: sticky; top: 0; z-index: 1; background: var(--sunk); text-align: left; font-weight: 600; font-size: 12.5px; color: var(--fg-2); padding: 0; border-bottom: 1px solid var(--line); white-space: nowrap }
-thead th button { width: 100%; text-align: left; background: none; border: 0; padding: 9px 10px; display: flex; gap: 6px; align-items: center; font-weight: 600 }
-thead th button:hover { background: var(--raised) }
-thead th .arrow { color: var(--accent) }
-tbody td { padding: 8px 10px; border-bottom: 1px solid var(--rule); border-right: 1px solid var(--rule); vertical-align: top; background: var(--surface) }
-tbody tr { cursor: pointer }
-tbody tr:hover td { background: var(--sunk) }
-tbody tr.passed td { color: var(--muted) }
-td.first, th.first { position: sticky; left: 0; z-index: 1 }
-thead th.first { z-index: 3 }
-td.first { font-weight: 600; min-width: 190px; box-shadow: 1px 0 0 var(--line) }
-td.first .row { display: flex; gap: 6px; align-items: center }
-td.first .star { margin: 0; width: 26px; height: 26px }
-tbody td:nth-child(2) { min-width: 280px } tbody td:nth-child(7) { min-width: 260px } tbody td:nth-child(4) { min-width: 150px }
-table { min-width: 1360px }
-td .clip { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; max-width: 320px }
-.mx { color: var(--accent); font-weight: 600 }
-.mx.no { color: var(--warn) }
-
-/* States */
-.empty { background: var(--surface); border-radius: var(--r-card); box-shadow: var(--elev); padding: 28px; display: grid; gap: 10px; justify-items: start }
-.empty b { font-size: 16px }
-.empty p { margin: 0; color: var(--fg-2); max-width: 64ch }
-.skel { background: var(--surface); border-radius: var(--r-card); box-shadow: var(--elev); padding: 16px; display: grid; gap: 10px }
-.skel i { display: block; height: 12px; border-radius: 6px; background: var(--raised); animation: pulse 1.2s ease-in-out infinite }
-@keyframes pulse { 50% { opacity: .45 } }
-.more { margin-top: 12px; display: flex; justify-content: center }
-
-/* Drawer */
-.scrim { position: fixed; inset: 0; background: var(--scrim); opacity: 0; pointer-events: none; transition: opacity .18s; z-index: 20 }
+.scrim { position: fixed; inset: 0; z-index: 20; background: var(--scrim); opacity: 0; pointer-events: none; transition: opacity .18s }
 .scrim.on { opacity: 1; pointer-events: auto }
-.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(540px, 100%); background: var(--surface); box-shadow: var(--elev-float); transform: translateX(102%); transition: transform .22s ease; z-index: 21; display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); padding-right: env(safe-area-inset-right, 0px) }
-.drawer.on { transform: none }
-.d-head { padding: 18px 20px 14px; border-bottom: 1px solid var(--line); display: grid; gap: 10px }
-.d-row { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start }
+.drawer { position: fixed; z-index: 21; top: 0; right: 0; bottom: 0; width: min(520px, 100%); background: var(--surface); box-shadow: var(--elev-float); transform: translateX(102%); transition: transform .22s ease; display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); padding-right: env(safe-area-inset-right, 0px); visibility: hidden }
+.drawer.on { transform: none; visibility: visible }
+.d-head { padding: 18px 20px 14px; border-bottom: 1px solid var(--line); display: grid; gap: 12px }
+.d-row { display: flex; gap: 12px; align-items: flex-start }
 .d-head h2 { margin: 0; font-size: 21px; font-weight: 600 }
-.d-body { overflow: auto; padding: 4px 20px 24px }
+.d-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center }
+.d-actions .star { margin: 0 }
+.d-body { overflow: auto; padding: 4px 20px 28px }
 .d-sec { padding: 14px 0; border-bottom: 1px solid var(--rule); display: grid; gap: 8px }
 .d-sec:last-child { border-bottom: 0 }
 .d-sec h3 { margin: 0; font-size: 12.5px; font-weight: 600; color: var(--muted) }
 .d-sec ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px }
-.crit { display: grid; grid-template-columns: 110px 1fr; gap: 10px; font-size: 13px }
-.ok { color: var(--accent); font-weight: 600 }
-.no { color: var(--warn); font-weight: 600 }
-.d-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center }
 
-.toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); opacity: 0; background: var(--fg); color: var(--bg); padding: 9px 14px; border-radius: 10px; font-size: 13px; transition: opacity .18s, transform .18s; z-index: 30; pointer-events: none }
+.toast { position: fixed; z-index: 40; left: 50%; top: calc(18px + env(safe-area-inset-top, 0px)); transform: translate(-50%, -20px); opacity: 0; background: var(--fg); color: var(--bg); padding: 9px 14px; border-radius: 10px; font-size: 13px; transition: opacity .18s, transform .18s; pointer-events: none }
 .toast.on { opacity: 1; transform: translate(-50%, 0) }
+.loading { position: absolute; z-index: 3; left: 50%; top: 45%; transform: translate(-50%, -50%); background: var(--surface); box-shadow: var(--elev-float); border-radius: 12px; padding: 12px 16px; font-weight: 500 }
 
-@media (max-width: 960px) {
-  .layout { grid-template-columns: minmax(0, 1fr) }
-  .mobile-only { display: inline-flex }
-  .thesis { position: fixed; left: 0; right: 0; bottom: 0; top: auto; max-height: 84dvh; border-radius: 18px 18px 0 0; transform: translateY(105%); transition: transform .24s ease; z-index: 21; box-shadow: var(--elev-float); padding-bottom: env(safe-area-inset-bottom, 0px) }
-  .thesis.on { transform: none }
-  .th-done { display: inline-flex !important }
+@media (max-width: 760px) {
+  .brand small, .hide-sm { display: none }
+  .bar { flex-wrap: wrap; padding: 8px }
+  .search { order: 3; flex-basis: 100%; max-width: none }
+  .card { flex-basis: 84vw }
+  .legend { display: none }
+  .zoom { top: auto; transform: none; bottom: calc(262px + env(safe-area-inset-bottom, 0px)) }
+  .list { padding-top: calc(170px + env(safe-area-inset-top, 0px)) }
 }
-.th-done { display: none }
-@media (max-width: 600px) {
-  h1 { font-size: 22px }
-  .cards { grid-template-columns: minmax(0, 1fr) }
-  .tb-label { display: none }
-  .stamp { display: none }
-  .gridwrap { max-height: none }
-}
-@media (prefers-reduced-motion: reduce) { *, .card { transition: none !important; animation: none !important } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important } }
 </style>
 
-<div class="wrap">
+<div class="app" id="app">
+  <div id="map" aria-label="Map of startups in Europe"></div>
+  <div class="tip" id="tip"></div>
+  <div class="loading" id="loading">Loading the map…</div>
+
   <div class="top">
-    <div class="brand">
-      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="var(--fg)"/><rect x="5" y="6" width="6" height="5" rx="1.2" fill="var(--t1)"/><rect x="13" y="6" width="6" height="5" rx="1.2" fill="var(--t4)"/><rect x="5" y="13" width="14" height="5" rx="1.2" fill="var(--accent)"/></svg>
-      Sourcebook
+    <div class="bar">
+      <div class="brand">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="8" fill="var(--accent)"/><circle cx="10" cy="11" r="3.2" fill="#fff"/><circle cx="18.5" cy="9" r="2.2" fill="#fff" opacity=".8"/><circle cx="16" cy="18" r="4" fill="#fff"/></svg>
+        <div>European Startup Radar<small>by Sourcebook</small></div>
+      </div>
+      <label class="search"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+        <input id="q" type="search" placeholder="Search companies, founders, cities" aria-label="Search" autocomplete="off"></label>
+      <span class="grow hide-sm"></span>
+      <span class="seg" role="group" aria-label="View">
+        <button type="button" data-view="map" aria-pressed="true">Map</button>
+        <button type="button" data-view="list" aria-pressed="false">List</button>
+      </span>
+      <button type="button" class="btn btn-white btn-sm hide-sm" id="export">Export CSV</button>
     </div>
-    <span class="stamp" id="stamp"></span>
+    <div class="chips" id="chips" role="toolbar" aria-label="Filters"></div>
   </div>
 
-  <div class="layout">
-    <aside class="thesis" id="thesis" aria-label="Your thesis">
-      <div class="th-head">
-        <div class="th-title"><h2>Your thesis</h2>
-          <span style="display:flex;gap:6px"><button type="button" class="btn btn-white btn-sm" id="reset">Reset</button><button type="button" class="btn btn-primary btn-sm th-done" id="th-done">Show results</button></span></div>
-        <div class="chips" id="presets" role="group" aria-label="Start from a preset"></div>
-      </div>
-      <div class="sec"><div class="sec-h"><h3>Sector</h3><button type="button" class="link" data-clear="sectors">Any</button></div><div class="chips" id="t-sectors"></div></div>
-      <div class="sec"><div class="sec-h"><h3>Geography</h3><button type="button" class="link" data-clear="geos">Anywhere</button></div><div class="chips" id="t-regions"></div><div class="chips" id="t-countries"></div></div>
-      <div class="sec"><div class="sec-h"><h3>Stage</h3><button type="button" class="link" data-clear="stages">Any</button></div><div class="chips" id="t-stages"></div>
-        <p class="hint">Only a stage a source states counts. "Not stated" keeps companies whose round nobody has announced.</p></div>
-      <div class="sec"><div class="sec-h"><h3>Must mention</h3><button type="button" class="link" data-clear="include">Clear</button></div>
-        <form class="kw" id="f-inc"><input id="inc" placeholder="battery, warehouse…" aria-label="Keyword the company must mention"><button class="btn btn-white btn-sm">Add</button></form><div class="chips" id="t-inc"></div></div>
-      <div class="sec"><div class="sec-h"><h3>Exclude</h3><button type="button" class="link" data-clear="exclude">Clear</button></div>
-        <div class="chips" id="t-exsectors"></div>
-        <form class="kw" id="f-exc"><input id="exc" placeholder="crypto, ad tech…" aria-label="Keyword to exclude"><button class="btn btn-white btn-sm">Add</button></form><div class="chips" id="t-exc"></div></div>
-      <div class="sec"><div class="sec-h"><h3>Team size</h3></div>
-        <div class="range"><input type="range" id="team" min="1" max="60" step="1" aria-label="Largest team size"><output id="team-out" for="team" class="num"></output></div></div>
-      <div class="sec"><div class="sec-h"><h3>Signal</h3><button type="button" class="link" data-clear="signal">Any</button></div>
-        <div class="chips" id="t-when"></div><div class="chips" id="t-channels"></div>
-        <label style="display:flex;gap:8px;align-items:center;font-size:13px"><input type="checkbox" id="fx"> Founder or company is on X</label></div>
-      <div class="sec"><div class="sec-h"><h3>Your pipeline</h3><button type="button" class="link" data-clear="pipeline">Any</button></div><div class="chips" id="t-pipeline"></div>
-        <p class="hint">Statuses and stars are private to you.</p></div>
-    </aside>
-
-    <main>
-      <h1>European Startup Radar</h1>
-      <p class="finding" id="finding" aria-live="polite">Loading the list…</p>
-      <div class="meter" aria-hidden="true">
-        <div class="bars"><span class="b-hit" id="bar-hit" style="width:0"></span><span class="b-near" id="bar-near" style="width:0"></span></div>
-        <div class="legend"><span><i style="background:var(--accent)"></i><span id="lg-hit" class="num">–</span> match</span><span><i style="background:color-mix(in srgb, var(--accent) 30%, var(--raised))"></i><span id="lg-near" class="num">–</span> miss by one</span><span><span id="lg-rest" class="num">–</span> outside</span></div>
-      </div>
-
-      <div class="toolbar" role="toolbar" aria-label="View">
-        <label class="search"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
-          <input id="q" type="search" placeholder="Search names, products, founders, cities" aria-label="Search" autocomplete="off"></label>
-        <button type="button" class="btn btn-white btn-sm mobile-only" id="open-thesis">Thesis <span class="count" id="nfilters">0</span></button>
-        <span class="seg" role="group" aria-label="View">
-          <button type="button" data-view="grid" aria-pressed="false"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="1.5" y="1.5" width="11" height="11" rx="1.5"/><path d="M1.5 5.5h11M1.5 9h11M5.5 1.5v11"/></svg>Grid</button>
-          <button type="button" data-view="gallery" aria-pressed="true"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="1.5" y="1.5" width="4.5" height="4.5" rx="1"/><rect x="8" y="1.5" width="4.5" height="4.5" rx="1"/><rect x="1.5" y="8" width="4.5" height="4.5" rx="1"/><rect x="8" y="8" width="4.5" height="4.5" rx="1"/></svg>Gallery</button>
-        </span>
-        <span class="tb-label">Group</span>
-        <select class="sel" id="group" aria-label="Group by"><option value="">No grouping</option><option value="sector">Sector</option><option value="country">Country</option><option value="stage">Stage</option><option value="status">Status</option></select>
-        <span class="tb-label">Sort</span>
-        <select class="sel" id="sort" aria-label="Sort by"><option value="date">Newest signal</option><option value="team">Smallest team</option><option value="name">Name A–Z</option></select>
-        <button type="button" class="btn btn-white btn-sm" id="show-short" aria-pressed="false">★ Starred <span class="count" id="nshort">0</span></button>
-        <button type="button" class="btn btn-primary btn-sm" id="export">Export CSV</button>
-      </div>
-      <div class="tokens" id="tokens" aria-label="Active filters"></div>
-
-      <div id="results"></div>
-    </main>
+  <div class="zoom" aria-label="Zoom">
+    <button type="button" id="zin" aria-label="Zoom in">+</button>
+    <button type="button" id="zout" aria-label="Zoom out">−</button>
+    <button type="button" id="zfit" aria-label="Show all of Europe" style="font-size:15px">⤢</button>
   </div>
+  <div class="legend" id="legend" aria-label="Sector colours"></div>
+
+  <div class="rail">
+    <div class="rail-head">
+      <span class="pill" id="inview" role="status">Loading…</span>
+      <span class="pill hide-sm" id="stamp" hidden></span>
+    </div>
+    <div class="cards" id="cards" aria-label="Companies in view"></div>
+  </div>
+
+  <div class="list" id="list"></div>
 </div>
 
+<div class="pop" id="pop" role="dialog" aria-label="Filter options"></div>
 <div class="scrim" id="scrim"></div>
-<aside class="drawer" id="drawer" aria-label="Company detail" aria-hidden="true"></aside>
+<aside class="drawer" id="drawer" aria-label="Company detail"></aside>
 <div class="toast" id="toast" role="status"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <script>
 (() => {
   const $ = (s) => document.querySelector(s);
@@ -304,336 +248,412 @@ td .clip { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vert
   const fmt = (d) => { if (!d) return "Undated"; const [y, m, dd] = d.split("-"); return `${Number(dd)} ${MON[Number(m) - 1]} ${y}`; };
   const days = (d) => (d ? (Date.now() - Date.parse(d + "T12:00:00Z")) / 864e5 : Infinity);
   const store = { get: (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } }, set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+  const toast = (m) => { const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove("on"), 2000); };
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const REGIONS = {
-    "UK & Ireland": ["United Kingdom", "Ireland"], "DACH": ["Germany", "Austria", "Switzerland"], "France": ["France"],
-    "Benelux": ["Netherlands", "Belgium", "Luxembourg"], "Nordics & Baltics": ["Sweden", "Norway", "Denmark", "Finland", "Iceland", "Estonia", "Latvia", "Lithuania"],
-    "Southern Europe": ["Spain", "Portugal", "Italy", "Greece"], "Central & Eastern": ["Poland", "Czechia", "Hungary", "Romania", "Ukraine", "Bulgaria", "Slovenia", "Croatia"],
+  // ---------- Places. Country-only rows sit at the capital and are marked "city not stated".
+  const CITY = {
+    "london": [-0.1276, 51.5072], "oxford": [-1.2577, 51.752], "cambridge": [0.1218, 52.2053], "manchester": [-2.2426, 53.4808], "edinburgh": [-3.1883, 55.9533], "bristol": [-2.5879, 51.4545], "glasgow": [-4.2518, 55.8642],
+    "paris": [2.3522, 48.8566], "lyon": [4.8357, 45.764], "toulouse": [1.4442, 43.6047], "berlin": [13.405, 52.52], "munich": [11.582, 48.1351], "hamburg": [9.9937, 53.5511], "cologne": [6.9603, 50.9375], "dresden": [13.7373, 51.0504], "frankfurt": [8.6821, 50.1109], "stuttgart": [9.1829, 48.7758], "aachen": [6.0839, 50.7753], "karlsruhe": [8.4037, 49.0069],
+    "amsterdam": [4.9041, 52.3676], "utrecht": [5.1214, 52.0907], "rotterdam": [4.4777, 51.9244], "eindhoven": [5.4697, 51.4416], "delft": [4.3571, 52.0116],
+    "brussels": [4.3517, 50.8503], "ghent": [3.7174, 51.0543], "leuven": [4.7005, 50.8798], "antwerp": [4.4025, 51.2194],
+    "zurich": [8.5417, 47.3769], "zürich": [8.5417, 47.3769], "geneva": [6.1432, 46.2044], "lausanne": [6.6323, 46.5197], "basel": [7.5886, 47.5596], "vienna": [16.3738, 48.2082],
+    "stockholm": [18.0686, 59.3293], "gothenburg": [11.9746, 57.7089], "lund": [13.191, 55.7047], "kalmar": [16.3616, 56.6634], "malmö": [13.0038, 55.605], "malmo": [13.0038, 55.605], "uppsala": [17.6389, 59.8586],
+    "copenhagen": [12.5683, 55.6761], "aarhus": [10.2039, 56.1629], "oslo": [10.7522, 59.9139], "trondheim": [10.3951, 63.4305], "helsinki": [24.9384, 60.1699], "espoo": [24.6522, 60.2055], "tallinn": [24.7536, 59.437], "riga": [24.1052, 56.9496], "vilnius": [25.2797, 54.6872],
+    "warsaw": [21.0122, 52.2297], "krakow": [19.945, 50.0647], "prague": [14.4378, 50.0755], "brno": [16.6068, 49.1951], "budapest": [19.0402, 47.4979], "bucharest": [26.1025, 44.4268], "sofia": [23.3219, 42.6977],
+    "madrid": [-3.7038, 40.4168], "barcelona": [2.1734, 41.3851], "valencia": [-0.3763, 39.4699], "lisbon": [-9.1393, 38.7223], "porto": [-8.6291, 41.1579],
+    "milan": [9.19, 45.4642], "rome": [12.4964, 41.9028], "turin": [7.6869, 45.0703], "athens": [23.7275, 37.9838], "dublin": [-6.2603, 53.3498], "cork": [-8.4756, 51.8985], "reykjavik": [-21.9426, 64.1466], "kyiv": [30.5234, 50.4501], "luxembourg": [6.1296, 49.6116],
   };
-  const STAGES = ["Pre-seed", "Seed", "Series A", "Not stated"];
+  const CAPITAL = { "United Kingdom": "london", "France": "paris", "Germany": "berlin", "Netherlands": "amsterdam", "Belgium": "brussels", "Switzerland": "zurich", "Austria": "vienna", "Sweden": "stockholm", "Denmark": "copenhagen", "Norway": "oslo", "Finland": "helsinki", "Estonia": "tallinn", "Poland": "warsaw", "Czechia": "prague", "Czech Republic": "prague", "Spain": "madrid", "Portugal": "lisbon", "Italy": "rome", "Greece": "athens", "Ireland": "dublin", "Hungary": "budapest", "Romania": "bucharest", "Bulgaria": "sofia", "Latvia": "riga", "Lithuania": "vilnius", "Iceland": "reykjavik", "Ukraine": "kyiv", "Luxembourg": "luxembourg" };
+  const CENTRE = { "United Kingdom": [-1.6, 52.7], "Germany": [10.2, 51.0], "France": [2.6, 46.8], "Switzerland": [8.0, 46.8], "Spain": [-3.6, 40.2], "Sweden": [15.2, 62.0], "Finland": [26.0, 62.6], "Denmark": [9.3, 56.1], "Norway": [9.5, 61.3], "Italy": [12.5, 43.0], "Netherlands": [5.6, 52.2], "Austria": [14.5, 47.6], "Poland": [19.4, 52.0], "Greece": [22.0, 39.3], "Portugal": [-8.1, 39.6], "Belgium": [4.6, 50.6], "Ireland": [-8.0, 53.3] };
+  const placeCache = new Map();
+  function placeOf(r) {
+    if (placeCache.has(r)) return placeCache.get(r);
+    const city = (r.city || "").trim(), key = city.toLowerCase();
+    let p = null;
+    if (key && CITY[key] && city !== r.country) p = { key, name: city === "Zurich" ? "Zürich" : city, xy: CITY[key], approx: false };
+    else if (CENTRE[r.country] || CAPITAL[r.country]) p = { key: "~" + r.country, name: r.country, xy: CENTRE[r.country] || CITY[CAPITAL[r.country]], approx: true };
+    if (p && p.key === "zurich") p.key = "zürich";
+    placeCache.set(r, p); return p;
+  }
+  const placeText = (r) => [r.city && r.city !== r.country ? r.city : "", r.country].filter(Boolean).join(", ");
+
+  // ---------- Vocabulary
+  const SECTORS = [["Energy & climate", "s3", "t3"], ["Industrial & robotics", "s1", "t1"], ["Logistics & supply chain", "s5", "t5"], ["AI & developer tools", "s2", "t2"], ["Fintech & insurance", "s4", "t4"], ["Health & bio", "s6", "t6"], ["Legal & compliance", "s9", "t9"], ["B2B software", "s8", "t8"], ["Consumer", "s7", "t7"], ["Defence & security", "s6", "t6"]];
+  const SC = Object.fromEntries(SECTORS.map(([n, s, t]) => [n, { s, t }]));
+  const col = (sector) => `var(--${(SC[sector] || { s: "s8" }).s})`;
+  const tagCls = (sector) => (SC[sector] || { t: "t8" }).t;
   const stageOf = (r) => { const s = (r.stage || "").toLowerCase(); return s.includes("pre-seed") ? "Pre-seed" : s.includes("series a") ? "Series A" : s.includes("seed") ? "Seed" : "Not stated"; };
+  const sourceOf = (r) => (/Grok/i.test(r.channel || "") ? "Found by Grok on X" : /^X:/.test(r.channel || "") ? "X post" : /YC/.test(r.channel || "") ? "Y Combinator" : (r.channel || "Other"));
+  const onX = (r) => !!(xh(r.companyX) || (r.founders || []).some((f) => xh(f.x)));
   const STATUSES = [["new", "New"], ["reviewing", "Reviewing"], ["contacted", "Contacted"], ["passed", "Passed"]];
   const statusLabel = Object.fromEntries(STATUSES);
-  const WHEN = [["30", "Last 30 days"], ["90", "Last 90 days"], ["365", "Last year"]];
-  const SECTOR_TAG = { "Energy & climate": "t3", "Industrial & robotics": "t1", "Logistics & supply chain": "t5", "AI & developer tools": "t2", "B2B software": "t8", "Fintech & insurance": "t4", "Health & bio": "t6", "Legal & compliance": "t9", "Consumer": "t7", "Defence & security": "t6" };
-  const tagCls = (s) => SECTOR_TAG[s] || "t8";
-
-  const BASE = { sectors: [], geos: [], stages: [], include: [], exclude: [], exSectors: [], team: 60, when: "", channels: [], founderX: false, pipeline: [] };
-  const PRESETS = {
-    "Energy & industry": { ...BASE, sectors: ["Energy & climate", "Industrial & robotics", "Logistics & supply chain"], exSectors: ["Defence & security", "Consumer"] },
-    "UK pre-seed": { ...BASE, geos: ["United Kingdom"], stages: ["Pre-seed", "Not stated"], exSectors: ["Consumer"], team: 10 },
-    "AI & dev tools": { ...BASE, sectors: ["AI & developer tools"] },
-    "Fintech": { ...BASE, sectors: ["Fintech & insurance"], exclude: ["crypto"] },
-    "Everything": { ...BASE },
+  const REGIONS = { "UK & Ireland": ["United Kingdom", "Ireland"], "DACH": ["Germany", "Austria", "Switzerland"], "France": ["France"], "Benelux": ["Netherlands", "Belgium", "Luxembourg"], "Nordics & Baltics": ["Sweden", "Norway", "Denmark", "Finland", "Iceland", "Estonia", "Latvia", "Lithuania"], "Southern Europe": ["Spain", "Portugal", "Italy", "Greece"], "Central & Eastern": ["Poland", "Czechia", "Czech Republic", "Hungary", "Romania", "Ukraine", "Bulgaria", "Slovenia", "Croatia"] };
+  const regionOf = (c) => Object.keys(REGIONS).find((g) => REGIONS[g].includes(c)) || "Other";
+  const THESES = {
+    "Energy & industry": { sectors: ["Energy & climate", "Industrial & robotics", "Logistics & supply chain"] },
+    "UK pre-seed": { regions: ["UK & Ireland"], stages: ["Pre-seed"] },
+    "AI & dev tools": { sectors: ["AI & developer tools"] },
+    "Fintech": { sectors: ["Fintech & insurance"] },
   };
-  const clone = (o) => JSON.parse(JSON.stringify(o));
-  const saved = store.get("radar-thesis", null);
-  let T = saved?.T ? { ...BASE, ...saved.T } : clone(PRESETS["Energy & industry"]);
-  let preset = saved ? saved.preset || "" : "Energy & industry";
-  const ui = { q: "", view: store.get("radar-view", "gallery"), group: store.get("radar-group", ""), sort: store.get("radar-sort", "date"), gsort: null, starredOnly: false, show: {}, open: null };
-  let all = [], meta = null, loaded = false, loadError = "";
-  let mine = { star: [], status: {} };           // private to the viewer
-  let mineRef = null, mineReady = false;
-  const saveT = () => store.set("radar-thesis", { T, preset });
 
-  // ---------- Matching: each active criterion returns {k, ok, d}
-  const countries = () => new Set(T.geos.flatMap((g) => REGIONS[g] || [g]));
-  const placeOf = (r) => [r.city && r.city !== r.country ? r.city : "", r.country].filter(Boolean).join(", ");
-  const text = (r) => `${r.name} ${r.oneLiner} ${r.signal} ${(r.alsoSeen || []).map((s) => s.signal).join(" ")}`.toLowerCase();
-  const has = (t, k) => new RegExp(`(^|[^\\p{L}\\p{N}])${k.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "iu").test(t);
+  // ---------- State
+  const F0 = { sectors: [], regions: [], stages: [], sources: [], recent: false, founderX: false, starred: false, pipeline: [] };
+  let F = { ...F0, ...store.get("radar-map-filters", {}) };
+  const ui = { q: "", view: store.get("radar-view2", "map"), sort: "date", gsort: null, sel: null, open: null };
+  let all = [], mine = { star: [], status: {}, ...store.get("radar-mine", {}) }, mineRef = null, mineReady = false;
+  const saveF = () => store.set("radar-map-filters", F);
   const statusOf = (r) => mine.status[r.id] || "new";
-  function judge(r) {
-    const out = [], t = text(r);
-    if (T.sectors.length) out.push({ k: "Sector", ok: T.sectors.includes(r.sector), d: r.sector });
-    if (T.geos.length) out.push({ k: "Geography", ok: countries().has(r.country), d: r.country || "Not stated" });
-    if (T.stages.length) { const s = stageOf(r); out.push({ k: "Stage", ok: T.stages.includes(s), d: s === "Not stated" ? "Not stated by any source" : `${s}, per ${r.stageBy}` }); }
-    if (T.include.length) { const h = T.include.filter((k) => has(t, k)); out.push({ k: "Mentions", ok: h.length > 0, d: h.length ? h.map((k) => `“${k}”`).join(", ") : `None of ${T.include.map((k) => `“${k}”`).join(", ")}` }); }
-    if (T.exSectors.length || T.exclude.length) { const xs = T.exSectors.includes(r.sector), xk = T.exclude.filter((k) => has(t, k)); out.push({ k: "Exclusions", ok: !xs && !xk.length, d: xs ? `Sector is ${r.sector}` : xk.length ? `Mentions ${xk.map((k) => `“${k}”`).join(", ")}` : "None apply" }); }
-    if (T.team < 60) out.push({ k: "Team size", ok: r.teamSize == null || r.teamSize <= T.team, d: r.teamSize == null ? "Not stated" : `${r.teamSize} people` });
-    if (T.when) out.push({ k: "Signal date", ok: days(r.signalDate) <= Number(T.when), d: fmt(r.signalDate) });
-    if (T.channels.length) out.push({ k: "Found through", ok: T.channels.includes(r.channel), d: r.channel });
-    if (T.founderX) { const hs = [xh(r.companyX), ...(r.founders || []).map((f) => xh(f.x))].filter(Boolean); out.push({ k: "On X", ok: hs.length > 0, d: hs.length ? hs.map((h) => "@" + h).join(", ") : "No handle found" }); }
-    if (T.pipeline.length) out.push({ k: "Pipeline", ok: T.pipeline.includes(statusOf(r)), d: statusLabel[statusOf(r)] });
-    return out;
-  }
-  const chipCount = () => T.sectors.length + T.geos.length + T.stages.length + T.include.length + T.exclude.length + T.exSectors.length + (T.team < 60 ? 1 : 0) + (T.when ? 1 : 0) + T.channels.length + (T.founderX ? 1 : 0) + T.pipeline.length;
-
-  // ---------- Thesis panel
-  const toggle = (a, v) => (a.includes(v) ? a.filter((x) => x !== v) : [...a, v]);
-  const tally = (f) => all.reduce((a, r) => { const k = f(r); if (k) a[k] = (a[k] || 0) + 1; return a; }, {});
-  function chipRow(el, items, sel, on, cls = "") {
-    el.innerHTML = items.map(([v, l, n]) => `<button type="button" class="chip ${cls}" data-v="${esc(v)}" aria-pressed="${sel.includes(v)}">${esc(l)}${n != null ? ` <span class="n">${n}</span>` : ""}</button>`).join("");
-    el.onclick = (e) => { const b = e.target.closest("[data-v]"); if (b) on(b.dataset.v); };
-  }
-  function changed() { preset = ""; saveT(); ui.show = {}; renderThesis(); render(); }
-  function renderThesis() {
-    $("#presets").innerHTML = Object.keys(PRESETS).map((p) => `<button type="button" class="chip" data-p="${esc(p)}" aria-pressed="${preset === p}">${esc(p)}</button>`).join("");
-    const sc = tally((r) => r.sector), sectors = Object.keys(sc).sort((a, b) => sc[b] - sc[a]);
-    chipRow($("#t-sectors"), sectors.map((s) => [s, s, sc[s]]), T.sectors, (v) => { T.sectors = toggle(T.sectors, v); changed(); });
-    const cc = tally((r) => r.country);
-    chipRow($("#t-regions"), Object.keys(REGIONS).map((g) => [g, g, REGIONS[g].reduce((n, c) => n + (cc[c] || 0), 0)]).filter((x) => x[2] > 0), T.geos, (v) => { T.geos = toggle(T.geos, v); changed(); });
-    const inR = new Set(Object.values(REGIONS).flat());
-    const top = [...new Set(Object.keys(cc).filter((c) => !REGIONS[c]).sort((a, b) => cc[b] - cc[a]).slice(0, 6).concat(Object.keys(cc).filter((c) => !inR.has(c))))];
-    chipRow($("#t-countries"), top.map((c) => [c, c, cc[c]]), T.geos, (v) => { T.geos = toggle(T.geos, v); changed(); });
-    const st = tally(stageOf);
-    chipRow($("#t-stages"), STAGES.map((s) => [s, s, st[s] || 0]), T.stages, (v) => { T.stages = toggle(T.stages, v); changed(); });
-    $("#t-inc").innerHTML = T.include.map((k) => `<span class="token">${esc(k)}<button type="button" aria-label="Remove ${esc(k)}" data-rm-inc="${esc(k)}">×</button></span>`).join("");
-    $("#t-exc").innerHTML = T.exclude.map((k) => `<span class="token ex">${esc(k)}<button type="button" aria-label="Remove ${esc(k)}" data-rm-exc="${esc(k)}">×</button></span>`).join("");
-    chipRow($("#t-exsectors"), sectors.map((s) => [s, s, null]), T.exSectors, (v) => { T.exSectors = toggle(T.exSectors, v); changed(); }, "ex");
-    $("#team").value = T.team; $("#team-out").textContent = T.team >= 60 ? "Any size" : `≤ ${T.team} people`;
-    chipRow($("#t-when"), WHEN.map(([v, l]) => [v, l, null]), [T.when], (v) => { T.when = T.when === v ? "" : v; changed(); });
-    const ch = tally((r) => r.channel);
-    chipRow($("#t-channels"), Object.keys(ch).sort((a, b) => ch[b] - ch[a]).map((c) => [c, c, ch[c]]), T.channels, (v) => { T.channels = toggle(T.channels, v); changed(); });
-    $("#fx").checked = T.founderX;
-    const ps = tally(statusOf);
-    chipRow($("#t-pipeline"), STATUSES.map(([v, l]) => [v, l, ps[v] || 0]), T.pipeline, (v) => { T.pipeline = toggle(T.pipeline, v); changed(); });
-    $("#nfilters").textContent = chipCount();
-  }
-
-  // ---------- Filter tokens above the results
-  function renderTokens() {
-    const tk = [];
-    const add = (label, rm, ex) => tk.push(`<span class="token${ex ? " ex" : ""}">${esc(label)}<button type="button" aria-label="Remove ${esc(label)}" data-tok="${esc(rm)}">×</button></span>`);
-    T.sectors.forEach((v) => add(v, "sectors|" + v)); T.geos.forEach((v) => add(v, "geos|" + v)); T.stages.forEach((v) => add(v, "stages|" + v));
-    T.include.forEach((v) => add(`mentions “${v}”`, "include|" + v)); T.exSectors.forEach((v) => add(`not ${v}`, "exSectors|" + v, true)); T.exclude.forEach((v) => add(`not “${v}”`, "exclude|" + v, true));
-    if (T.team < 60) add(`team ≤ ${T.team}`, "team|"); if (T.when) add(WHEN.find((w) => w[0] === T.when)[1], "when|");
-    T.channels.forEach((v) => add(v, "channels|" + v)); if (T.founderX) add("on X", "founderX|"); T.pipeline.forEach((v) => add(statusLabel[v], "pipeline|" + v));
-    if (ui.q) add(`search “${ui.q}”`, "q|");
-    $("#tokens").innerHTML = tk.length ? tk.join("") + `<button type="button" class="link" data-tok="all|">Clear all</button>` : `<span class="hint">No filters. Every company is shown.</span>`;
-  }
-  function removeToken(v) {
-    const [k, val] = [v.slice(0, v.indexOf("|")), v.slice(v.indexOf("|") + 1)];
-    if (k === "all") { T = clone(BASE); ui.q = ""; $("#q").value = ""; }
-    else if (k === "team") T.team = 60; else if (k === "when") T.when = ""; else if (k === "founderX") T.founderX = false;
-    else if (k === "q") { ui.q = ""; $("#q").value = ""; } else T[k] = T[k].filter((x) => x !== val);
-    changed();
-  }
-
-  // ---------- Results
   const star = (id) => mine.star.includes(id);
-  const starBtn = (r, small) => `<button type="button" class="star" data-star="${esc(r.id)}" aria-pressed="${star(r.id)}" aria-label="${star(r.id) ? "Unstar" : "Star"} ${esc(r.name)}"><svg width="${small ? 16 : 18}" height="${small ? 16 : 18}" viewBox="0 0 18 18" fill="${star(r.id) ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M9 2.5l2 4.2 4.5.6-3.3 3.1.8 4.5L9 12.7 5 14.9l.8-4.5-3.3-3.1 4.5-.6z"/></svg></button>`;
-  const statusSel = (r) => `<select class="status" data-status="${esc(r.id)}" data-s="${statusOf(r)}" aria-label="Status of ${esc(r.name)}">${STATUSES.map(([v, l]) => `<option value="${v}"${statusOf(r) === v ? " selected" : ""}>${l}</option>`).join("")}</select>`;
+  const activeCount = () => F.sectors.length + F.regions.length + F.stages.length + F.sources.length + F.pipeline.length + (F.recent ? 1 : 0) + (F.founderX ? 1 : 0) + (F.starred ? 1 : 0);
 
-  function card(r, v, near) {
-    const miss = v.find((x) => !x.ok);
-    return `<article class="card${statusOf(r) === "passed" ? " passed" : ""}" tabindex="0" data-id="${esc(r.id)}" aria-label="${esc(r.name)}">
-      <div class="c-top"><div><div class="c-name">${esc(r.name)}</div><div class="c-where">${esc(placeOf(r) || "Location not stated")}${r.teamSize ? ` · ${r.teamSize} people` : ""}</div></div>${starBtn(r)}</div>
+  function filtered() {
+    const q = ui.q.trim().toLowerCase();
+    return all.filter((r) =>
+      (!q || [r.name, r.oneLiner, r.city, r.country, r.sector, r.signal, ...(r.founders || []).map((f) => f.name)].join(" ").toLowerCase().includes(q)) &&
+      (!F.sectors.length || F.sectors.includes(r.sector)) &&
+      (!F.regions.length || F.regions.includes(regionOf(r.country))) &&
+      (!F.stages.length || F.stages.includes(stageOf(r))) &&
+      (!F.sources.length || F.sources.includes(sourceOf(r))) &&
+      (!F.recent || days(r.signalDate) <= 30) &&
+      (!F.founderX || onX(r)) &&
+      (!F.starred || star(r.id)) &&
+      (!F.pipeline.length || F.pipeline.includes(statusOf(r))));
+  }
+  const tally = (rows, fn) => rows.reduce((a, r) => { const k = fn(r); if (k) a[k] = (a[k] || 0) + 1; return a; }, {});
+
+  // ---------- Chips and popovers
+  const CHIP_DEFS = [
+    { k: "sectors", label: "Sector", opts: () => SECTORS.map(([n]) => [n, n]), fn: (r) => r.sector, swatch: (v) => col(v) },
+    { k: "regions", label: "Region", opts: () => Object.keys(REGIONS).map((g) => [g, g]), fn: (r) => regionOf(r.country) },
+    { k: "stages", label: "Stage", opts: () => ["Pre-seed", "Seed", "Series A", "Not stated"].map((s) => [s, s]), fn: stageOf, note: "Only a stage that a source states counts. We never guess." },
+    { k: "sources", label: "Found via", opts: () => ["Y Combinator", "X post", "Found by Grok on X"].map((s) => [s, s]), fn: sourceOf },
+    { k: "pipeline", label: "My pipeline", opts: () => STATUSES, fn: statusOf, note: "Your statuses and stars are private to you." },
+  ];
+  const caret = `<svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>`;
+  function renderChips() {
+    const chip = (html, attrs, on) => `<button type="button" class="chip${on ? " on" : ""}" ${attrs}>${html}</button>`;
+    const n = filtered().length;
+    let h = chip(activeCount() || ui.q ? `Clear filters <span class="n">${n} of ${all.length}</span>` : `All <span class="n">${all.length}</span>`, `data-reset="1"`, !activeCount() && !ui.q);
+    h += chip(`Thesis ${caret}`, `data-pop="thesis" aria-haspopup="dialog" aria-expanded="false"`, false);
+    for (const d of CHIP_DEFS) {
+      const sel = F[d.k];
+      const txt = sel.length ? `${d.label}: ${sel.length === 1 ? (d.k === "pipeline" ? statusLabel[sel[0]] : sel[0]) : sel.length + " selected"}` : d.label;
+      h += chip(`${esc(txt)} ${caret}`, `data-pop="${d.k}" aria-haspopup="dialog" aria-expanded="false"`, sel.length > 0);
+    }
+    h += chip(`<span class="dotc" style="background:var(--s3)"></span>Signal in last 30 days <span class="n">${all.filter((r) => days(r.signalDate) <= 30).length}</span>`, `data-toggle="recent" aria-pressed="${F.recent}"`, F.recent);
+    h += chip(`On X <span class="n">${all.filter(onX).length}</span>`, `data-toggle="founderX" aria-pressed="${F.founderX}"`, F.founderX);
+    h += chip(`★ Starred <span class="n">${mine.star.length}</span>`, `data-toggle="starred" aria-pressed="${F.starred}"`, F.starred);
+    h += `<span class="chip"><label for="sort" class="muted">Sort</label><select id="sort"><option value="date">Newest signal</option><option value="team">Smallest team</option><option value="name">A–Z</option></select></span>`;
+    $("#chips").innerHTML = h;
+    $("#sort").value = ui.sort;
+    $("#sort").onchange = (e) => { ui.sort = e.target.value; renderRail(); renderList(); };
+  }
+  let popFor = null;
+  function placePop(anchor) {
+    const pop = $("#pop"), r = anchor.getBoundingClientRect();
+    pop.classList.add("on");
+    pop.style.left = Math.max(12, Math.min(r.left, innerWidth - pop.offsetWidth - 12)) + "px";
+    pop.style.top = r.bottom + 8 + "px";
+    anchor.setAttribute("aria-expanded", "true");
+    pop.querySelector("button")?.focus();
+  }
+  function openPop(k, anchor) {
+    popFor = k;
+    const pop = $("#pop");
+    if (k === "thesis") {
+      pop.innerHTML = `<h4>Apply a thesis</h4>` + Object.entries(THESES).map(([name, t]) => {
+        const n = all.filter((r) => (!t.sectors || t.sectors.includes(r.sector)) && (!t.regions || t.regions.includes(regionOf(r.country))) && (!t.stages || t.stages.includes(stageOf(r)))).length;
+        const desc = [t.sectors && t.sectors.join(", "), t.regions && t.regions.join(", "), t.stages && t.stages.join(", ")].filter(Boolean).join(" · ");
+        return `<button type="button" class="opt" data-thesis="${esc(name)}"><span style="display:grid"><span>${esc(name)}</span><span class="hint">${esc(desc)}</span></span><span class="n">${n}</span></button>`;
+      }).join("") + `<p class="hint" style="margin:6px 10px">A thesis sets the Sector, Region and Stage chips. Adjust any chip afterwards.</p>`;
+      placePop(anchor); return;
+    }
+    const d = CHIP_DEFS.find((x) => x.k === k);
+    const counts = tally(all, d.fn);
+    pop.innerHTML = `<h4>${esc(d.label)}</h4>` + d.opts().map(([v, l]) => `<button type="button" class="opt" role="menuitemcheckbox" data-v="${esc(v)}" aria-checked="${F[k].includes(v)}"><span class="box"></span>${d.swatch ? `<span class="sw" style="background:${d.swatch(v)}"></span>` : ""}${esc(l)}<span class="n">${counts[v] || 0}</span></button>`).join("")
+      + (d.note ? `<p class="hint" style="margin:6px 10px">${esc(d.note)}</p>` : "")
+      + `<div class="foot"><button type="button" class="link" data-clear="1">Clear</button><button type="button" class="link" data-close="1">Done</button></div>`;
+    placePop(anchor);
+  }
+  function closePop() { $("#pop").classList.remove("on"); popFor = null; document.querySelectorAll("[data-pop]").forEach((b) => b.setAttribute("aria-expanded", "false")); }
+  $("#pop").addEventListener("click", (e) => {
+    const k = popFor; if (!k) return;
+    const th = e.target.closest("[data-thesis]");
+    if (th) { const t = THESES[th.dataset.thesis]; F = { ...F, sectors: t.sectors || [], regions: t.regions || [], stages: t.stages || [] }; closePop(); changed(); fitToResults(); toast(`Thesis: ${th.dataset.thesis}`); return; }
+    const o = e.target.closest(".opt");
+    if (o) { F[k] = F[k].includes(o.dataset.v) ? F[k].filter((x) => x !== o.dataset.v) : [...F[k], o.dataset.v]; o.setAttribute("aria-checked", String(F[k].includes(o.dataset.v))); changed(false); }
+    if (e.target.closest("[data-clear]")) { F[k] = []; closePop(); changed(); }
+    if (e.target.closest("[data-close]")) { closePop(); renderChips(); }
+  });
+  $("#chips").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.reset) { resetAll(); return; }
+    if (b.dataset.pop) { e.stopPropagation(); if (popFor === b.dataset.pop) { closePop(); renderChips(); } else { closePop(); openPop(b.dataset.pop, b); } return; }
+    if (b.dataset.toggle) { F[b.dataset.toggle] = !F[b.dataset.toggle]; changed(); }
+  });
+  document.addEventListener("click", (e) => { if (popFor && !e.target.closest("#pop") && !e.target.closest("[data-pop]")) { closePop(); renderChips(); } });
+  function resetAll() { F = { ...F0 }; ui.q = ""; $("#q").value = ""; changed(); }
+  function changed(chips = true) { saveF(); if (chips) renderChips(); drawPins(); renderRail(); renderList(); }
+
+  // ---------- Map
+  let svg, gRoot, gLand, gPins, projection, path, zoom, transform = d3.zoomIdentity;
+  const W = () => $("#map").clientWidth, H = () => $("#map").clientHeight;
+  const small = () => innerWidth < 760;
+  function initMap(world) {
+    svg = d3.select("#map").append("svg").attr("aria-hidden", "true");
+    gRoot = svg.append("g");
+    gLand = gRoot.append("g"); gPins = gRoot.append("g");
+    projection = d3.geoMercator(); path = d3.geoPath(projection);
+    fitProjection();
+    gLand.selectAll("path").data(world.features).join("path").attr("class", "land").attr("d", path);
+    zoom = d3.zoom().scaleExtent([0.7, 60]).on("zoom", (ev) => { transform = ev.transform; gRoot.attr("transform", transform); drawPins(); scheduleRail(); hideTip(); });
+    svg.call(zoom).on("dblclick.zoom", null);
+    svg.on("click", (ev) => { if (!ev.target.closest(".dot,.bubble")) { if (ui.sel) { ui.sel = null; drawPins(); renderRail(); } } });
+    $("#loading").remove();
+    let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { fitProjection(); gLand.selectAll("path").attr("d", path); drawPins(); renderRail(); }, 100); });
+  }
+  function fitProjection() {
+    const pad = small() ? 14 : 70, top = small() ? 168 : 128, bottom = small() ? 268 : 250;
+    projection.fitExtent([[pad, top], [W() - pad, Math.max(top + 120, H() - bottom)]], { type: "MultiPoint", coordinates: [[-10, 37], [27, 61]] });
+  }
+  const P = (xy) => projection(xy);
+  function groups(rows) {
+    const m = new Map();
+    for (const r of rows) { const p = placeOf(r); if (!p) continue; if (!m.has(p.key)) m.set(p.key, { ...p, rows: [] }); m.get(p.key).rows.push(r); }
+    return [...m.values()].sort((a, b) => b.rows.length - a.rows.length);
+  }
+  function drawPins() {
+    if (!gPins) return;
+    const k = transform.k, detail = k >= 3;
+    let gs = groups(filtered());
+    if (!detail) {
+      // Merge places whose bubbles would overlap on screen into the bigger one (e.g. Oxford into London when zoomed out).
+      const rad = (n) => 9 + Math.sqrt(n) * 4, out = [];
+      for (const g of gs) {
+        const [x, y] = P(g.xy);
+        const host = out.find((o) => { const [ox, oy] = P(o.xy); return Math.hypot((x - ox) * k, (y - oy) * k) < rad(o.rows.length) + rad(g.rows.length) + 4; });
+        if (host) { host.rows.push(...g.rows); host.merged = true; if (!g.approx && (!host.city || g.rows.length > host.cityN)) { host.city = g.name; host.cityN = g.rows.length; } }
+        else out.push({ ...g, rows: [...g.rows], city: g.approx ? null : g.name, cityN: g.approx ? 0 : g.rows.length });
+      }
+      gs = out.map((g) => (g.merged ? { ...g, approx: false, name: (g.city || g.name) + " area" } : g));
+    }
+    gPins.selectAll("*").remove();
+    const boxes = [];
+    const fits = (x, y, text) => { const w = text.length * 7 + 8, b = [x * k - w / 2, y * k - 14, x * k + w / 2, y * k + 4]; if (boxes.some((o) => b[0] < o[2] && b[2] > o[0] && b[1] < o[3] && b[3] > o[1])) return false; boxes.push(b); return true; };
+    for (const d of gs) { const [x, y] = P(d.xy); const r = detail ? 0 : 9 + Math.sqrt(d.rows.length) * 4; boxes.push([x * k - r, y * k - r, x * k + r, y * k + r]); }
+    for (const d of gs) {
+      const [x, y] = P(d.xy), n = d.rows.length;
+      if (!detail) {
+        const r = (9 + Math.sqrt(n) * 4) / k;
+        const b = gPins.append("g").attr("class", "bubble").attr("transform", `translate(${x},${y})`);
+        b.append("circle").attr("class", "halo").attr("r", r * 1.5);
+        b.append("circle").attr("class", "core").attr("r", r).style("stroke-dasharray", d.approx ? "3 2" : null);
+        b.append("text").attr("font-size", (11 + Math.min(5, Math.sqrt(n))) / k).text(n);
+        const lbl = d.name + (d.approx ? " (city not stated)" : "");
+        if ((n >= 5 || k >= 1.8) && fits(x, y + r * 1.5 + 13 / k, lbl)) gPins.append("text").attr("class", "label").attr("x", x).attr("y", y + r * 1.5 + 13 / k).attr("font-size", 12 / k).style("stroke-width", 3 / k).text(lbl);
+        b.on("click", (ev) => { ev.stopPropagation(); zoomTo(d.xy, Math.max(5, k * 2.5)); })
+          .on("mouseenter", (ev) => showTip(ev, `<b>${esc(d.name)}</b>${n} ${n === 1 ? "company" : "companies"}${d.approx ? `<div class="hint">Only the country is stated, so these sit at the capital.</div>` : ""}<div class="hint">Click to zoom in</div>`))
+          .on("mouseleave", hideTip);
+      } else {
+        d.rows.forEach((r, i) => {
+          const a = i * 2.399963, dist = (n === 1 ? 0 : 8 * Math.sqrt(i + 0.5)) / k;
+          const isSel = ui.sel === r.id;
+          const dot = gPins.append("g").attr("class", "dot" + (isSel ? " sel" : "")).attr("transform", `translate(${x + Math.cos(a) * dist},${y + Math.sin(a) * dist})`);
+          dot.append("circle").attr("r", (isSel ? 9 : 6) / k).attr("fill", col(r.sector));
+          dot.on("click", (ev) => { ev.stopPropagation(); select(r.id, true); })
+            .on("mouseenter", (ev) => showTip(ev, `<b>${esc(r.name)}</b>${esc((r.oneLiner || "").slice(0, 100))}${d.approx ? `<div class="hint">Pinned at ${esc(r.country)}'s capital: city not stated</div>` : ""}`))
+            .on("mouseleave", hideTip);
+        });
+        const lbl2 = d.name + (d.approx ? " (city not stated)" : ""), ly = y - (14 + 8 * Math.sqrt(n)) / k;
+        if (k >= 4.5 && fits(x, ly, lbl2)) gPins.append("text").attr("class", "label").attr("x", x).attr("y", ly).attr("font-size", 12.5 / k).style("stroke-width", 3 / k).text(lbl2);
+      }
+    }
+  }
+  function showTip(ev, html) { const t = $("#tip"); t.innerHTML = html; t.style.left = ev.clientX + "px"; t.style.top = ev.clientY + "px"; t.classList.add("on"); }
+  function hideTip() { $("#tip").classList.remove("on"); }
+  function centreY() { const top = small() ? 168 : 128, bottom = small() ? 268 : 250; return top + (H() - top - bottom) / 2; }
+  function zoomTo(xy, k) {
+    if (!svg) return;
+    const [x, y] = P(xy);
+    svg.transition().duration(reduced ? 0 : 650).call(zoom.transform, d3.zoomIdentity.translate(W() / 2, centreY()).scale(Math.min(60, k)).translate(-x, -y));
+  }
+  function fitToResults() {
+    if (!svg) return;
+    const pts = filtered().map(placeOf).filter(Boolean).map((p) => P(p.xy));
+    if (!pts.length) return;
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+    const top = small() ? 168 : 128, bottom = small() ? 268 : 250, availH = H() - top - bottom, availW = W() - 120;
+    const k = Math.max(1, Math.min(8, 0.8 / Math.max((x1 - x0) / availW, (y1 - y0) / availH, 1e-3)));
+    svg.transition().duration(reduced ? 0 : 650).call(zoom.transform, d3.zoomIdentity.translate(W() / 2, centreY()).scale(k).translate(-(x0 + x1) / 2, -(y0 + y1) / 2));
+  }
+  $("#zin").onclick = () => svg && svg.transition().duration(250).call(zoom.scaleBy, 1.8);
+  $("#zout").onclick = () => svg && svg.transition().duration(250).call(zoom.scaleBy, 1 / 1.8);
+  $("#zfit").onclick = () => svg && svg.transition().duration(reduced ? 0 : 450).call(zoom.transform, d3.zoomIdentity);
+
+  function inView(rows) {
+    if (!svg) return rows;
+    const top = small() ? 150 : 110, bottom = small() ? 250 : 230;
+    const [x0, y0] = transform.invert([0, top]), [x1, y1] = transform.invert([W(), H() - bottom]);
+    return rows.filter((r) => { const p = placeOf(r); if (!p) return false; const [x, y] = P(p.xy); return x >= x0 && x <= x1 && y >= y0 && y <= y1; });
+  }
+
+  // ---------- Cards
+  const sortRows = (rows) => rows.slice().sort((a, b) => ui.sort === "name" ? a.name.localeCompare(b.name) : ui.sort === "team" ? (a.teamSize ?? 999) - (b.teamSize ?? 999) || a.name.localeCompare(b.name) : (b.signalDate || "").localeCompare(a.signalDate || "") || a.name.localeCompare(b.name));
+  const initials = (n) => n.replace(/[^\p{L}\p{N} ]/gu, "").split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase() || "?";
+  const starBtn = (r) => `<button type="button" class="star" data-star="${esc(r.id)}" aria-pressed="${star(r.id)}" aria-label="${star(r.id) ? "Unstar" : "Star"} ${esc(r.name)}"><svg width="17" height="17" viewBox="0 0 18 18" fill="${star(r.id) ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M9 2.5l2 4.2 4.5.6-3.3 3.1.8 4.5L9 12.7 5 14.9l.8-4.5-3.3-3.1 4.5-.6z"/></svg></button>`;
+  const srcTag = (r) => { const s = sourceOf(r); return s === "Found by Grok on X" ? `<span class="tag grok">Grok on X</span>` : s === "X post" ? `<span class="tag t1">X post</span>` : s === "Y Combinator" ? `<span class="tag t4">YC ${esc(r.batch || "")}</span>` : `<span class="tag">${esc(s)}</span>`; };
+  function card(r) {
+    const st = stageOf(r);
+    return `<article class="card${ui.sel === r.id ? " sel" : ""}${statusOf(r) === "passed" ? " passed" : ""}" tabindex="0" data-id="${esc(r.id)}" aria-label="${esc(r.name)}. Press Enter for details.">
+      <div class="c-top"><div class="mono" style="background:${col(r.sector)}" aria-hidden="true">${esc(initials(r.name))}</div>
+        <div style="min-width:0"><div class="c-name">${esc(r.name)}</div><div class="c-sub">${st === "Not stated" ? "" : esc(st) + " · "}${esc(r.sector)}</div></div>${starBtn(r)}</div>
       <div class="c-one">${esc(r.oneLiner)}</div>
-      <div class="c-tags">${near && miss ? `<span class="tag miss">${esc(miss.k)}: ${esc(miss.d)}</span>` : ""}<span class="tag ${tagCls(r.sector)}${T.sectors.includes(r.sector) ? " hit" : ""}">${esc(r.sector)}</span><span class="tag">${esc(stageOf(r))}</span>${r.batch ? `<span class="tag">YC ${esc(r.batch)}</span>` : ""}</div>
-      <div class="c-foot"><div class="c-sig"><b>${esc(r.signal)}</b><span class="num">${fmt(r.signalDate)} · ${esc(r.channel)}</span></div>${statusSel(r)}</div>
+      <div class="c-tags">${placeText(r) ? `<span class="tag">${esc(placeText(r))}</span>` : ""}${srcTag(r)}${r.teamSize ? `<span class="tag">${r.teamSize} people</span>` : ""}${statusOf(r) !== "new" ? `<span class="tag t4">${statusLabel[statusOf(r)]}</span>` : ""}</div>
+      <div class="c-foot"><span>${esc(r.signal)}</span><span class="num" style="flex:none">${fmt(r.signalDate)}</span></div>
     </article>`;
   }
-  const COLS = [
-    ["name", "Company"], ["oneLiner", "What it does"], ["sector", "Sector"], ["place", "Where"], ["stage", "Stage"], ["teamSize", "Team"], ["signalDate", "Latest signal"], ["channel", "Found through"], ["match", "Thesis"], ["status", "Status"],
-  ];
-  function gridTable(list) {
-    const arrow = (k) => (ui.gsort && ui.gsort.k === k ? `<span class="arrow">${ui.gsort.dir > 0 ? "↑" : "↓"}</span>` : "");
-    return `<div class="gridwrap"><table><thead><tr>${COLS.map(([k, l], i) => `<th scope="col" class="${i ? "" : "first"}" aria-sort="${ui.gsort && ui.gsort.k === k ? (ui.gsort.dir > 0 ? "ascending" : "descending") : "none"}"><button type="button" data-gsort="${k}">${l} ${arrow(k)}</button></th>`).join("")}</tr></thead><tbody>
-      ${list.map(([r, v, near]) => { const miss = v.find((x) => !x.ok); return `<tr tabindex="0" data-id="${esc(r.id)}" class="${statusOf(r) === "passed" ? "passed" : ""}">
-        <td class="first"><div class="row">${starBtn(r, true)}<span>${esc(r.name)}</span></div></td>
-        <td><span class="clip">${esc(r.oneLiner)}</span></td>
-        <td><span class="tag ${tagCls(r.sector)}">${esc(r.sector)}</span></td>
-        <td style="white-space:nowrap">${esc(placeOf(r) || "—")}</td>
-        <td style="white-space:nowrap">${esc(stageOf(r))}</td>
-        <td class="num" style="text-align:right">${r.teamSize ?? "—"}</td>
-        <td><span class="clip">${esc(r.signal)}</span><span class="muted num" style="font-size:12px">${fmt(r.signalDate)}</span></td>
-        <td style="white-space:nowrap">${esc(r.channel)}</td>
-        <td style="white-space:nowrap">${!v.length ? "—" : near ? `<span class="mx no">Misses ${esc(miss.k.toLowerCase())}</span>` : `<span class="mx">Match</span>`}</td>
-        <td>${statusSel(r)}</td></tr>`; }).join("")}
+  let railTimer;
+  const scheduleRail = () => { clearTimeout(railTimer); railTimer = setTimeout(renderRail, 120); };
+  function renderRail() {
+    if (ui.view !== "map") return;
+    if (!all.length) return;
+    const rows = filtered(), vis = sortRows(inView(rows));
+    const unplaced = rows.filter((r) => !placeOf(r)).length;
+    const zoomed = transform.k > 1.05 || Math.abs(transform.x) > 5 || Math.abs(transform.y) > 5;
+    $("#inview").textContent = zoomed ? `${vis.length} of ${rows.length} in view` : `${rows.length} ${rows.length === 1 ? "company" : "companies"}${unplaced ? ` · ${unplaced} with no location (see List)` : ""}`;
+    const sel = ui.sel && rows.find((r) => r.id === ui.sel);
+    const list = sel ? [sel, ...vis.filter((r) => r.id !== sel.id)] : vis;
+    $("#cards").innerHTML = list.length
+      ? list.slice(0, 40).map(card).join("") + (list.length > 40 ? `<div class="empty-card"><b>${list.length - 40} more</b>Zoom in, add a filter, or open the List view.</div>` : "")
+      : `<div class="empty-card"><b>${rows.length ? "Nothing in this part of the map" : "No companies match these filters"}</b>${rows.length ? `<button type="button" class="link" data-fit="1" style="padding:0">Show all of Europe</button>` : `<button type="button" class="link" data-resetall="1" style="padding:0">Clear all filters</button>`}</div>`;
+  }
+
+  // ---------- List
+  const COLS = [["name", "Company"], ["oneLiner", "What it does"], ["sector", "Sector"], ["place", "Where"], ["stage", "Stage"], ["teamSize", "Team"], ["signalDate", "Latest signal"], ["source", "Found via"], ["status", "My status"]];
+  const statusSel = (r) => `<select class="status" data-status="${esc(r.id)}" data-s="${statusOf(r)}" aria-label="Status of ${esc(r.name)}">${STATUSES.map(([v, l]) => `<option value="${v}"${statusOf(r) === v ? " selected" : ""}>${l}</option>`).join("")}</select>`;
+  function renderList() {
+    if (ui.view !== "list") return;
+    let rows = sortRows(filtered());
+    if (ui.gsort) {
+      const { k, dir } = ui.gsort;
+      const v = (r) => k === "place" ? placeText(r) : k === "stage" ? ["Pre-seed", "Seed", "Series A", "Not stated"].indexOf(stageOf(r)) : k === "teamSize" ? r.teamSize ?? 999 : k === "source" ? sourceOf(r) : k === "status" ? STATUSES.findIndex((s) => s[0] === statusOf(r)) : r[k] ?? "";
+      rows.sort((a, b) => { const x = v(a), y = v(b); return (typeof x === "number" ? x - y : String(x).localeCompare(String(y))) * dir; });
+    }
+    const ar = (k) => (ui.gsort && ui.gsort.k === k ? `<span class="arrow">${ui.gsort.dir > 0 ? "↑" : "↓"}</span>` : "");
+    const aria = (k) => (ui.gsort && ui.gsort.k === k ? (ui.gsort.dir > 0 ? "ascending" : "descending") : "none");
+    $("#list").innerHTML = !all.length ? "" : !rows.length ? `<div class="empty-card"><b>No companies match these filters</b><button type="button" class="link" data-resetall="1" style="padding:0">Clear all filters</button></div>` : `<div class="tablewrap"><table><caption class="vh">${rows.length} companies</caption><thead><tr>${COLS.map(([k, l]) => `<th scope="col" aria-sort="${aria(k)}"><button type="button" data-gsort="${k}">${l} ${ar(k)}</button></th>`).join("")}</tr></thead><tbody>
+      ${rows.map((r) => `<tr tabindex="0" data-id="${esc(r.id)}"><td class="first">${esc(r.name)}${star(r.id) ? ` <span style="color:#d99a00" aria-label="starred">★</span>` : ""}</td><td><span class="clip">${esc(r.oneLiner)}</span></td><td><span class="tag ${tagCls(r.sector)}">${esc(r.sector)}</span></td><td style="white-space:nowrap">${esc(placeText(r) || "—")}</td><td>${esc(stageOf(r))}</td><td class="num" style="text-align:right">${r.teamSize ?? "—"}</td><td><span class="clip">${esc(r.signal)}</span><span class="muted num" style="font-size:12px">${fmt(r.signalDate)}</span></td><td style="white-space:nowrap">${esc(sourceOf(r))}</td><td>${statusSel(r)}</td></tr>`).join("")}
     </tbody></table></div>`;
   }
 
-  let lastList = [];
-  function render() {
-    renderTokens();
-    if (!loaded) {
-      $("#results").innerHTML = loadError
-        ? `<div class="empty" style="margin-top:16px"><b>The list couldn't load</b><p>${esc(loadError)}</p><button type="button" class="btn btn-primary btn-sm" id="retry">Try again</button></div>`
-        : `<div class="cards" style="margin-top:18px">${Array.from({ length: 6 }, () => `<div class="skel"><i style="width:45%"></i><i></i><i style="width:80%"></i><i style="width:30%"></i></div>`).join("")}</div>`;
-      return;
-    }
-    const q = ui.q.trim().toLowerCase();
-    let pool = all.filter((r) => !q || [r.name, r.oneLiner, r.city, r.country, r.sector, r.signal, ...(r.founders || []).map((f) => f.name)].join(" ").toLowerCase().includes(q));
-    if (ui.starredOnly) pool = pool.filter((r) => star(r.id));
-    const hits = [], near = [];
-    let nCrit = 0;
-    for (const r of pool) { const v = judge(r); nCrit = v.length; const f = v.filter((x) => !x.ok); if (!f.length) hits.push([r, v, false]); else if (f.length === 1 && !["Sector", "Exclusions"].includes(f[0].k)) near.push([r, v, true]); }
-    const rest = pool.length - hits.length - near.length;
-    $("#bar-hit").style.width = `${pool.length ? (hits.length / pool.length) * 100 : 0}%`;
-    $("#bar-near").style.width = `${pool.length ? (near.length / pool.length) * 100 : 0}%`;
-    $("#lg-hit").textContent = hits.length; $("#lg-near").textContent = near.length; $("#lg-rest").textContent = rest;
-    const fresh = hits.filter(([r]) => days(r.signalDate) <= 30).length;
-    $("#finding").innerHTML = nCrit === 0
-      ? `All <b>${pool.length}</b> companies. Set a thesis to narrow them down.`
-      : `<b>${hits.length}</b> of ${pool.length} match your ${nCrit} ${nCrit === 1 ? "criterion" : "criteria"}${fresh ? `, ${fresh} with a signal in the last 30 days` : ""}.${near.length ? ` ${near.length} more miss by one.` : ""}`;
-    $("#nshort").textContent = mine.star.length;
-    $("#show-short").setAttribute("aria-pressed", String(ui.starredOnly));
-    document.querySelectorAll("[data-view]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.view === ui.view)));
-    $("#group").value = ui.group; $("#sort").value = ui.sort;
-
-    const sortFn = ui.view === "grid" && ui.gsort ? gridSort(ui.gsort) : ui.sort === "name" ? (a, b) => a[0].name.localeCompare(b[0].name)
-      : ui.sort === "team" ? (a, b) => (a[0].teamSize ?? 999) - (b[0].teamSize ?? 999) || a[0].name.localeCompare(b[0].name)
-      : (a, b) => (b[0].signalDate || "").localeCompare(a[0].signalDate || "") || a[0].name.localeCompare(b[0].name);
-    hits.sort(sortFn); near.sort(sortFn);
-    lastList = hits.map(([r]) => r);
-
-    let html = "";
-    if (!hits.length) html += noResults(pool.length, near);
-    else html += section("hits", "Matches your thesis", `${hits.length} ${hits.length === 1 ? "company" : "companies"}`, hits);
-    if (nCrit && near.length) html += section("near", "Near misses", "In your sectors, failing one other test", near);
-    $("#results").innerHTML = html;
+  // ---------- Selection and drawer
+  function select(id, fromMap) {
+    ui.sel = id; drawPins(); renderRail();
+    $("#cards").scrollTo({ left: 0, behavior: reduced ? "auto" : "smooth" });
+    if (!fromMap) { const r = all.find((x) => x.id === id); const p = r && placeOf(r); if (p) zoomTo(p.xy, Math.max(transform.k, 6)); }
   }
-  function gridSort({ k, dir }) {
-    const val = (r, v) => k === "place" ? placeOf(r) : k === "stage" ? STAGES.indexOf(stageOf(r)) : k === "teamSize" ? r.teamSize ?? 999 : k === "match" ? v.filter((x) => !x.ok).length : k === "status" ? STATUSES.findIndex((s) => s[0] === statusOf(r)) : (r[k] ?? "");
-    return (a, b) => { const x = val(a[0], a[1]), y = val(b[0], b[1]); return (typeof x === "number" ? x - y : String(x).localeCompare(String(y))) * dir || a[0].name.localeCompare(b[0].name); };
-  }
-  function section(key, title, sub, list) {
-    const groups = groupList(list);
-    return groups.map(([g, items], gi) => {
-      const limitKey = key + "|" + g; const limit = ui.show[limitKey] || (ui.view === "grid" ? 60 : 24);
-      const head = `<div class="group-h"><h2>${gi === 0 || !ui.group ? esc(title) : ""}${ui.group ? `${gi === 0 ? " · " : ""}<span class="tag ${ui.group === "sector" ? tagCls(g) : ""}">${esc(g)}</span> <span class="sub num">${items.length}</span>` : ""}</h2>${gi === 0 ? `<span class="sub">${esc(sub)}</span>` : ""}</div>`;
-      const body = ui.view === "grid" ? gridTable(items.slice(0, limit)) : `<div class="cards">${items.slice(0, limit).map(([r, v, n]) => card(r, v, n)).join("")}</div>`;
-      const more = items.length > limit ? `<div class="more"><button type="button" class="btn btn-white btn-sm" data-more="${esc(limitKey)}">Show ${Math.min(limit, items.length - limit)} more of ${items.length - limit}</button></div>` : "";
-      return `<section class="group" aria-label="${esc(title)}${ui.group ? ": " + esc(g) : ""}">${head}${body}${more}</section>`;
-    }).join("");
-  }
-  function groupList(list) {
-    if (!ui.group) return [["", list]];
-    const key = (r) => ui.group === "sector" ? r.sector : ui.group === "country" ? r.country || "Not stated" : ui.group === "stage" ? stageOf(r) : statusLabel[statusOf(r)];
-    const m = new Map(); for (const it of list) { const k = key(it[0]); if (!m.has(k)) m.set(k, []); m.get(k).push(it); }
-    const order = ui.group === "stage" ? STAGES : ui.group === "status" ? STATUSES.map((s) => s[1]) : null;
-    return [...m.entries()].sort((a, b) => order ? order.indexOf(a[0]) - order.indexOf(b[0]) : b[1].length - a[1].length);
-  }
-  function noResults(n, near) {
-    const sugg = [];
-    if (ui.q) sugg.push([`Clear the search “${ui.q}”`, "q|"]);
-    T.include.forEach((k) => sugg.push([`Drop “${k}”`, "include|" + k]));
-    if (T.stages.length) sugg.push(["Any stage", "stages*"]);
-    if (T.geos.length) sugg.push(["Anywhere in Europe", "geos*"]);
-    if (T.team < 60) sugg.push(["Any team size", "team|"]);
-    if (ui.starredOnly) sugg.push(["Show all, not only starred", "starred*"]);
-    const title = ui.starredOnly && !mine.star.length ? "You haven't starred anything yet" : ui.q ? `Nothing matches “${esc(ui.q)}” with this thesis` : "Nothing matches every criterion";
-    return `<div class="empty" style="margin-top:16px"><b>${title}</b><p>${near.length ? `${near.length} ${near.length === 1 ? "company misses" : "companies miss"} by one test; they're listed below.` : "Loosen one of these to see more."}</p>
-      <div class="chips">${sugg.slice(0, 5).map(([l, v]) => `<button type="button" class="chip" data-sugg="${esc(v)}">${esc(l)}</button>`).join("")}</div></div>`;
-  }
-
-  // ---------- Drawer
+  let lastFocus = null;
   function openDrawer(id) {
-    const r = all.find((x) => x.id === id); if (!r) return; ui.open = id;
-    const v = judge(r);
+    const r = all.find((x) => x.id === id); if (!r) return;
+    if (!ui.open) lastFocus = document.activeElement;
+    ui.open = id;
     const sigs = [{ signal: r.signal, signalDate: r.signalDate, signalUrl: r.signalUrl, source: r.source }, ...(r.alsoSeen || [])];
     const founders = (r.founders || []).map((f) => `<li>${esc(f.name)}${xh(f.x) ? ` · <a href="https://x.com/${esc(xh(f.x))}" target="_blank" rel="noopener noreferrer">@${esc(xh(f.x))}</a>` : ""}</li>`).join("");
+    const p = placeOf(r);
     $("#drawer").innerHTML = `
-      <div class="d-head"><div class="d-row"><div><h2>${esc(r.name)}</h2><div class="c-where">${esc(placeOf(r) || "Location not stated")}</div></div>
+      <div class="d-head"><div class="d-row"><div class="mono" style="background:${col(r.sector)}" aria-hidden="true">${esc(initials(r.name))}</div><div style="flex:1;min-width:0"><h2>${esc(r.name)}</h2><div class="c-sub">${esc(placeText(r) || "Location not stated")}${p && p.approx ? " · city not stated" : ""}</div></div>
         <button type="button" class="btn btn-white btn-sm" id="d-close">Close</button></div>
-        <div class="d-actions"><span class="tag ${tagCls(r.sector)}">${esc(r.sector)}</span>${statusSel(r)}${starBtn(r)}
-          ${safe(r.website) ? `<a class="btn btn-white btn-sm" href="${esc(r.website)}" target="_blank" rel="noopener noreferrer">Website</a>` : ""}${xh(r.companyX) ? `<a class="btn btn-white btn-sm" href="https://x.com/${esc(xh(r.companyX))}" target="_blank" rel="noopener noreferrer">@${esc(xh(r.companyX))}</a>` : ""}</div></div>
+        <div class="d-actions"><span class="tag ${tagCls(r.sector)}">${esc(r.sector)}</span>${srcTag(r)}${statusSel(r)}${starBtn(r)}
+          ${safe(r.website) ? `<a class="btn btn-white btn-sm" href="${esc(r.website)}" target="_blank" rel="noopener noreferrer">Website ↗</a>` : ""}${xh(r.companyX) ? `<a class="btn btn-white btn-sm" href="https://x.com/${esc(xh(r.companyX))}" target="_blank" rel="noopener noreferrer">@${esc(xh(r.companyX))} ↗</a>` : ""}</div></div>
       <div class="d-body">
         <div class="d-sec"><p style="margin:0;font-size:15px">${esc(r.oneLiner)}</p></div>
-        <div class="d-sec"><h3>Against your thesis</h3>${v.length ? `<ul>${v.map((c) => `<li class="crit"><span class="${c.ok ? "ok" : "no"}">${c.ok ? "✓" : "✗"} ${esc(c.k)}</span><span>${esc(c.d)}</span></li>`).join("")}</ul>` : `<p class="hint">No thesis set.</p>`}</div>
         <div class="d-sec"><h3>Signals</h3><ul>${sigs.map((s) => `<li>${esc(s.signal)}<div class="hint num">${fmt(s.signalDate)} · ${safe(s.signalUrl) ? `<a href="${esc(s.signalUrl)}" target="_blank" rel="noopener noreferrer">${esc(s.source)}</a>` : esc(s.source)}</div></li>`).join("")}</ul></div>
         ${founders ? `<div class="d-sec"><h3>Founders</h3><ul>${founders}</ul></div>` : ""}
-        <div class="d-sec"><h3>On record</h3><ul><li>${r.stage ? `${esc(r.stage)}, as stated by ${esc(r.stageBy)}` : "Stage: no source states a round"}</li>${r.batch ? `<li>Y Combinator ${esc(r.batch)}</li>` : ""}${r.teamSize ? `<li>Team of ${r.teamSize}</li>` : ""}${r.founded ? `<li>Founded ${r.founded}</li>` : ""}</ul></div>
-        <div class="d-sec"><h3>What was checked</h3><ul>${(r.checks || []).map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>
+        <div class="d-sec"><h3>On record</h3><ul><li>${r.stage ? `${esc(r.stage)}, as stated by ${esc(r.stageBy)}` : "Stage: no source states a round"}</li>${r.batch ? `<li>Y Combinator ${esc(r.batch)}</li>` : ""}${r.teamSize ? `<li>Team of ${r.teamSize}</li>` : ""}${r.founded ? `<li>Founded ${esc(r.founded)}</li>` : ""}</ul></div>
+        ${(r.verifiedFacts || []).length ? `<div class="d-sec"><h3>Verified facts</h3><ul>${r.verifiedFacts.map((f) => `<li>${esc(f.statement)}<div class="hint">${esc(f.verified_against || "")}${safe(f.source_url) ? ` · <a href="${esc(f.source_url)}" target="_blank" rel="noopener noreferrer">source</a>` : ""}</div></li>`).join("")}</ul></div>` : ""}
+        ${(r.companyClaims || []).length ? `<div class="d-sec"><h3>What the company says (not verified)</h3><ul>${r.companyClaims.map((c) => `<li>${esc(c.statement)}${safe(c.source_url) ? ` <a class="hint" href="${esc(c.source_url)}" target="_blank" rel="noopener noreferrer">source</a>` : ""}</li>`).join("")}</ul></div>` : ""}
+        ${(r.unknowns || []).length ? `<div class="d-sec"><h3>Unknown</h3><ul>${r.unknowns.map((u) => `<li>${esc(u)}</li>`).join("")}</ul></div>` : ""}
+        ${(r.checks || []).length ? `<div class="d-sec"><h3>What was checked</h3><ul>${r.checks.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>` : ""}
         ${r.nextQuestion ? `<div class="d-sec"><h3>Next diligence question</h3><p style="margin:0;font-weight:500">${esc(r.nextQuestion)}</p></div>` : ""}
       </div>`;
-    $("#drawer").classList.add("on"); $("#drawer").setAttribute("aria-hidden", "false"); $("#scrim").classList.add("on"); $("#d-close").focus();
+    $("#drawer").classList.add("on"); $("#scrim").classList.add("on");
+    $("#d-close").focus();
   }
-  function closeDrawer() {
-    const id = ui.open; ui.open = null; $("#drawer").classList.remove("on"); $("#drawer").setAttribute("aria-hidden", "true");
-    if (!$("#thesis").classList.contains("on")) $("#scrim").classList.remove("on");
-    const el = id && document.querySelector(`[data-id="${CSS.escape(id)}"]`); el && el.focus();
-  }
+  function closeDrawer() { ui.open = null; $("#drawer").classList.remove("on"); $("#scrim").classList.remove("on"); lastFocus && lastFocus.isConnected && lastFocus.focus(); }
 
-  // ---------- Private pipeline: stars and statuses
-  let writing = Promise.resolve(); let pending = false;
+  // ---------- Private pipeline (stars + statuses)
+  let writing = Promise.resolve(), pending = false;
   function persistMine() {
     store.set("radar-mine", mine);
-    if (!mineRef || !mineReady) return;
-    if (pending) return; pending = true;
-    writing = writing.then(async () => { pending = false; try { await mineRef.set({ star: mine.star, status: mine.status }); } catch (e) { toast("Couldn't save to your account; kept on this device."); } });
+    if (!mineRef || !mineReady || pending) return; pending = true;
+    writing = writing.then(async () => { pending = false; try { await mineRef.set({ star: mine.star, status: mine.status }); } catch { toast("Saved on this device only"); } });
   }
-  function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove("on"), 2200); }
-  function setStar(id) { mine.star = star(id) ? mine.star.filter((x) => x !== id) : [...mine.star, id]; persistMine(); render(); if (ui.open === id) openDrawer(id); toast(star(id) ? "Starred" : "Removed from starred"); }
-  function setStatus(id, s) { if (s === "new") delete mine.status[id]; else mine.status[id] = s; persistMine(); renderThesis(); render(); if (ui.open === id) openDrawer(id); toast(`Marked ${statusLabel[s]}`); }
+  function refreshAll(id) { renderChips(); renderRail(); renderList(); if (ui.open === id) openDrawer(id); }
+  function setStar(id) { mine.star = star(id) ? mine.star.filter((x) => x !== id) : [...mine.star, id]; persistMine(); refreshAll(id); toast(star(id) ? "Starred" : "Unstarred"); }
+  function setStatus(id, s) { if (s === "new") delete mine.status[id]; else mine.status[id] = s; persistMine(); refreshAll(id); toast(`Marked ${statusLabel[s]}`); }
 
   // ---------- Events
-  $("#presets").onclick = (e) => { const b = e.target.closest("[data-p]"); if (!b) return; T = clone(PRESETS[b.dataset.p]); preset = b.dataset.p; saveT(); ui.show = {}; renderThesis(); render(); };
-  $("#reset").onclick = () => { T = clone(BASE); preset = "Everything"; saveT(); renderThesis(); render(); };
-  document.querySelectorAll("[data-clear]").forEach((b) => b.addEventListener("click", () => {
-    const k = b.dataset.clear;
-    if (k === "exclude") { T.exclude = []; T.exSectors = []; } else if (k === "signal") { T.when = ""; T.channels = []; T.founderX = false; } else T[k] = [];
-    changed();
-  }));
-  const addKw = (form, input, key) => form.addEventListener("submit", (e) => { e.preventDefault(); const vals = input.value.split(",").map((s) => s.trim()).filter(Boolean); if (!vals.length) return; T[key] = [...new Set([...T[key], ...vals])]; input.value = ""; changed(); input.focus(); });
-  addKw($("#f-inc"), $("#inc"), "include"); addKw($("#f-exc"), $("#exc"), "exclude");
-  $("#team").addEventListener("input", (e) => { T.team = Number(e.target.value); $("#team-out").textContent = T.team >= 60 ? "Any size" : `≤ ${T.team} people`; preset = ""; saveT(); render(); $("#nfilters").textContent = chipCount(); });
-  $("#fx").addEventListener("change", (e) => { T.founderX = e.target.checked; changed(); });
-  let qTimer; $("#q").addEventListener("input", (e) => { clearTimeout(qTimer); qTimer = setTimeout(() => { ui.q = e.target.value; ui.show = {}; render(); }, 120); });
-  document.querySelectorAll("[data-view]").forEach((b) => b.addEventListener("click", () => { ui.view = b.dataset.view; store.set("radar-view", ui.view); render(); }));
-  $("#group").addEventListener("change", (e) => { ui.group = e.target.value; store.set("radar-group", ui.group); render(); });
-  $("#sort").addEventListener("change", (e) => { ui.sort = e.target.value; ui.gsort = null; store.set("radar-sort", ui.sort); render(); });
-  $("#show-short").onclick = () => { ui.starredOnly = !ui.starredOnly; render(); };
+  let qT; $("#q").addEventListener("input", (e) => { clearTimeout(qT); qT = setTimeout(() => { ui.q = e.target.value; changed(); }, 140); });
+  document.querySelectorAll("[data-view]").forEach((b) => b.addEventListener("click", () => { ui.view = b.dataset.view; store.set("radar-view2", ui.view); applyView(); }));
+  function applyView() { $("#app").classList.toggle("listmode", ui.view === "list"); document.querySelectorAll("[data-view]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.view === ui.view))); renderList(); renderRail(); drawPins(); }
   document.addEventListener("change", (e) => { const s = e.target.closest("[data-status]"); if (s) setStatus(s.dataset.status, s.value); });
   document.addEventListener("click", (e) => {
     const t = e.target;
     const s = t.closest("[data-star]"); if (s) { e.stopPropagation(); setStar(s.dataset.star); return; }
-    if (t.closest("[data-status]")) return;
-    const tok = t.closest("[data-tok]"); if (tok) { removeToken(tok.dataset.tok); return; }
-    const rmI = t.closest("[data-rm-inc]"); if (rmI) { T.include = T.include.filter((k) => k !== rmI.dataset.rmInc); changed(); return; }
-    const rmE = t.closest("[data-rm-exc]"); if (rmE) { T.exclude = T.exclude.filter((k) => k !== rmE.dataset.rmExc); changed(); return; }
-    const sg = t.closest("[data-sugg]"); if (sg) { const v = sg.dataset.sugg; if (v === "stages*") { T.stages = []; changed(); } else if (v === "geos*") { T.geos = []; changed(); } else if (v === "starred*") { ui.starredOnly = false; render(); } else removeToken(v); return; }
-    const gs = t.closest("[data-gsort]"); if (gs) { const k = gs.dataset.gsort; ui.gsort = ui.gsort && ui.gsort.k === k ? { k, dir: -ui.gsort.dir } : { k, dir: k === "signalDate" ? -1 : 1 }; render(); return; }
-    const m = t.closest("[data-more]"); if (m) { ui.show[m.dataset.more] = (ui.show[m.dataset.more] || (ui.view === "grid" ? 60 : 24)) * 2; render(); return; }
-    if (t.closest("#retry")) { location.reload(); return; }
-    const row = t.closest("[data-id]"); if (row && !t.closest("a") && !t.closest(".drawer")) openDrawer(row.dataset.id);
+    if (t.closest("[data-status]") || t.closest("a")) return;
+    if (t.closest("[data-resetall]")) { resetAll(); return; }
+    if (t.closest("[data-fit]")) { $("#zfit").click(); return; }
+    const gs = t.closest("[data-gsort]"); if (gs) { const k = gs.dataset.gsort; ui.gsort = ui.gsort && ui.gsort.k === k ? { k, dir: -ui.gsort.dir } : { k, dir: k === "signalDate" ? -1 : 1 }; renderList(); return; }
+    if (t.closest("#d-close")) { closeDrawer(); return; }
+    const c = t.closest(".card"); if (c) { if (ui.sel === c.dataset.id) openDrawer(c.dataset.id); else select(c.dataset.id, false); return; }
+    const tr = t.closest("tr[data-id]"); if (tr) openDrawer(tr.dataset.id);
   });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") { if (ui.open) closeDrawer(); else if ($("#thesis").classList.contains("on")) closeSheet(); }
+    if (e.key === "Escape") { if (ui.open) closeDrawer(); else if (popFor) { closePop(); renderChips(); } return; }
     if ((e.key === "Enter" || e.key === " ") && e.target.matches(".card, tr[data-id]")) { e.preventDefault(); openDrawer(e.target.dataset.id); }
-    if (e.key === "/" && document.activeElement.tagName !== "INPUT") { e.preventDefault(); $("#q").focus(); }
+    if (e.key === "/" && !/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) { e.preventDefault(); $("#q").focus(); }
   });
-  $("#drawer").addEventListener("click", (e) => { if (e.target.id === "d-close") closeDrawer(); });
-  const openSheet = () => { $("#thesis").classList.add("on"); $("#scrim").classList.add("on"); };
-  const closeSheet = () => { $("#thesis").classList.remove("on"); if (!ui.open) $("#scrim").classList.remove("on"); };
-  $("#open-thesis").onclick = openSheet; $("#th-done").onclick = closeSheet;
-  $("#scrim").onclick = () => { closeSheet(); if (ui.open) closeDrawer(); };
+  $("#scrim").onclick = closeDrawer;
 
-  // ---------- Export the current matches (or starred) as CSV
+  // ---------- CSV of the current filter
   const cell = (v) => { let s = v == null ? "" : String(v); if (/^[=+\-@]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
   $("#export").onclick = async () => {
-    const rows = ui.starredOnly ? all.filter((r) => star(r.id)) : lastList;
-    const head = ["Company", "Website", "What it does", "Sector", "City", "Country", "Stage (as stated)", "Stated by", "Team size", "Latest signal", "Signal date", "Signal link", "Found through", "Founders on X", "Your status", "Starred", "Next question", "Checks"];
-    const csv = [head, ...rows.map((r) => [r.name, r.website, r.oneLiner, r.sector, r.city !== r.country ? r.city : "", r.country, r.stage || "Not stated", r.stageBy, r.teamSize ?? "", r.signal, r.signalDate ?? "", r.signalUrl, r.channel, (r.founders || []).map((f) => f.name + (xh(f.x) ? ` (@${xh(f.x)})` : "")).join("; "), statusLabel[statusOf(r)], star(r.id) ? "yes" : "", r.nextQuestion || "", (r.checks || []).join("; ")])].map((l) => l.map(cell).join(",")).join("\r\n");
-    const dl = window.claude?.use ? await window.claude.use("downloads") : null;
-    if (!dl) { toast("Downloads aren't available in this view."); return; }
-    try { await dl.save({ filename: `startup-radar-${new Date().toISOString().slice(0, 10)}.csv`, data: "﻿" + csv }); toast(`Saved ${rows.length} companies`); } catch { toast("Not saved"); }
+    const rows = sortRows(filtered());
+    const head = ["Company", "Website", "What it does", "Sector", "City", "Country", "Stage (as stated)", "Stated by", "Team size", "Latest signal", "Signal date", "Signal link", "Found via", "Founders", "My status", "Starred"];
+    const csv = [head, ...rows.map((r) => [r.name, r.website, r.oneLiner, r.sector, r.city !== r.country ? r.city : "", r.country, r.stage || "Not stated", r.stageBy, r.teamSize ?? "", r.signal, r.signalDate ?? "", r.signalUrl, sourceOf(r), (r.founders || []).map((f) => f.name + (xh(f.x) ? ` (@${xh(f.x)})` : "")).join("; "), statusLabel[statusOf(r)], star(r.id) ? "yes" : ""])].map((l) => l.map(cell).join(",")).join("\r\n");
+    const dl = window.claude?.use ? await window.claude.use("downloads").catch(() => null) : null;
+    if (!dl) { toast("Downloads aren't available in this view"); return; }
+    try { await dl.save({ filename: `european-startup-radar-${new Date().toISOString().slice(0, 10)}.csv`, data: "\uFEFF" + csv }); toast(`Saved ${rows.length} companies`); } catch { toast("Not saved"); }
   };
 
+  function renderLegend() {
+    const c = tally(all, (r) => r.sector);
+    $("#legend").innerHTML = SECTORS.filter(([n]) => c[n]).map(([n]) => `<span><i style="background:${col(n)}"></i>${esc(n)}</span>`).join("");
+  }
+
   // ---------- Boot
-  mine = { star: [], status: {}, ...store.get("radar-mine", {}) };
-  $("#q").value = ui.q;
-  renderThesis(); render();
+  renderChips(); applyView();
+  fetch("europe.json").then((r) => { if (!r.ok) throw 0; return r.json(); }).then((w) => { initMap(w); drawPins(); renderRail(); })
+    .catch(() => { const l = $("#loading"); if (l) l.textContent = "The map couldn't load. The List view still works."; });
   (async () => {
-    const db = window.claude?.use ? await window.claude.use("db") : null;
-    if (!db) { loadError = "Open this page on claude.ai while signed in to load the list."; render(); return; }
-    const timer = setTimeout(() => { if (!loaded) { loadError = "The list is taking longer than usual to load. Check your connection."; render(); } }, 10000);
-    db.doc("meta/radar").onSnapshot((s) => { meta = s.exists ? s.data() : null; $("#stamp").textContent = meta ? `Updated ${fmt(meta.updatedOn)} · ${meta.note || ""}` : ""; }, () => {});
+    const db = window.claude?.use ? await window.claude.use("db").catch(() => null) : null;
+    if (!db) { $("#inview").textContent = "Open this page on claude.ai while signed in to see the companies."; return; }
+    const timer = setTimeout(() => { if (!all.length) $("#inview").textContent = "Still loading companies…"; }, 10000);
+    db.doc("meta/radar").onSnapshot((s) => { const m = s.exists ? s.data() : null; const st = $("#stamp"); st.hidden = !m; if (m) st.textContent = `Updated ${fmt(m.updatedOn)}`; }, () => {});
     db.collection("startups").onSnapshot((snap) => {
-      all = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-      if (!snap.metadata.fromCache) clearTimeout(timer);
-      loaded = true; loadError = ""; renderThesis(); render();
-    }, (err) => { clearTimeout(timer); loadError = `The database answered with “${err.code}”.`; render(); });
-    // Private stars and statuses, kept under the viewer's own space.
-    const user = await window.claude.use("user");
+      all = snap.docs.map((d) => ({ id: d.id, ...d.data() })); clearTimeout(timer); placeCache.clear();
+      renderChips(); renderLegend(); drawPins(); renderRail(); renderList();
+    }, (err) => { clearTimeout(timer); $("#inview").textContent = `Couldn't load companies (${err.code || "error"}). Reload to try again.`; });
+    const user = await window.claude.use("user").catch(() => null);
     const uid = user ? await user.id().catch(() => null) : null;
     if (uid) {
       mineRef = db.collection("data/users/" + uid).doc("radar");
       mineRef.onSnapshot((s) => {
-        if (s.exists) { const d = s.data(); const local = mine; mine = { star: [...new Set([...(d.star || []), ...(mineReady ? [] : local.star)])], status: { ...(mineReady ? {} : local.status), ...(d.status || {}) } }; store.set("radar-mine", mine); }
-        const first = !mineReady; mineReady = true;
-        if (first && (!s.exists || mine.star.length !== (s.data()?.star || []).length)) persistMine();
-        renderThesis(); render();
+        if (s.exists) { const d = s.data(); mine = { star: [...new Set([...(d.star || []), ...(mineReady ? [] : mine.star)])], status: { ...(mineReady ? {} : mine.status), ...(d.status || {}) } }; store.set("radar-mine", mine); }
+        const first = !mineReady; mineReady = true; if (first) persistMine();
+        renderChips(); renderRail(); renderList();
       }, () => {});
     }
   })();
