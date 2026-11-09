@@ -1,50 +1,13 @@
 import fs from "node:fs";
 import { X_SEED_COMPANIES } from "../lib/seed-x";
-import { DEFAULT_THESIS } from "../lib/repo";
-import { findTerm } from "../lib/match";
 const R = process.env.RADAR_DIR || "radar/work/";
 const yc = JSON.parse(fs.readFileSync(R + "yc-eu.json", "utf8"));
 const det = JSON.parse(fs.readFileSync(R + "yc-detail.json", "utf8"));
 const posts = Object.fromEntries(JSON.parse(fs.readFileSync(R + "xposts3.json", "utf8")).map((p: any) => [p.id, p]));
 const CC: Record<string, string> = { GB: "United Kingdom", DE: "Germany", FR: "France", NL: "Netherlands", BE: "Belgium", CH: "Switzerland", SE: "Sweden", NO: "Norway", DK: "Denmark", FI: "Finland", ES: "Spain", PT: "Portugal", IT: "Italy", AT: "Austria", IE: "Ireland", PL: "Poland", EE: "Estonia", CZ: "Czechia", GR: "Greece", LT: "Lithuania", LV: "Latvia", RO: "Romania", HU: "Hungary", UA: "Ukraine", LU: "Luxembourg", IS: "Iceland" };
 
-const SECTORS: [string, RegExp][] = [
-  ["Defence & security", /\b(defen[cs]e|military|munitions?|security robot|counter-drone|small drones|AI-Commanded Drones)\b/i],
-  ["Health & bio", /\b(health|healthcare|medical|clinic|clinical|patients?|drugs?|biotech|cancers?|DNA|vets?|veterinar\w*|pharma|hospitals?|dental|therap\w*)\b/i],
-  ["Energy & climate", /\b(energy|grid|power grid|batter(y|ies)|solar|electricity|carbon|climate|emissions?|fusion|nuclear|hydrogen|wastewater|water treatment|EV charging)\b/i],
-  ["Logistics & supply chain", /\b(logistics?|warehouses?|freight|shipping|carriers?|fleets?|supply chain|containers?|distributors?|procurement|order entry|3PLs?)\b/i],
-  ["Industrial & robotics", /\b(robots?|robotics?|humanoids?|manufactur\w*|industrial|(?<!software )factor(y|ies)|PCB|electronics|CAD|construction|lunar|landers?|satellites?|positioning|motion estimation|engineering (firms|projects)|drones|materials|chemicals?|mining|physical automation|aerospace)\b/i],
-  ["Fintech & insurance", /\b(fintech|financ\w*|banks?|banking|payments?|accounting|accountants?|insurance|investors?|trading|stocks?|exchange|billing|tax|audit\w*|wealth|lending|CFOs?)\b/i],
-  ["Legal & compliance", /\b(legal|law|lawyers?|litigation|compliance|regulat\w*|contracts?|intellectual property|patents?)\b/i],
-  ["AI & developer tools", /\b(developers?|code|coding|API|APIs|infrastructure|database|models?|agents?|LLMs?|ML|machine learning|inference|open[- ]source|devtools?|engineers?|engineering teams|cloud)\b/i],
-  ["Consumer", /\b(consumers?(?! brands| focus)|chef|music|games?|dating|social|fitness|your own)\b/i],
-];
-const classify = (text: string) => { for (const [s, re] of SECTORS) if (re.test(text)) return s; return "B2B software"; };
-const sectorOf = (oneLiner: string, industry = "", tags = "") => {
-  const a = classify(oneLiner);
-  if (a !== "B2B software") return a;
-  const b = classify(tags);
-  if (b !== "B2B software") return b;
-  return /Consumer/i.test(industry) ? "Consumer" : "B2B software";
-};
-const THESIS_SECTORS: Record<string, string> = { "Energy & climate": "Grid and energy software", "Industrial & robotics": "Industrial and engineering tools", "Logistics & supply chain": "Logistics automation" };
-function fit(text: string, sector: string) {
-  const ex = DEFAULT_THESIS.exclusions.flatMap((g) => g.keywords.map((k) => [g.label, k] as const)).find(([, k]) => findTerm(text, k));
-  const exclusion = sector === "Defence & security" ? "Defence" : sector === "Consumer" ? "Consumer" : ex ? ex[0] : "";
-  if (exclusion) return { thesis: "excluded", thesisReason: `Excluded: ${exclusion}`, exclusion };
-  if (THESIS_SECTORS[sector]) {
-    const g = DEFAULT_THESIS.sectors.find((x) => x.label === THESIS_SECTORS[sector])!;
-    const k = g.keywords.find((kw) => findTerm(text, kw));
-    return { thesis: "fits", thesisReason: k ? `${g.label} (“${k}”)` : g.label, exclusion };
-  }
-  return { thesis: "outside", thesisReason: "Sector outside the thesis", exclusion };
-}
-function fitOld(text: string, sector: string) {
-  const ex = DEFAULT_THESIS.exclusions.flatMap((g) => g.keywords.map((k) => [g.label, k] as const)).find(([, k]) => findTerm(text, k));
-  const exclusion = sector === "Defence & security" ? "Defence" : sector === "Consumer" ? "Consumer" : ex ? ex[0] : "";
-  for (const g of DEFAULT_THESIS.sectors) for (const k of g.keywords) if (findTerm(text, k)) return { thesis: exclusion ? "excluded" : "fits", thesisReason: exclusion ? `Excluded: ${exclusion}` : `${g.label} (“${k}”)`, exclusion };
-  return { thesis: exclusion ? "excluded" : "outside", thesisReason: exclusion ? `Excluded: ${exclusion}` : "No thesis keyword in the description", exclusion };
-}
+import { classify, sectorOf, fit } from "./rules";
+
 const slug = (s: string) => s.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
 const rows: any[] = [];
 
