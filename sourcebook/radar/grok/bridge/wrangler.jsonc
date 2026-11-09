@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "codex-grok-task-bridge",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-09-27",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": false },
+  "triggers": { "crons": ["*/5 * * * *", "17 3 * * *"] },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "codex-grok-task-bridge",
+      "database_id": "c8e8516f-59fb-48e1-bb44-b0424e2d9fcd",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "OAUTH_KV",
+      "id": "d69ce8ae71cf49f781176c4846497e1c"
+    }
+  ],
+  "vars": {
+    "ENVIRONMENT": "radar",
+    "PUBLIC_BASE_URL": "https://codex-grok-task-bridge.sourcebook-453906.workers.dev"
+  }
+}
