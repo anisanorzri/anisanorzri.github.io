@@ -624,7 +624,13 @@ td .clip { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vert
     const head = ["Company", "Website", "What it does", "Sector", "City", "Country", "Stage (as stated)", "Stated by", "Team size", "Latest signal", "Signal date", "Signal link", "Found via", "Founders", "My status", "Starred"];
     const csv = [head, ...rows.map((r) => [r.name, r.website, r.oneLiner, r.sector, r.city !== r.country ? r.city : "", r.country, r.stage || "Not stated", r.stageBy, r.teamSize ?? "", r.signal, r.signalDate ?? "", r.signalUrl, sourceOf(r), (r.founders || []).map((f) => f.name + (xh(f.x) ? ` (@${xh(f.x)})` : "")).join("; "), statusLabel[statusOf(r)], star(r.id) ? "yes" : ""])].map((l) => l.map(cell).join(",")).join("\r\n");
     const dl = window.claude?.use ? await window.claude.use("downloads").catch(() => null) : null;
-    if (!dl) { toast("Downloads aren't available in this view"); return; }
+    if (!dl) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }));
+      a.download = `european-startup-radar-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      toast(`Saved ${rows.length} companies`); return;
+    }
     try { await dl.save({ filename: `european-startup-radar-${new Date().toISOString().slice(0, 10)}.csv`, data: "\uFEFF" + csv }); toast(`Saved ${rows.length} companies`); } catch { toast("Not saved"); }
   };
 
@@ -639,7 +645,16 @@ td .clip { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vert
     .catch(() => { const l = $("#loading"); if (l) l.textContent = "The map couldn't load. The List view still works."; });
   (async () => {
     const db = window.claude?.use ? await window.claude.use("db").catch(() => null) : null;
-    if (!db) { $("#inview").textContent = "Open this page on claude.ai while signed in to see the companies."; return; }
+    if (!db) {
+      // Public copy (e.g. on Vercel): companies come from companies.json; stars and statuses stay in this browser.
+      try {
+        const [c, m] = await Promise.all([fetch("companies.json", { cache: "no-cache" }).then((r) => { if (!r.ok) throw 0; return r.json(); }), fetch("meta.json", { cache: "no-cache" }).then((r) => (r.ok ? r.json() : null)).catch(() => null)]);
+        all = c; placeCache.clear();
+        if (m) { const st = $("#stamp"); st.hidden = false; st.textContent = `Updated ${fmt(m.updatedOn)}`; }
+        renderChips(); renderLegend(); drawPins(); renderRail(); renderList();
+      } catch { $("#inview").textContent = "Couldn't load companies. Reload to try again."; }
+      return;
+    }
     const timer = setTimeout(() => { if (!all.length) $("#inview").textContent = "Still loading companies…"; }, 10000);
     db.doc("meta/radar").onSnapshot((s) => { const m = s.exists ? s.data() : null; const st = $("#stamp"); st.hidden = !m; if (m) st.textContent = `Updated ${fmt(m.updatedOn)}`; }, () => {});
     db.collection("startups").onSnapshot((snap) => {
